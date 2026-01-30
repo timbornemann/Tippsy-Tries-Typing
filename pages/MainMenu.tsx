@@ -4,6 +4,7 @@ import { STAGES } from '../constants';
 import { Keyboard, User, X, Info } from 'lucide-react';
 import Mascot from '../components/Mascot';
 import StageCard from '../components/StageCard';
+import OnboardingModal from '../components/OnboardingModal';
 
 const ONBOARDING_KEY = 'tippmeister_onboarding_seen';
 const STORAGE_HINT_KEY = 'tippmeister_storage_hint_seen';
@@ -89,16 +90,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
       <div className="flex-1 container mx-auto px-4 py-12 max-w-2xl">
         
         {showOnboarding && (
-          <div className="mb-6 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 relative">
-            <button onClick={dismissOnboarding} className="absolute top-3 right-3 p-1 rounded-lg hover:bg-emerald-500/20 text-slate-400 hover:text-white" aria-label="Schließen">
-              <X size={18} />
-            </button>
-            <h3 className="text-emerald-300 font-bold text-sm uppercase tracking-wider mb-2">So geht&apos;s los</h3>
-            <p className="text-slate-200 text-sm leading-relaxed">
-              Tippe die <span className="text-emerald-400 font-semibold">grün hervorgehobenen</span> Zeichen nacheinander. 
-              Dein aktueller Finger wird unten auf der Tastatur angezeigt. Viel Erfolg!
-            </p>
-          </div>
+          <OnboardingModal onDismiss={dismissOnboarding} />
         )}
 
         {showStorageHint && (
