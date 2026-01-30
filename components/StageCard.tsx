@@ -11,6 +11,8 @@ interface StageCardProps {
   onStartLevel: (s: Stage, l: number) => void;
   onStartPractice: (s: Stage) => void;
   onStartWordSentencePractice: (s: Stage) => void;
+  isStageFocused?: boolean;
+  focusedSubLevelId?: number | null;
 }
 
 const StageCard: React.FC<StageCardProps> = ({
@@ -19,7 +21,9 @@ const StageCard: React.FC<StageCardProps> = ({
   sessionStartProgress,
   onStartLevel,
   onStartPractice,
-  onStartWordSentencePractice
+  onStartWordSentencePractice,
+  isStageFocused = false,
+  focusedSubLevelId = null
 }) => {
   const isLocked = stage.id > progress.unlockedStageId;
   const isCompleted = stage.id < progress.unlockedStageId;
@@ -33,10 +37,7 @@ const StageCard: React.FC<StageCardProps> = ({
   }
 
   // --- WALKING ANIMATION LOGIC ---
-  // We determine the visual position (percentage from left) based on subLevelId
-  // The path roughly goes: 1(10%) -> 2(30%) -> 3(50%) -> 4(70%) -> 5(90%)
   const getPositionForSubLevel = (subLevel: number) => {
-    // These values must align with the visual node positions in the map loop below
     switch(subLevel) {
       case 1: return 15;
       case 2: return 32;
@@ -47,16 +48,12 @@ const StageCard: React.FC<StageCardProps> = ({
     }
   };
 
-  // Initialize position directly to the target OR start position to prevent "jumping"
   const [tippsyPos, setTippsyPos] = useState(() => {
-      // 1. Priority: If we have a valid animation start point for THIS stage, start there.
       if (isCurrent && sessionStartProgress && sessionStartProgress.unlockedStageId === stage.id) {
           return getPositionForSubLevel(sessionStartProgress.unlockedSubLevelId);
       }
-      // 2. Fallback: Start at current progress position
       if (isCurrent) return getPositionForSubLevel(progress.unlockedSubLevelId);
-      
-      return 15; // Default
+      return 15;
   });
   
   const [isWalking, setIsWalking] = useState(false);
@@ -66,19 +63,13 @@ const StageCard: React.FC<StageCardProps> = ({
 
     const targetPos = getPositionForSubLevel(progress.unlockedSubLevelId);
     
-    // Check if we need to animate from a previous session state
     if (sessionStartProgress && sessionStartProgress.unlockedStageId === stage.id) {
        const startPos = getPositionForSubLevel(sessionStartProgress.unlockedSubLevelId);
        
-       // Only animate if there is an actual difference
        if (startPos !== targetPos) {
-           // We moved! Set to START position first (without animation ideally, but React batches)
-           // actually, if we want to animate PRECISELY from start to target:
-           // We should set it to startPos immediately.
            setTippsyPos(startPos);
            setIsWalking(true);
            
-           // Trigger walk after a visible delay so user sees start position first
            const timer = setTimeout(() => {
                setTippsyPos(targetPos);
            }, 800); 
@@ -89,27 +80,16 @@ const StageCard: React.FC<StageCardProps> = ({
 
            return () => { clearTimeout(timer); clearTimeout(stopTimer); };
        } else {
-           // We didn't move effectively (maybe retried same level), ensure we are at target
            setTippsyPos(targetPos);
            setIsWalking(false);
        }
     } else {
-        // No session history or different stage -> Just snap to target
         setTippsyPos(targetPos);
         setIsWalking(false);
     }
-
   }, [isCurrent, progress, sessionStartProgress, stage.id]);
 
 
-  // Helper for Vertical Position of Tippsy (to follow the curve)
-  // Curve equation: M 50,90 C 100,90 ...
-  // We approximate Y based on X. 
-  // 1: 90 (center)
-  // 2: 90 + 30 (down) -> 120 (Visual check: translate-y-8 is 32px. 90+32 = 122)
-  // 3: 90 - 30 (up) -> 60
-  // 4: 90 (center)
-  // 5: 90
   const getVerticalPos = (xPercent: number) => {
       if (xPercent < 23) return 90;
       if (xPercent < 41) return 122;
@@ -124,11 +104,12 @@ const StageCard: React.FC<StageCardProps> = ({
     <div
       data-stage-id={stage.id}
       className={`
-      relative rounded-[2.5rem] p-8 border-[3px] transition-all duration-500 overflow-hidden group
+      relative rounded-[2.5rem] p-8 transition-all duration-300 overflow-hidden group
       ${isLocked 
         ? 'border-[3px] border-slate-800 bg-slate-900/40 grayscale-[0.8] opacity-60' 
-        : `border-[3px] bg-gradient-to-b from-slate-900 via-slate-900 ${c.cardBorder} ${c.cardBg} shadow-2xl ${c.shadow}`
+        : `border-[3px] bg-gradient-to-b from-slate-900 via-slate-900 ${c.cardBorder} ${c.cardBg} ${c.shadow}`
       }
+      ${isStageFocused ? 'ring-4 ring-offset-4 ring-offset-[#0a0f1c] ring-white scale-[1.02] shadow-2xl z-10' : 'shadow-xl'}
     `}>
       {!isLocked && (
         <div className={`absolute -top-20 -right-20 w-64 h-64 ${c.blobBg} rounded-full blur-[80px] ${c.blobHover} transition-all duration-700 pointer-events-none`}></div>
@@ -204,6 +185,7 @@ const StageCard: React.FC<StageCardProps> = ({
                 onClick={() => onStartLevel(stage, 1)}
                 className={`
                   relative group flex flex-col items-center justify-center transition-all duration-500
+                  ${isStageFocused ? 'scale-110' : ''}
                 `}
               >
                 <div className={`
@@ -212,6 +194,7 @@ const StageCard: React.FC<StageCardProps> = ({
                      ? 'bg-slate-800 border-slate-700 text-slate-600'
                      : 'bg-gradient-to-br from-violet-600 to-indigo-600 border-violet-400 text-white shadow-[0_0_50px_rgba(139,92,246,0.4)] hover:scale-110 hover:shadow-[0_0_70px_rgba(139,92,246,0.6)]'
                    }
+                   ${isStageFocused && !isLocked ? 'ring-4 ring-white shadow-[0_0_90px_rgba(139,92,246,0.8)] scale-110' : ''}
                 `}>
                    {isLocked ? (
                      <Lock size={32} />
@@ -260,6 +243,8 @@ const StageCard: React.FC<StageCardProps> = ({
             <div className="relative z-10 w-full flex justify-between px-4 sm:px-12 items-center">
               {[1, 2, 3, 4, 5].map((subLevelId) => {
                 const isMaster = subLevelId === 5;
+                const isItemFocused = isStageFocused && focusedSubLevelId === subLevelId;
+                
                 let status: 'locked' | 'active' | 'completed' = 'locked';
                 
                 if (isCompleted) status = 'completed';
@@ -281,6 +266,7 @@ const StageCard: React.FC<StageCardProps> = ({
                     onClick={() => onStartLevel(stage, subLevelId)}
                     className={`
                       relative group/btn flex flex-col items-center justify-center transition-all duration-300 ${translateY}
+                      ${isItemFocused ? 'scale-125 z-20' : ''}
                     `}
                   >
                     <div className={`
@@ -292,6 +278,7 @@ const StageCard: React.FC<StageCardProps> = ({
                           : `${c.nodeActive} border-white text-white scale-110 hover:scale-125 shadow-[0_0_30px_rgba(255,255,255,0.3)]`
                       }
                       ${isMaster && status !== 'locked' ? 'w-16 h-16' : ''}
+                      ${isItemFocused ? 'ring-4 ring-white shadow-[0_0_40px_rgba(255,255,255,0.6)]' : ''}
                     `}>
                         {status === 'locked' && <Lock size={16} />}
                         {status === 'completed' && <Star fill="currentColor" size={20} />}
@@ -303,6 +290,7 @@ const StageCard: React.FC<StageCardProps> = ({
                     <div className={`
                       absolute -bottom-8 px-2 py-1 rounded bg-slate-900 border border-slate-700 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap opacity-0 group-hover/btn:opacity-100 transition-opacity pointer-events-none z-20
                       ${status === 'active' ? 'text-white border-white/30' : 'text-slate-500'}
+                      ${isItemFocused ? 'opacity-100' : ''}
                     `}>
                       {isMaster ? 'Meister' : `Level ${subLevelId}`}
                     </div>

@@ -37,12 +37,97 @@ const MainMenu: React.FC<MainMenuProps> = ({
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showStorageHint, setShowStorageHint] = useState(false);
 
-  // Beim Zurückkehren ins Menü zur zuletzt verlassenen Stage scrollen
+  // Keyboard Navigation State
+  const [focusedStageId, setFocusedStageId] = useState<number>(progress.unlockedStageId);
+  const [focusedSubLevelId, setFocusedSubLevelId] = useState<number>(progress.unlockedSubLevelId);
+
+  // Sync focus with progress on initial load or progress update
+  useEffect(() => {
+    // Only update if we are not actively navigating (optional heuristic, or just sync when progress changes significantly)
+    // For now, let's trust manual navigation but init correctly
+  }, []);
+
+  // Keyboard Listener
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if modal is open (simple check)
+      if (showOnboarding) return;
+
+      const key = e.key.toLowerCase();
+      
+      // STAGE NAVIGATION (Vertical)
+      if (key === 'arrowdown' || key === 's') {
+        e.preventDefault();
+        setFocusedStageId(prev => Math.min(prev + 1, STAGES.length));
+        setFocusedSubLevelId(1); // Reset sub-level focus when changing stage
+      } else if (key === 'arrowup' || key === 'w') {
+        e.preventDefault();
+        setFocusedStageId(prev => Math.max(prev - 1, 1));
+        setFocusedSubLevelId(1);
+      } 
+      
+      // LEVEL NAVIGATION (Horizontal)
+      else if (key === 'arrowright' || key === 'd') {
+        e.preventDefault();
+        // Check if next level is unlocked for current focused stage
+        // Use STAGES data if needed, but logic is uniform: max 5 levels usually.
+        // If Stage 15 (Endless), only 1 level.
+        const maxLevel = focusedStageId === 15 ? 1 : 5;
+        
+        setFocusedSubLevelId(prev => {
+            const next = Math.min(prev + 1, maxLevel);
+            // Check formatted constraints: "sofern sie freigeschaltet sind"
+            // If focusedStage is completed, all are unlocked.
+            // If focusedStage is current, max is progress.unlockedSubLevelId.
+            // If focusedStage is locked, nothing is selectable really (or subLevel 1 is locked).
+            
+            if (focusedStageId < progress.unlockedStageId) return next; // Completed stage, freely nav
+            if (focusedStageId === progress.unlockedStageId) {
+                return Math.min(next, progress.unlockedSubLevelId);
+            }
+            return 1; // Locked stage, stick to 1
+        });
+      } else if (key === 'arrowleft' || key === 'a') {
+        e.preventDefault();
+        setFocusedSubLevelId(prev => Math.max(prev - 1, 1));
+      }
+
+      // ENTER ACTION
+      else if (key === 'enter') {
+        e.preventDefault();
+        const stage = STAGES.find(s => s.id === focusedStageId);
+        if (stage) {
+            // Check if actually unlocked
+            // Stage unlock check
+            if (focusedStageId > progress.unlockedStageId) return; // Locked stage
+            
+            // Sublevel unlock check (double verification)
+            if (focusedStageId === progress.unlockedStageId && focusedSubLevelId > progress.unlockedSubLevelId) return;
+
+            onStartLevel(stage, focusedSubLevelId);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [focusedStageId, focusedSubLevelId, progress, showOnboarding, onStartLevel]);
+
+  // Auto-scroll to Focused Stage
+  useEffect(() => {
+    const el = document.querySelector(`[data-stage-id="${focusedStageId}"]`);
+    if (el) {
+       el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [focusedStageId]);
+
+  // Beim Zurückkehren ins Menü zur zuletzt verlassenen Stage scrollen (Overrides focus initially)
   useEffect(() => {
     if (scrollToStageId == null) return;
+    setFocusedStageId(scrollToStageId); // Sync focus
+    // clearScrollToStageId handled by scrollIntoView effect ideally, or explicitly here
     const timer = requestAnimationFrame(() => {
-      const el = document.querySelector(`[data-stage-id="${scrollToStageId}"]`);
-      el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // let the auto-scroll effect handle it
       clearScrollToStageId();
     });
     return () => cancelAnimationFrame(timer);
@@ -140,6 +225,8 @@ const MainMenu: React.FC<MainMenuProps> = ({
               onStartLevel={onStartLevel}
               onStartPractice={onStartPractice}
               onStartWordSentencePractice={onStartWordSentencePractice}
+              isStageFocused={focusedStageId === stage.id}
+              focusedSubLevelId={focusedStageId === stage.id ? focusedSubLevelId : null}
             />
           ))}
         </div>
