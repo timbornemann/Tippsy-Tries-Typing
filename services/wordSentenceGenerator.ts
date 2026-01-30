@@ -578,7 +578,59 @@ const CODER_SENTENCES = [
   "const tuple = [1, 'text'];",
   "import { useState } from 'react';",
   "package main; import 'fmt';",
-  "public static void main(String[] args)"
+  "public static void main(String[] args)",
+
+  // --- HTML / XML ---
+  "<div>Hello World</div>",
+  "<a href='https://google.com'>Link</a>",
+  "<img src='logo.png' alt='Logo' />",
+  "<br /> <hr /> <!-- Comment -->",
+  "class='btn btn-primary'",
+  "style='color: red; margin: 10px;'",
+
+  // --- PYTHON ---
+  "print('Hello ' + name)",
+  "def add(a, b): return a + b",
+  "if __name__ == '__main__':",
+  "list = [x for x in range(10)]",
+  "import numpy as np",
+
+  // --- C# / JAVA ---
+  "Console.WriteLine('Hello');",
+  "System.out.println('Java');",
+  "public class User { public int Id; }",
+  "List<string> names = new List<string>();",
+  "int[] numbers = { 1, 2, 3 };",
+  "using System.Linq;",
+  "throw new Exception('Error');",
+  "String.join(', ', list);",
+  "var query = from c in db select c;",
+
+  // --- SQL (New) ---
+  "SELECT * FROM users;",
+  "DROP TABLE IF EXISTS test;",
+  "INSERT INTO log (msg) VALUES ('Hi');",
+  "SELECT count(*) FROM data GROUP BY id;",
+  "UPDATE settings SET active = 1;",
+
+  // --- CSS (New) ---
+  "display: flex; flex-direction: row;",
+  "margin: 0 auto; padding: 20px;",
+  "color: rgba(255, 0, 0, 0.5);",
+  "@media (max-width: 768px) { }",
+  "font-family: 'Roboto', sans-serif;",
+  
+  // --- JSON / OBJECTS ---
+  "{ 'key': 'value', 'id': 123 }",
+  "JSON.stringify({ a: 1, b: 2 });",
+  "data: { labels: [], datasets: [] }",
+
+  // --- TERMINAL / SHELL ---
+  "npm install react react-dom",
+  "git commit -m 'Fix bug'",
+  "ls -la /var/www/html",
+  "docker-compose up -d",
+  "python3 script.py --verbose"
 ];
 
 /**

@@ -198,13 +198,40 @@ const CODER_TEXTS: string[] = [
   "class Animal {\n  constructor(name) {\n    this.name = name;\n  }\n  speak() {\n    console.log(this.name + ' makes a noise.');\n  }\n}\nconst dog = new Animal('Rex');\ndog.speak();",
   "class Rectangle {\n  constructor(w, h) {\n    this.width = w;\n    this.height = h;\n  }\n  getArea() {\n    return this.width * this.height;\n  }\n}\nconst rect = new Rectangle(10, 5);",
 
-  // --- ASYNC & PROMISES ---
+  // --- ASYNC & PROMISES (JS/TS) ---
   "async function fetchData(url) {\n  try {\n    const response = await fetch(url);\n    const data = await response.json();\n    return data;\n  } catch (error) {\n    console.error('Error:', error);\n  }\n}",
   "const promise = new Promise((resolve, reject) => {\n  setTimeout(() => {\n    resolve('Success!');\n  }, 1000);\n});\npromise.then(res => console.log(res));",
+  "const [users, setUsers] = useState([]);\nuseEffect(() => {\n  loadUsers().then(data => setUsers(data));\n}, []);",
+  "try {\n  await db.connect();\n  console.log('Connected');\n} finally {\n  await db.close();\n}",
 
-  // --- PYTHON STYLE (For variety) ---
-  "def fibonacci(n):\n  if n <= 1:\n    return n\n  else:\n    return fibonacci(n-1) + fibonacci(n-2)\nprint(fibonacci(10)) # Recursive function",
-  "users = {'name': 'John', 'age': 30}\nfor key, value in users.items():\n  print(f'{key}: {value}')\nif users['age'] > 18:\n  print('Adult')"
+  // --- PYTHON ---
+  "def fibonacci(n):\n  if n <= 1:\n    return n\n  else:\n    return fibonacci(n-1) + fibonacci(n-2)\nprint(fibonacci(10))",
+  "users = {'name': 'John', 'age': 30}\nfor key, value in users.items():\n  print(f'{key}: {value}')\nif users['age'] > 18:\n  print('Adult')",
+  "import os\n\ndef list_files(path):\n  for file in os.listdir(path):\n    if file.endswith('.py'):\n      print('Found Logic: ' + file)",
+  "with open('data.txt', 'r') as f:\n  lines = f.readlines()\n  for line in lines:\n    print(line.strip())\n",
+  "numbers = [1, 2, 3, 4, 5]\nsquared = [n ** 2 for n in numbers if n % 2 == 0]\nprint(squared)",
+
+  // --- JAVA ---
+  "public class Main {\n  public static void main(String[] args) {\n    System.out.println('Hello Java!');\n    int[] numbers = {1, 2, 3};\n    for (int n : numbers) {\n      System.out.print(n + ' ');\n    }\n  }\n}",
+  "import java.util.ArrayList;\nList<String> list = new ArrayList<>();\nlist.add('Alpha');\nlist.add('Beta');\nif (list.contains('Alpha')) {\n  System.out.println('Found it!');\n}",
+  "public interface Animal {\n  void makeSound();\n}\npublic class Dog implements Animal {\n  @Override\n  public void makeSound() {\n    System.out.println('Woof');\n  }\n}",
+  "try (BufferedReader br = new BufferedReader(new FileReader('file.txt'))) {\n  String line;\n  while ((line = br.readLine()) != null) {\n    System.out.println(line);\n  }\n} catch (IOException e) {\n  e.printStackTrace();\n}",
+
+  // --- C# (CSHARP) ---
+  "using System;\n\nnamespace HelloWorld {\n  class Program {\n    static void Main(string[] args) {\n      Console.WriteLine('Hello World!');\n      var date = DateTime.Now;\n      Console.WriteLine('Time: ' + date);\n    }\n  }\n}",
+  "public int Add(int x, int y) {\n  if (x < 0 || y < 0) {\n    throw new ArgumentException('Positive only');\n  }\n  return x + y;\n}",
+  "var numbers = new List<int> { 1, 2, 3, 4, 5 };\nvar evenNumbers = numbers.Where(n => n % 2 == 0).ToList();\nforeach (var n in evenNumbers) {\n  Console.WriteLine(n);\n}",
+  "public async Task<string> GetDataAsync() {\n  await Task.Delay(1000);\n  return 'Data loaded';\n}",
+
+  // --- HTML, XML & CSS ---
+  "<!DOCTYPE html>\n<html>\n<head>\n  <title>My Page</title>\n</head>\n<body>\n  <div id='app' class='container'>\n    <h1>Welcome</h1>\n    <p>This is a paragraph.</p>\n  </div>\n</body>\n</html>",
+  "<form action='/submit' method='POST'>\n  <label for='email'>Email:</label>\n  <input type='email' id='email' name='email' required />\n  <button type='submit'>Send</button>\n</form>",
+  ".container {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  height: 100vh;\n  background-color: #f0f0f0;\n}",
+  "<nav>\n  <ul>\n    <li><a href='#home'>Home</a></li>\n    <li><a href='#about'>About</a></li>\n    <li><a href='#contact'>Contact</a></li>\n  </ul>\n</nav>",
+
+  // --- SQL ---
+  "SELECT * FROM users WHERE age > 18 ORDER BY created_at DESC;\nUPDATE users SET status = 'active' WHERE id = 42;\nDELETE FROM logs WHERE created_at < '2023-01-01';",
+  "CREATE TABLE products (\n  id INT PRIMARY KEY,\n  name VARCHAR(100),\n  price DECIMAL(10, 2)\n);\nINSERT INTO products VALUES (1, 'Laptop', 999.99);"
 ];
 
 // Generates the content based on pedagogical levels
