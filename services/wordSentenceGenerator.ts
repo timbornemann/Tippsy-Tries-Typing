@@ -1,5 +1,5 @@
 import { Stage, Language } from '../types';
-import { canTypeWord, generatePseudoWord, COMMON_WORDS_DB_BY_LANGUAGE } from './patternGenerator';
+import { canTypeWord, generatePseudoWord, COMMON_WORDS_DB_BY_LANGUAGE, CODER_TEXTS } from './patternGenerator';
 
 const getRandomItem = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 
@@ -652,6 +652,31 @@ export const CODER_SENTENCES_BY_LANGUAGE: Record<Language, string[]> = {
   en: CODER_SENTENCES_EN,
 };
 
+// Code lines without string literals (no ' or ") for Coder "Wort & Satz" when CODER_TEXTS lines are filtered out (e.g. stage 13 has no quotes)
+const CODER_LINES_FALLBACK: string[] = [
+  'const pi = 3.14159;', 'let radius = 10;', 'let area = pi * radius * radius;',
+  'if (area > 100) {', '} else {', 'return a + b;', 'return x * y;',
+  'function add(a, b) {', 'function multiply(x, y) {', 'const result = add(5, 7);',
+  'if (n <= 1)', 'return n', 'return fibonacci(n-1) + fibonacci(n-2)',
+  'for key, value in users.items():', 'if users[age] > 18:',
+  'for file in os.listdir(path):', 'if file.endswith(.py):',
+  'for line in lines:', 'numbers = [1, 2, 3, 4, 5]',
+  'squared = [n ** 2 for n in numbers if n % 2 == 0]',
+  'int[] numbers = {1, 2, 3};', 'for (int n : numbers) {',
+  'public class Main {', 'public static void main(String[] args) {',
+  'void makeSound();', 'public interface Animal {', 'public class Dog implements Animal {',
+  'if (x < 0 || y < 0) {', 'return x + y;', 'var numbers = new List<int> { 1, 2, 3, 4, 5 };',
+  'var evenNumbers = numbers.Where(n => n % 2 == 0).ToList();',
+  'foreach (var n in evenNumbers) {', 'await Task.Delay(1000);',
+  'display: flex;', 'justify-content: center;', 'align-items: center;',
+  'height: 100vh;', 'background-color: #f0f0f0;',
+  'SELECT * FROM users WHERE age > 18 ORDER BY created_at DESC;',
+  'UPDATE users SET status = active WHERE id = 42;',
+  'CREATE TABLE products (', 'id INT PRIMARY KEY,', 'name VARCHAR(100),',
+  'price DECIMAL(10, 2)', '<div id=app class=container>',
+  '<form action=/submit method=POST>', '<nav>', '<ul>', '<li>', '</li>', '</ul>', '</nav>',
+];
+
 /**
  * Generates typing content focused on real words and sentences when possible,
  * or word-like / sentence-like pseudo content when the stage has few letters.
@@ -678,9 +703,19 @@ export function generateWordSentenceLevel(stage: Stage, language: Language): str
     const extra = PROFI_SENTENCES_BY_LANGUAGE[language].filter((s) => canTypeWord(s, allChars));
     possibleSentences = [...extra, ...MEISTERKLASSE_SENTENCES_BY_LANGUAGE[language], ...possibleSentences];
   } else if (isCoder) {
-    // Stage 13: Coder Mode - Prioritize code snippets
-    const extra = CODER_SENTENCES_BY_LANGUAGE[language].filter((s) => canTypeWord(s, allChars));
-    possibleSentences = [...extra]; // Ideally mostly code
+    // Stage 13: Coder Mode - Use code lines from CODER_TEXTS (no natural-language sentences)
+    const codeTexts = CODER_TEXTS[language];
+    const codeLines: string[] = [];
+    for (const block of codeTexts) {
+      for (const line of block.split('\n')) {
+        const trimmed = line.trim();
+        if (trimmed.length > 0 && canTypeWord(trimmed, allChars)) {
+          codeLines.push(trimmed);
+        }
+      }
+    }
+    const fallbackCode = CODER_LINES_FALLBACK.filter((s) => canTypeWord(s, allChars));
+    possibleSentences = codeLines.length > 0 ? codeLines : (fallbackCode.length > 0 ? fallbackCode : codeLines);
   } else if (isMixed) {
     // Stage 14 & 15: EVERYTHING
     const extra = [...MEISTERKLASSE_SENTENCES_BY_LANGUAGE[language], ...PROFI_SENTENCES_BY_LANGUAGE[language], ...CODER_SENTENCES_BY_LANGUAGE[language]];
@@ -695,6 +730,15 @@ export function generateWordSentenceLevel(stage: Stage, language: Language): str
   const capitalize = (w: string) =>
     useCapitalization && w.length > 0 ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : w;
   const endPunctuation = () => (usePunctuation ? getRandomItem(['.', '.', '.', '!', '?']) : '');
+
+  // Coder Mode (Stage 13): only code lines, no capitalization, no sentence punctuation
+  if (isCoder && possibleSentences.length > 0) {
+    for (let i = 0; i < sentenceCount; i++) {
+      result.push(getRandomItem(possibleSentences).trim());
+    }
+    const out = result.join(' ').trim();
+    return out.length > 0 ? out : 'const x = 1; return x;';
+  }
 
   if (possibleWords.length >= 3) {
     // Build sentences from words or from predefined sentences
