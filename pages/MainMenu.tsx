@@ -173,8 +173,8 @@ const MainMenu: React.FC<MainMenuProps> = ({
   };
 
   return (
-    <>
-      <header className="py-6 px-6 text-center sticky top-0 z-50 bg-[#0a0f1c]/80 backdrop-blur-xl border-b border-slate-800/60 shadow-lg flex justify-between items-center">
+    <div className="h-screen flex flex-col overflow-hidden">
+      <header className="shrink-0 py-6 px-6 text-center sticky top-0 z-50 bg-[#0a0f1c]/80 backdrop-blur-xl border-b border-slate-800/60 shadow-lg flex justify-between items-center">
         
         <div 
           onClick={() => { playMenuClick(); onStartTutorial(); }}
@@ -218,14 +218,13 @@ const MainMenu: React.FC<MainMenuProps> = ({
         </div>
       </header>
 
-      <div className="flex-1 container mx-auto px-4 py-12 max-w-[1600px]">
-        
+      <div className="flex-1 flex flex-col min-h-0 container mx-auto px-4 py-4 max-w-[1600px]">
         {showOnboarding && (
           <OnboardingModal onDismiss={dismissOnboarding} />
         )}
 
         {showStorageHint && (
-          <div className="mb-6 p-3 rounded-xl bg-slate-800/80 border border-slate-700 flex items-center gap-3">
+          <div className="mb-4 shrink-0 p-3 rounded-xl bg-slate-800/80 border border-slate-700 flex items-center gap-3">
             <Info size={20} className="text-slate-400 shrink-0" />
             <p className="text-slate-400 text-sm flex-1">
               {t('menu.storageHint')}
@@ -236,12 +235,14 @@ const MainMenu: React.FC<MainMenuProps> = ({
           </div>
         )}
 
-        <Mascot progress={progress} gameState={gameState} />
+        <div className="shrink-0">
+          <Mascot progress={progress} gameState={gameState} />
+        </div>
 
-        <div className="overflow-x-auto overflow-y-hidden scroll-smooth -mx-4 pl-4 pr-12">
-          <div className="flex flex-row flex-nowrap gap-8 pb-8 pt-4">
+        <div className="flex-1 min-h-0 overflow-x-auto overflow-y-hidden scroll-smooth -mx-4 pl-4 pr-12">
+          <div className="flex flex-row flex-nowrap gap-8 py-4">
             {stages.map((stage) => (
-              <div key={stage.id} className="min-w-[600px] w-[600px] shrink-0 overflow-visible">
+              <div key={stage.id} className="w-[600px] h-[580px] shrink-0 overflow-visible flex">
                 <StageCard
                   stage={stage}
                   progress={progress}
@@ -258,13 +259,8 @@ const MainMenu: React.FC<MainMenuProps> = ({
             <div className="shrink-0 w-48" aria-hidden="true" />
           </div>
         </div>
-
-        {/* End of Content Message */}
-        <div className="text-center pb-12 pt-8">
-          <p className="text-slate-500 text-sm">{t('menu.moreLessons')}</p>
-        </div>
       </div>
-    </>
+    </div>
   );
 };
 

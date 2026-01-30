@@ -106,7 +106,8 @@ const StageCard: React.FC<StageCardProps> = ({
     <div
       data-stage-id={stage.id}
       className={`
-      relative rounded-[2.5rem] p-8 transition-all duration-300 overflow-hidden group w-full flex flex-col
+      relative rounded-[2.5rem] p-8 transition-all duration-300 group w-full h-full flex flex-col min-h-0
+      ${stage.id === 15 ? 'overflow-visible' : 'overflow-hidden'}
       ${isLocked 
         ? 'border-[3px] border-slate-800 bg-slate-900/40 grayscale-[0.8] opacity-60' 
         : `border-[3px] bg-gradient-to-b from-slate-900 via-slate-900 ${c.cardBorder} ${c.cardBg} ${c.shadow}`
@@ -118,7 +119,7 @@ const StageCard: React.FC<StageCardProps> = ({
       )}
 
       {/* HEADER SECTION */}
-      <div className="relative z-10 flex justify-between items-start mb-8">
+      <div className="relative z-10 flex justify-between items-start mb-8 shrink-0">
         <div className="flex items-center gap-5">
            {/* Stage Number Badge */}
           <div className={`
@@ -162,7 +163,7 @@ const StageCard: React.FC<StageCardProps> = ({
 
       {/* PROGRESS BAR (or spacer for Endless so card height matches others) */}
       {!isLocked && stage.id !== 15 && (
-        <div className="mb-10 relative">
+        <div className="mb-10 relative shrink-0">
           <div className="flex justify-between text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
             <span>{t('stageCard.progress')}</span>
             <span>{Math.round(completionPercent)}%</span>
@@ -176,15 +177,15 @@ const StageCard: React.FC<StageCardProps> = ({
         </div>
       )}
       {!isLocked && stage.id === 15 && (
-        <div className="mb-10 min-h-[52px] flex-shrink-0" aria-hidden="true" />
+        <div className="mb-10 min-h-[52px] shrink-0" aria-hidden="true" />
       )}
 
-      {/* PATH / LEVEL MAP */}
-      <div className="relative min-h-[180px] flex items-center justify-center">
+      {/* PATH / LEVEL MAP - overflow-visible for stage 15 so START button halo is not clipped */}
+      <div className={`relative min-h-[180px] flex-1 flex items-center justify-center min-h-0 ${stage.id === 15 ? 'overflow-visible' : 'overflow-hidden'}`}>
         
         {/* ENDLESS MODE: Single Big Button */}
         {stage.id === 15 ? (
-          <div className="w-full flex justify-center py-8">
+          <div className="w-full flex justify-center py-8 overflow-visible">
              <button
                 disabled={isLocked}
                 onClick={() => onStartLevel(stage, 1)}
@@ -309,12 +310,12 @@ const StageCard: React.FC<StageCardProps> = ({
 
       {/* Bottom spacer for Endless (stage 15) so card height matches completed cards with practice buttons */}
       {!isLocked && stage.id === 15 && (
-        <div className="mt-8 pt-6 border-t border-slate-800/50 min-h-[124px] flex-shrink-0" aria-hidden="true" />
+        <div className="mt-8 pt-6 border-t border-slate-800/50 min-h-[124px] shrink-0" aria-hidden="true" />
       )}
 
       {/* PRACTICE BUTTONS */}
       {isCompleted && (
-        <div className="mt-8 pt-6 border-t border-slate-800/50 flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <div className="mt-8 pt-6 border-t border-slate-800/50 flex flex-col sm:flex-row gap-4 justify-center items-center shrink-0">
           <button
             onClick={() => onStartPractice(stage)}
             className={`
