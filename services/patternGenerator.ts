@@ -203,7 +203,21 @@ export const generatePatternLevel = (stage: Stage, subLevelId: number): string =
         }
         return sentence.join(' ');
       }
+
+    default:
+      // Unbekanntes subLevelId (z. B. Debug): minimaler Inhalt aus poolAll
+      if (poolAll.length > 0) {
+        for (let i = 0; i < 8; i++) {
+          const key = getRandomItem(poolAll);
+          result.push(key + key);
+          result.push(key + key + key);
+        }
+      } else {
+        result.push('fff', 'jjj', 'fff', 'jjj');
+      }
+      break;
   }
 
-  return result.join(' ');
+  const out = result.join(' ').trim();
+  return out.length > 0 ? out : (poolAll.length > 0 ? poolAll.slice(0, 3).join(' ') + ' ' + poolAll.slice(0, 3).join(' ') : 'fff jjj fff jjj');
 };

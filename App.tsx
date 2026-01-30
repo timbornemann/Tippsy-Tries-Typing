@@ -24,8 +24,21 @@ const App: React.FC = () => {
     handleFinish,
     handleBackToMenu,
     handleRetry,
-    handleNextLevel
+    handleNextLevel,
+    debugPassCurrentLevel
   } = useGameEngine();
+
+  // Debug: Tastenkombi zum sofortigen Bestehen des aktuellen Levels (auch aus dem Menü)
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.altKey && e.key.toLowerCase() === 'p') {
+        e.preventDefault();
+        debugPassCurrentLevel();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [debugPassCurrentLevel]);
 
   const stageColorClasses = currentStage ? STAGE_COLOR_CLASSES[currentStage.color] ?? STAGE_COLOR_CLASSES.emerald : STAGE_COLOR_CLASSES.emerald;
 

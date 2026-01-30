@@ -14,7 +14,10 @@ interface TypingGameProps {
   gameMode?: GameMode;
 }
 
-const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content, onFinish, onBack, onRetry, gameMode = 'STANDARD' }) => {
+const FALLBACK_CONTENT = 'fff jjj fff jjj';
+
+const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: contentProp, onFinish, onBack, onRetry, gameMode = 'STANDARD' }) => {
+  const content = (typeof contentProp === 'string' && contentProp.trim().length > 0) ? contentProp : FALLBACK_CONTENT;
   const [inputIndex, setInputIndex] = useState(0);
   const [mistakes, setMistakes] = useState(0);
   const [startTime, setStartTime] = useState<number | null>(null);
@@ -182,7 +185,7 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content, onF
         </button>
       </div>
 
-      {/* Typing Area - Scrolling Tape */}
+      {/* Typing Area - Scrolling Tape: Wrapper = Viewport-Größe, Inhalt mit left:50% + translateX so 50% sich auf Viewport bezieht */}
       <div className="relative w-full bg-slate-900 rounded-2xl mb-8 border border-slate-800 shadow-inner h-40 overflow-hidden group">
          {/* Gradients for fade effect */}
          <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-slate-900 via-slate-900/80 to-transparent z-10 pointer-events-none"></div>
@@ -191,10 +194,15 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content, onF
          {/* Center Marker (Visual Aid) */}
          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-24 rounded-lg bg-emerald-500/5 border border-emerald-500/20 z-0 pointer-events-none"></div>
 
-         <div className="absolute top-0 bottom-0 flex items-center transition-transform duration-200 ease-out will-change-transform"
-              style={{ 
-                transform: `translateX(calc(50% - ${(inputIndex * 64) + 32}px))`, // 64px = w-16 (character width), 32px = half width
-              }}>
+         {/* Viewport-sized wrapper so left:50% = Mitte des sichtbaren Bereichs */}
+         <div className="absolute inset-0 flex items-center">
+           <div
+             className="absolute top-0 bottom-0 flex items-center transition-transform duration-200 ease-out will-change-transform"
+             style={{
+               left: '50%',
+               transform: `translateX(-${inputIndex * 64 + 32}px)`,
+             }}
+           >
            
            {content.split('').map((char, idx) => {
              let statusColor = 'text-slate-600'; // Upcoming
@@ -227,6 +235,7 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content, onF
                </div>
              );
            })}
+           </div>
          </div>
       </div>
 

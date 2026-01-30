@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { GameState, Stage, GameStats, UserProgress, GameMode, SessionRecord } from '../types';
 import { STAGES } from '../constants';
 import { generatePatternLevel } from '../services/patternGenerator';
@@ -105,7 +105,10 @@ export const useGameEngine = () => {
     // Artificial delay for smooth UX transition even though generation is instant
     await new Promise(r => setTimeout(r, 800));
     
-    const content = generatePatternLevel(stage, subLevelId);
+    let content = generatePatternLevel(stage, subLevelId);
+    if (typeof content !== 'string' || !content.trim()) {
+      content = 'fff jjj fff jjj fff jjj';
+    }
     setGameContent(content);
     setGameState(GameState.PLAYING);
   };
@@ -125,7 +128,10 @@ export const useGameEngine = () => {
     await new Promise(r => setTimeout(r, 600));
 
     // Use Case 0 (Mega Level) instead of AI
-    const content = generatePatternLevel(stage, 0);
+    let content = generatePatternLevel(stage, 0);
+    if (typeof content !== 'string' || !content.trim()) {
+      content = 'fff jjj fff jjj fff jjj';
+    }
     setGameContent(content);
     setGameState(GameState.PLAYING);
   };
@@ -249,6 +255,21 @@ export const useGameEngine = () => {
     }
   };
 
+  /** Debug: advance unlocked progress by one level (as if current level was passed). Works from menu too. */
+  const debugPassCurrentLevel = useCallback(() => {
+    setProgress(prev => {
+      const { unlockedStageId, unlockedSubLevelId } = prev;
+      if (unlockedSubLevelId < 5) {
+        return { ...prev, unlockedSubLevelId: unlockedSubLevelId + 1 };
+      }
+      const nextStage = STAGES.find(s => s.id === unlockedStageId + 1);
+      if (nextStage) {
+        return { ...prev, unlockedStageId: nextStage.id, unlockedSubLevelId: 1 };
+      }
+      return prev;
+    });
+  }, []);
+
   return {
     gameState,
     setGameState,
@@ -265,6 +286,7 @@ export const useGameEngine = () => {
     handleFinish,
     handleBackToMenu,
     handleRetry,
-    handleNextLevel
+    handleNextLevel,
+    debugPassCurrentLevel
   };
 };
