@@ -182,7 +182,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
           title={t('menu.openTutorialTitle')}
         >
           <div className="bg-gradient-to-tr from-emerald-500 to-blue-500 p-2 rounded-xl shadow-lg group-hover:scale-110 transition-transform">
-              <Keyboard className="w-6 h-6 text-white" />
+              <img src="/logo.svg" alt="Tippsy Logo" className="w-6 h-6 object-contain" />
           </div>
           <div className="text-left">
             <h1 className="text-xl font-extrabold tracking-tight text-white">
