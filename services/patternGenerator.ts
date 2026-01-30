@@ -71,6 +71,44 @@ export const generatePatternLevel = (stage: Stage, subLevelId: number): string =
   // --- ALGORITHMS ---
 
   switch (subLevelId) {
+    case 0: // MEGA LEVEL (Practice Mode replacement)
+      // Generates a long, mixed content (approx 50 words)
+      {
+        const totalItems = 50;
+        for (let i = 0; i < totalItems; i++) {
+          const rand = Math.random();
+          
+          if (possibleRealWords.length > 5 && rand > 0.4) {
+             // 60% chance for real word if available
+             let w = getRandomItem(possibleRealWords);
+             // Random capitalization for practice flow even in earlier levels (optional, but good for flow)
+             if (useCapitalization && Math.random() > 0.8) {
+               w = w.charAt(0).toUpperCase() + w.slice(1);
+             }
+             result.push(w);
+          } else if (rand > 0.2) {
+             // Pseudo word (length 3-8)
+             const len = 3 + Math.floor(Math.random() * 6);
+             let w = generatePseudoWord(poolAll, len);
+             if (useCapitalization && Math.random() > 0.8) {
+               w = w.charAt(0).toUpperCase() + w.slice(1);
+             }
+             result.push(w);
+          } else {
+             // Rhythm drill (repetition of new chars or fast bigrams)
+             // e.g. "ded" or "fff"
+             const char = getRandomItem(poolNew.length > 0 ? poolNew : poolAll);
+             result.push(char + char + char);
+          }
+        }
+        
+        // Add some punctuation at the end if unlocked
+        if (stage.id >= 10) {
+           return result.join(' ') + getRandomItem(['.', '!', '?', '.', '.']);
+        }
+      }
+      break;
+
     case 1: // INTRODUCTION: Focus purely on new keys. Rhythmic.
       // Pattern: aa aaa aa aaa (to build muscle memory for location)
       {

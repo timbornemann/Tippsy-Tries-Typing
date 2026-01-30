@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { GameState, Stage, GameStats, UserProgress, GameMode, GlobalStats } from './types';
 import { STAGES } from './constants';
-import { generatePracticeContent } from './services/geminiService';
 import { generatePatternLevel } from './services/patternGenerator';
 import TypingGame from './components/TypingGame';
 import Statistics from './components/Statistics';
@@ -225,7 +224,7 @@ const StageCard = ({
             <div className={`p-1.5 rounded-lg bg-${stage.color}-500/20 group-hover/practice:bg-white/20 transition-colors`}>
               <Zap className={`w-5 h-5 text-${stage.color}-400 group-hover/practice:text-white`} />
             </div>
-            <span>Endlos-Üben (KI)</span>
+            <span>Endlos-Üben (Mega-Level)</span>
           </button>
         </div>
       )}
@@ -283,14 +282,18 @@ const App: React.FC = () => {
     setGameState(GameState.PLAYING);
   };
 
-  // Start Practice Mode using AI
+  // Start Practice Mode using the Pattern Generator (Case 0)
   const startPractice = async (stage: Stage) => {
     setCurrentStage(stage);
     setCurrentSubLevel(0); // 0 indicates practice/no specific level
     setGameMode('PRACTICE');
     setGameState(GameState.LOADING);
     
-    const content = await generatePracticeContent(stage);
+    // Small delay for UI feedback
+    await new Promise(r => setTimeout(r, 600));
+
+    // Use Case 0 (Mega Level) instead of AI
+    const content = generatePatternLevel(stage, 0);
     setGameContent(content);
     setGameState(GameState.PLAYING);
   };
@@ -335,7 +338,7 @@ const App: React.FC = () => {
     if (!currentStage) return;
     
     if (gameMode === 'PRACTICE') {
-      startPractice(currentStage); // Generates new AI text
+      startPractice(currentStage); // Generates new random text
     } else {
       startLevel(currentStage, currentSubLevel); // Regenerates pattern
     }
@@ -446,10 +449,10 @@ const App: React.FC = () => {
                <Bot className="w-20 h-20 text-emerald-400 relative z-10 animate-bounce" />
              </div>
              <h2 className="text-3xl font-bold text-white mb-2">
-               {gameMode === 'PRACTICE' ? 'Tippy denkt nach...' : currentSubLevel === 5 ? 'Meisterprüfung!' : 'Lektion wird geladen'}
+               {gameMode === 'PRACTICE' ? 'Erstelle Mega-Level...' : currentSubLevel === 5 ? 'Meisterprüfung!' : 'Lektion wird geladen'}
              </h2>
              <p className="text-slate-400 text-lg">
-               {gameMode === 'PRACTICE' ? 'Bereite einen coolen Text für dich vor.' : 'Mach deine Finger bereit!'}
+               {gameMode === 'PRACTICE' ? 'Mische Wörter und Übungen für dich.' : 'Mach deine Finger bereit!'}
              </p>
           </div>
         )}
