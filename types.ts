@@ -88,6 +88,7 @@ export interface UserProgress {
 }
 
 export enum GameState {
+  START = 'START',
   MENU = 'MENU',
   LOADING = 'LOADING',
   PLAYING = 'PLAYING',

@@ -32,11 +32,20 @@ function computeUnlock(
 }
 
 export const useGameEngine = () => {
-  const [gameState, setGameState] = useState<GameState>(GameState.MENU);
+
+  const [gameState, setGameState] = useState<GameState>(() => {
+    // Check if user has seen onboarding
+    try {
+      const hasSeenOnboarding = localStorage.getItem('tippsy_onboarding_seen');
+      return hasSeenOnboarding ? GameState.MENU : GameState.START;
+    } catch {
+      return GameState.START;
+    }
+  });
   
   const [progress, setProgress] = useState<UserProgress>(() => {
     try {
-      const saved = localStorage.getItem('tippmeister_progress');
+      const saved = localStorage.getItem('tippsy_progress');
       const parsed = saved ? JSON.parse(saved) : {};
       return {
         unlockedStageId: parsed.unlockedStageId ?? 1,
@@ -91,8 +100,19 @@ export const useGameEngine = () => {
   const clearScrollToStageId = useCallback(() => setScrollToStageId(null), []);
 
   useEffect(() => {
-    localStorage.setItem('tippmeister_progress', JSON.stringify(progress));
+    localStorage.setItem('tippsy_progress', JSON.stringify(progress));
   }, [progress]);
+
+  const handleCompleteTutorial = () => {
+    try {
+      localStorage.setItem('tippsy_onboarding_seen', '1');
+    } catch {}
+    setGameState(GameState.MENU);
+  };
+
+  const handleEnterTutorial = () => {
+    setGameState(GameState.START);
+  };
 
   // Start a standard level (1-5) using the Pattern Generator
   const startLevel = async (stage: Stage, subLevelId: number) => {
@@ -323,6 +343,8 @@ export const useGameEngine = () => {
     handleBackToMenu,
     handleRetry,
     handleNextLevel,
+    handleCompleteTutorial,
+    handleEnterTutorial,
     debugPassCurrentLevel
   };
 };

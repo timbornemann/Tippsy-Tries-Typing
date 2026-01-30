@@ -6,8 +6,8 @@ import Mascot from '../components/Mascot';
 import StageCard from '../components/StageCard';
 import OnboardingModal from '../components/OnboardingModal';
 
-const ONBOARDING_KEY = 'tippmeister_onboarding_seen';
-const STORAGE_HINT_KEY = 'tippmeister_storage_hint_seen';
+const ONBOARDING_KEY = 'tippsy_onboarding_seen';
+const STORAGE_HINT_KEY = 'tippsy_storage_hint_seen';
 
 interface MainMenuProps {
   progress: UserProgress;
@@ -19,6 +19,7 @@ interface MainMenuProps {
   onStartPractice: (s: Stage) => void;
   onStartWordSentencePractice: (s: Stage) => void;
   onOpenStats: () => void;
+  onStartTutorial: () => void;
 }
 
 const MainMenu: React.FC<MainMenuProps> = ({
@@ -30,7 +31,8 @@ const MainMenu: React.FC<MainMenuProps> = ({
   onStartLevel,
   onStartPractice,
   onStartWordSentencePractice,
-  onOpenStats
+  onOpenStats,
+  onStartTutorial
 }) => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showStorageHint, setShowStorageHint] = useState(false);
@@ -77,13 +79,17 @@ const MainMenu: React.FC<MainMenuProps> = ({
     <>
       <header className="py-6 px-6 text-center sticky top-0 z-50 bg-[#0a0f1c]/80 backdrop-blur-xl border-b border-slate-800/60 shadow-lg flex justify-between items-center">
         
-        <div className="inline-flex items-center gap-3">
-          <div className="bg-gradient-to-tr from-emerald-500 to-blue-500 p-2 rounded-xl shadow-lg">
+        <div 
+          onClick={onStartTutorial}
+          className="inline-flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity group"
+          title="Start-Bildschirm & Tutorial öffnen"
+        >
+          <div className="bg-gradient-to-tr from-emerald-500 to-blue-500 p-2 rounded-xl shadow-lg group-hover:scale-110 transition-transform">
               <Keyboard className="w-6 h-6 text-white" />
           </div>
           <div className="text-left">
             <h1 className="text-xl font-extrabold tracking-tight text-white">
-              TippMeister
+              Tippsy
             </h1>
             <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">Lern-Abenteuer</p>
           </div>

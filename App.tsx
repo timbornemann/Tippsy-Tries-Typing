@@ -2,6 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 import { GameState } from './types';
 import TypingGame from './components/TypingGame';
 import Statistics from './components/Statistics';
+import StartScreen from './components/StartScreen';
 import { Bot, Trophy, BarChart3, Star, RotateCcw, Sparkles, Type, Clock } from 'lucide-react';
 import { useGameEngine } from './hooks/useGameEngine';
 import MainMenu from './pages/MainMenu';
@@ -28,6 +29,8 @@ const App: React.FC = () => {
     handleBackToMenu,
     handleRetry,
     handleNextLevel,
+    handleCompleteTutorial,
+    handleEnterTutorial,
     debugPassCurrentLevel
   } = useGameEngine();
 
@@ -84,6 +87,11 @@ const App: React.FC = () => {
 
       <div className="relative z-10 flex flex-col min-h-screen">
         
+        {/* START SCREEN (Onboarding/Tutorial) */}
+        {gameState === GameState.START && (
+          <StartScreen onComplete={handleCompleteTutorial} />
+        )}
+
         {/* MENU STATE (Learning Path) */}
         {gameState === GameState.MENU && (
           <MainMenu
@@ -96,6 +104,7 @@ const App: React.FC = () => {
             onStartPractice={startPractice}
             onStartWordSentencePractice={startWordSentencePractice}
             onOpenStats={() => setGameState(GameState.STATISTICS)}
+            onStartTutorial={handleEnterTutorial}
           />
         )}
 
