@@ -3,14 +3,19 @@ import { Stage } from '../types';
 // Vowels for pronounceability logic
 const VOWELS = ['a', 'e', 'i', 'o', 'u', 'ä', 'ö', 'ü'];
 
-// A small subset of common German words (exported for wordSentenceGenerator)
+// Left/Right hand mapping for flow generation
+const LEFT_HAND = new Set(['q', 'w', 'e', 'r', 't', 'a', 's', 'd', 'f', 'g', 'y', 'x', 'c', 'v', 'b']);
+const RIGHT_HAND = new Set(['z', 'u', 'i', 'o', 'p', 'ü', 'h', 'j', 'k', 'l', 'ö', 'ä', 'n', 'm']);
+
+// Expanded German common words/fragments
 export const COMMON_WORDS_DB = [
   "der", "die", "das", "und", "ist", "in", "den", "von", "zu", "mit", "sich", "auf", "für",
   "nicht", "es", "dem", "an", "auch", "als", "da", "nach", "wie", "wir", "aus", "er", "sie",
   "so", "dass", "was", "wird", "bei", "oder", "ein", "eine", "einer", "nur", "vor", "am", 
   "habe", "hat", "du", "wo", "wenn", "alle", "sind", "ich", "aber", "hier", "man", "ja", "nein",
   "danke", "bitte", "hallo", "gut", "tag", "viel", "zeit", "jahr", "neu", "alt", "klein", "groß",
-  "frau", "mann", "kind", "leben", "welt", "haus", "hand", "auge", "kopf", "tür", "auto"
+  "frau", "mann", "kind", "leben", "welt", "haus", "hand", "auge", "kopf", "tür", "auto",
+  "weg", "mal", "nun", "gar", "sei", "ihr", "doch", "ob", "tun", "kam", "sah", "gab", "lag"
 ];
 
 const getRandomItem = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
@@ -20,14 +25,35 @@ export const canTypeWord = (word: string, allowedChars: Set<string>): boolean =>
   return word.split('').every(char => allowedChars.has(char.toLowerCase()) || allowedChars.has(char));
 };
 
-// Generates a pronounceable pseudo-word (exported for wordSentenceGenerator)
+// Generates a pronounceable pseudo-word or rhythmic pattern (exported for wordSentenceGenerator)
 export const generatePseudoWord = (pool: string[], length: number): string => {
   if (pool.length === 0) return "";
   
   const vowels = pool.filter(c => VOWELS.includes(c));
   const consonants = pool.filter(c => !VOWELS.includes(c) && c !== ' ');
+  const lefts = pool.filter(c => LEFT_HAND.has(c));
+  const rights = pool.filter(c => RIGHT_HAND.has(c));
 
-  // Fallback if we only have consonants (e.g. Stage 1 'f', 'j') or only vowels
+  // Scenario 1: Limited Vowels (Early Stages, e.g. f, j, d, k) -> Rhythm / Hand Alternation
+  if (vowels.length === 0 || (vowels.length / pool.length < 0.2 && lefts.length > 0 && rights.length > 0)) {
+    let word = "";
+    // Start with random hand
+    let isLeft = Math.random() > 0.5;
+    
+    for (let i = 0; i < length; i++) {
+      const currentPool = isLeft ? lefts : rights;
+      // Fallback if current hand has no keys in pool (shouldn't happen if check passed, but safety first)
+      const char = getRandomItem(currentPool.length > 0 ? currentPool : pool);
+      word += char;
+      
+      // Strict alternation ensures rhythm (f -> j -> d -> k)
+      isLeft = !isLeft;
+    }
+    return word;
+  }
+
+  // Scenario 2: Standard Vowel-Consonant Flow
+  // Fallback if we have only vowels or only consonants (and couldn't alternate hands well)
   if (vowels.length === 0 || consonants.length === 0) {
     let s = "";
     for(let i=0; i<length; i++) s += getRandomItem(pool.filter(c => c !== ' '));

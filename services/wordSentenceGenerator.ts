@@ -5,6 +5,22 @@ const getRandomItem = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.len
 
 // Extended German word list for word/sentence mode (a-z, ä, ö, ü; no ß for broad stage compatibility)
 const EXTRA_WORDS = [
+  // --- STAGE 1-3 Support (f, j, d, k, s, l, a, ö + space) ---
+  "da", "das", "dass", "als", "all", "alle", "alles", "als", "ja", "saal", "aal", "lass", "fass", "fall", "falls", "kahl", "fahl", "ska", "as", "ass", "ad", "ade", "fee", "see", "seele", "lesen", "lese", "las", "lasen", "fss", "jks", "aff", "affe", "fad", "fade", "fadel", "faden", "fall", "falle", "fallen", "sassa", "sass", "sel", "selle", "seea", "kakaks", "kaskade", "kaskaden", "kelle", "keller", "klasse", "klage", "klagen", "klag",
+
+  // --- STAGE 5 (g, h) ---
+  "gas", "glas", "hals", "hagel", "haag", "sag", "sah", "sahen", "jah", "jagd", "jagen", "jagt", "hallo", "halle", "halde", "hafe", "hafen", "hafer", "hag", "hager", "hase", "hasen", "geh", "gehe", "gehen", "gehst", "geht", "gehege", "gehalt", "gehalte", "gehalten", "gehassel", "gehalles", "gejage", "gejagt", "gesagt", "glas", "glase", "glasklar", "glatt",
+
+  // --- STAGE 6 (q, w, e, r, t) ---
+  "der", "die", "des", "dem", "den", "wer", "wo", "was", "wie", "wir", "war", "waren", "warst", "wart", "warten", "warte", "wartet", "wert", "werte", "werten", "wetter", "wett", "wette", "wetten", "wer", "werde", "werden", "werdet", "weg", "wege", "wegen", "weder", "leer", "leere", "leeren", "tee", "teer", "teere", "teeren", "teeres", "rehe", "sehr", "werfen", "fegen", "lesen", "fegt", "fegte", "fegten", "fest", "feste", "festen", "fett", "fette", "fettes", "retten", "retter", "rettet", "rest", "reste", "resten", "raster", "rast", "raste", "rasten", "rate", "raten", "ratet", "ratte", "ratten", "rar", "rare", "rares", "rart", "rad", "rade", "rades", "radler", "rot", "rote", "rotes", "rotter", "rater", "tat", "taten", "tatest", "tatet", "tag", "tage", "tagen", "tags", "tages", "tal", "tale", "taler", "tar", "tare",
+
+  // --- STAGE 7 (z, u, i, o, p, ü) ---
+  "zu", "zur", "zum", "zug", "zuge", "zuges", "züge", "zügen", "zeit", "zeiten", "zeig", "zeige", "zeigen", "zeugt", "zeuge", "zeugen", "zart", "zarte", "zartes", "zoo", "zoos", "zopf", "zöpfe", "zöpfen", "zoll", "zölle", "zöllen", "ziel", "ziele", "zielen", "zier", "ziere", "zieren", "ziert", "zierat", "uhr", "uhren", "us", "usa", "unter", "unten", "und", "uns", "unser", "unsere", "unserem", "unseren", "unserer", "unseres", "ufer", "ufern", "um", "ums", "im", "in", "ins", "ist", "isst", "iss", "irre", "irren", "irr", "irrt", "oder", "oben", "ohne", "ort", "orte", "orten", "ofen", "öfen", "post", "posten", "pol", "pole", "polen", "poller", "pa", "paar", "paare", "paaren", "part", "parte", "parten", "pate", "paten", "patin", "pfad", "pfade", "pforte", "pfote", "pfoten", "pur", "pure", "puren", "pures", "putz", "putzen", "putzt", "putzte", "übel", "üben", "über", "übt", "übte", "übten", 
+
+  // --- STAGE 8 (y, x, c, v, b, n, m) & REST ---
+  "man", "mal", "mir", "mich", "mit", "mehr", "mein", "meine", "meinen", "meiner", "meines", "mutter", "mut", "mutig", "müde", "müden", "müdes", "mund", "munde", "maus", "mäuse", "mäusen", "mauer", "mauern", "mann", "männer", "männern", "nur", "nun", "nie", "nimmer", "nicht", "nichts", "noch", "nach", "nase", "nasen", "nass", "nasse", "nassen", "nein", "neu", "neue", "neuen", "neuer", "neues", "nam", "name", "namen", "nannte", "nannten", "nah", "nahe", "nahen", "naht", "nahte", "nahten", "nacht", "nächte", "nächten", "von", "vor", "viel", "viele", "vielen", "vieles", "vielleicht", "vier", "viertel", "voll", "volle", "vollen", "voller", "volles", "vogel", "vögel", "vögeln", "boot", "boote", "booten", "bei", "bis", "bist", "bin", "birne", "birnen", "berg", "berge", "bergen", "bad", "bade", "baden", "buch", "bücher", "büchern", "bach", "bäche", "bächen", "backen", "backt", "backte", "backten", "ball", "bälle", "bällen", "blau", "blaue", "blauen", "blaues", "blume", "blumen", "blut", "blute", "bluten", "club", "clubs", "cafe", "cafes", "clown", "clowns", "couch", "couches", "creme", "cremen", "cremes", "computer", "computern", "box", "boxen", "boxte", "boxten", "text", "texte", "texten", "taxi", "taxis", "axt", "äxte", "äxten", "extra", "extras", "typ", "typen", "typisch", "typische", "typischen", "system", "systeme", "systemen",
+  
+  // Generic High Frequency
   "alle", "als", "am", "an", "andere", "auch", "auf", "aus", "bei", "bin", "bis", "dann", "dass", "dem", "den", "der", "des", "die", "dies", "diese", "doch", "dort", "du", "durch", "ein", "eine", "einen", "einer", "eines", "er", "es", "etwas", "euch", "eure", "für", "gehen", "geht", "gemacht", "gesagt", "gut", "habe", "haben", "hat", "hatte", "heute", "hier", "ich", "ihr", "immer", "in", "ist", "ja", "jeder", "jedes", "jetzt", "kann", "kein", "keine", "können", "könnte", "lange", "leben", "machen", "man", "mehr", "mein", "meine", "mich", "mir", "mit", "muss", "nach", "nicht", "noch", "nur", "oder", "ohne", "schon", "sehr", "sein", "seine", "sich", "sie", "sind", "so", "soll", "sollen", "sondern", "sonst", "über", "um", "und", "uns", "unser", "unter", "viel", "von", "vor", "war", "waren", "was", "weg", "weil", "weit", "weiter", "wenn", "wer", "werden", "werde", "wird", "wieder", "will", "wir", "wo", "wollen", "wurde", "wurden", "zu", "zur", "zwei",
   "abend", "arbeit", "augen", "auto", "ball", "baum", "bett", "bild", "brot", "buch", "boden", "brief", "dank", "ding", "eltern", "ende", "erste", "essen", "frage", "freund", "früh", "geld", "geschichte", "gesicht", "glück", "grund", "hand", "haus", "heim", "herz", "hund", "jahr", "kind", "kopf", "kraft", "kreis", "land", "leben", "licht", "luft", "minute", "moment", "mond", "morgen", "name", "nacht", "ort", "platz", "recht", "rest", "raum", "satz", "schule", "stadt", "stunde", "tag", "teil", "tür", "uhr", "vater", "welt", "woche", "wort", "zeit", "zimmer",
   "alt", "arm", "best", "dein", "eigen", "einfach", "ganz", "gut", "gern", "gross", "halb", "hart", "hoch", "klar", "klein", "kurz", "lang", "leicht", "neu", "nächst", "richtig", "schnell", "schwer", "schön", "spät", "stark", "tief", "voll", "wahr", "warm", "weit", "wenig", "wichtig", "wunderbar",
@@ -14,6 +30,19 @@ const EXTRA_WORDS = [
 
 // Large set of German sentences (without trailing punctuation; punctuation added when stage allows)
 const SENTENCES_DB = [
+  // --- SIMPLE (f, j, d, k, s, l, a, ö) ---
+  "das das das", "ja ja ja", "lass das", "das all", "als das", "ja das", "da da da", "das fass", "lass alle", "das saal", "al al al", "das aal", 
+
+  // --- SIMPLE+ (g, h) ---
+  "hallo hase", "das glas", "sag ja", "geh da", "geh weg", "hallo alle", "das gas", "sah das", "sag das", "ja das geht", "alle gehen", "hals und bein", "hase und igel", "hallo du da", "geh nach hause", "geh in das haus", 
+
+  // --- MEDIUM (q, w, e, r, t) ---
+  "der tee war gut", "wer ist da", "was ist das", "wo ist er", "wir warten", "es ist warm", "er war da", "sie war weg", "es wird gut", "das wetter ist gut", "wer war da", "wo warst du", "was wer wo", "tee oder kaffee", "kaffee oder tee", "alle sind da", "er starrt", "sie wartet", "es regnet", "rate mal", "das alte haus", "der alte mann", "die alte frau", "ein neues rad", "ein rotes rad", "das feld ist leer", "der keller ist dunkel", "rette sich wer kann", "wer hat recht", "das ist der rest",
+
+  // --- ADVANCED (z, u, i, o, p, ü, + rest) ---
+  "zu hause ist es am besten", "zeit ist geld", "zug um zug", "ziel in sicht", "zart und fein", "wir sind im zoo", "unter der brücke", "auf und ab", "um und auf", "hin und her", "rund herum", "oben und unten", "pfui spinne", "post für dich", "pure freue", "übung macht den meister", "über den wolken", "unter dem meer", "polizei und feuerwehr", "pause machen", "platz nehmen", "purzelbaum schlagen", "pilze sammeln",
+
+  // --- ORIGINAL COMPREHENSIVE SET ---
   "Der Mann hat das Haus",
   "Sie ist in der Welt",
   "Das ist gut",
