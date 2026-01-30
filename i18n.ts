@@ -194,6 +194,15 @@ export const translations = {
       soundOn: 'On',
       soundOff: 'Off',
       back: 'Back to menu',
+      data: 'Progress data',
+      export: 'Export',
+      exportHint: 'Download your progress as a JSON file.',
+      import: 'Import',
+      importHint: 'Load progress from a JSON file. The page will reload.',
+      reset: 'Reset progress',
+      resetHint: 'Clear all local progress. This cannot be undone.',
+      resetConfirm: 'Reset all progress? This cannot be undone.',
+      importError: 'Invalid file. Use an exported Tippsy progress file.',
     },
     stage: {
       1: {
@@ -466,6 +475,15 @@ export const translations = {
       soundOn: 'An',
       soundOff: 'Aus',
       back: 'Zurück zum Menü',
+      data: 'Fortschrittsdaten',
+      export: 'Export',
+      exportHint: 'Fortschritt als JSON-Datei herunterladen.',
+      import: 'Import',
+      importHint: 'Fortschritt aus einer JSON-Datei laden. Die Seite wird neu geladen.',
+      reset: 'Fortschritt zurücksetzen',
+      resetHint: 'Alle lokalen Fortschrittsdaten löschen. Das kann nicht rückgängig gemacht werden.',
+      resetConfirm: 'Fortschritt wirklich zurücksetzen? Das kann nicht rückgängig gemacht werden.',
+      importError: 'Ungültige Datei. Bitte eine exportierte Tippsy-Fortschrittsdatei verwenden.',
     },
     stage: {
       1: {

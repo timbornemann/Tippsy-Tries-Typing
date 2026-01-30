@@ -1,131 +1,133 @@
-# ⌨️ Tippsy – 10-Finger-Trainer
+# ⌨️ Tippsy – Touch Typing Trainer
 
-**Lerne das 10-Finger-System spielerisch und interaktiv.**  
-Keine Langeweile, nur Fortschritt.
+[🇩🇪 Deutsche Version](README.de.md)
 
-Tippsy ist ein webbasierter Tipptrainer für die **deutsche QWERTZ-Tastatur**. Mit strukturierten Lektionen, dem Lernbegleiter Tippsy und klaren Statistiken verbesserst du Schritt für Schritt deine Tippgeschwindigkeit und Genauigkeit.
+**Learn touch typing in a playful and interactive way.**  
+No boredom, just progress.
+
+Tippsy is a web-based typing trainer optimized for the **German QWERTZ keyboard layout**. With structured lessons, the learning companion Tippsy, and clear statistics, you will improve your typing speed and accuracy step by step.
 
 ---
 
 ## 📸 Screenshots
 
-| Start & Tutorial | Hauptmenü – Lernpfad |
-|------------------|----------------------|
-| ![Willkommen](screenshots/01-start-screen.png) | ![Hauptmenü](screenshots/05-main-menu.png) |
+| Start & Tutorial | Main Menu – Learning Path |
+|------------------|---------------------------|
+| ![Welcome](screenshots/01-start-screen.png) | ![Main Menu](screenshots/05-main-menu.png) |
 
-| Statistik | Übung abgeschlossen |
-|-----------|----------------------|
-| ![Statistik](screenshots/06-statistics.png) | ![Fertig](screenshots/07-finished.png) |
+| Statistics | Exercise Completed |
+|------------|--------------------|
+| ![Statistics](screenshots/06-statistics.png) | ![Finished](screenshots/07-finished.png) |
 
-| Beim Tippen | Lektion wird geladen |
-|-------------|----------------------|
-| ![Spiel](screenshots/08-playing.png) | ![Laden](screenshots/09-loading.png) |
+| While Typing | Loading Lesson |
+|--------------|----------------|
+| ![Game](screenshots/08-playing.png) | ![Loading](screenshots/09-loading.png) |
 
-*Grundstellung lernen – „Deine Hände sind das Werkzeug“:*  
-![Tutorial Hände](screenshots/02-tutorial-hands.png)
+*Learning the home row – "Your hands are the tool":*  
+![Tutorial Hands](screenshots/02-tutorial-hands.png)
 
 ---
 
-## ✨ Was ist Tippsy?
+## ✨ What is Tippsy?
 
-- **Geführter Lernpfad:** Über 15 Stufen von den Zeigefingern (F & J) bis zu Sonderzeichen und „Endless Zone“.
-- **Tippsy als Begleiter:** Ein freundlicher Lernbegleiter führt dich durch die Lektionen.
-- **Deutsche Tastatur:** Vollständige Unterstützung für QWERTZ inkl. Ä, Ö, Ü, ß und Sonderzeichen.
-- **Finger-Zuordnung:** Jede Taste ist einem Finger zugeordnet; farbige virtuelle Tastatur und Hinweise (z. B. „Rechter Zeigefinger“).
-- **Statistik:** WPM, Genauigkeit, Fehler, Spielzeit und Fortschritt pro Stufe und über alle Sessions.
-- **Verschiedene Modi:** Standard-Lektionen, Freies Üben pro Stufe, Wörter & Sätze.
+- **Guided Learning Path:** Over 15 stages from index fingers (F & J) to special characters and the "Endless Zone".
+- **Tippsy as a Companion:** A friendly learning companion guides you through the lessons.
+- **German Keyboard:** Full support for QWERTZ including Ä, Ö, Ü, ß, and special characters.
+- **Finger Assignment:** Each key is assigned to a finger; colorful virtual keyboard and hints (e.g., "Right Index Finger").
+- **Statistics:** WPM, accuracy, errors, playtime, and progress per stage and across all sessions.
+- **Different Modes:** Standard lessons, Free Practice per stage, Words & Sentences.
 
 ---
 
 ## 🚀 Installation
 
-### Voraussetzungen
+### Prerequisites
 
-- **Node.js** (empfohlen: v18 oder neuer)  
+- **Node.js** (recommended: v18 or newer)  
   [nodejs.org](https://nodejs.org)
 
-### Schritte
+### Steps
 
-1. **Projekt klonen oder entpacken**
+1. **Clone or download the project**
 
    ```bash
    git clone <repository-url>
    cd Tippsy
    ```
 
-2. **Abhängigkeiten installieren**
+2. **Install dependencies**
 
    ```bash
    npm install
    ```
 
-3. **Entwicklungsserver starten**
+3. **Start development server**
 
    ```bash
    npm run dev
    ```
 
-   Die App läuft z. B. unter `http://localhost:5173`. Im Browser öffnen und loslegen.
+   The app usually runs at `http://localhost:5173`. Open it in your browser and get started.
 
-### Produktion bauen
+### Build for Production
 
 ```bash
  npm run build
  npm run preview
 ```
 
-`npm run build` erzeugt die Dateien in `dist/`. Mit `npm run preview` kannst du den Build lokal testen.
+`npm run build` generates the files in `dist/`. With `npm run preview`, you can test the build locally.
 
 ---
 
-## 📖 Nutzung
+## 📖 Usage
 
-1. **Erster Start**  
-   Beim ersten Besuch siehst du den Willkommensbildschirm. Mit **„Los geht's“** oder **Enter** startest du.
+1. **First Start**  
+   On your first visit, you'll see the welcome screen. Start with **"Let's go"** or **Enter**.
 
 2. **Tutorial**  
-   Du wirst durch die Grundstellung geführt (F und J, alle 8 Grundstellungstasten). So lernst du die richtige Handhaltung.
+   You will be guided through the home row (F and J, all 8 home row keys). This teaches you the correct hand position.
 
-3. **Hauptmenü**  
-   Im **Lern-Abenteuer** siehst du alle Stufen. Die aktuelle Stufe ist hervorgehoben; Fortschritt und Level (1–5 pro Stufe) werden angezeigt.  
-   - **Level starten:** Stufe auswählen und gewünschtes Level anklicken (oder Tastatur: Pfeiltasten, Enter).  
-   - **Freies Üben** bzw. **Wörter & Sätze** pro Stufe sind über die jeweiligen Karten erreichbar.
+3. **Main Menu**  
+   In the **Learning Adventure**, you see all stages. The current stage is highlighted; progress and level (1–5 per stage) are displayed.  
+   - **Start Level:** Select a stage and click the desired level (or use keyboard: arrow keys, Enter).  
+   - **Free Practice** or **Words & Sentences** per stage are accessible via the respective cards.
 
-4. **Übung**  
-   - Zeichen erscheinen nacheinander; tippe sie mit dem angezeigten Finger.  
-   - Die virtuelle Tastatur zeigt die nächste Taste farbig an.  
-   - Oben siehst du WPM, Fehler und Fortschritt.
+4. **Exercise**  
+   - Characters appear one after another; type them with the displayed finger.  
+   - The virtual keyboard highlights the next key in color.  
+   - At the top, you see WPM, errors, and progress.
 
-5. **Nach der Übung**  
-   Du erhältst eine Auswertung (WPM, Genauigkeit, Fehler, Zeit, Zeichen).  
-   - **Weiter** (oder Enter): nächste Übung/Level.  
-   - **Wiederholen:** gleiche Übung nochmal.  
-   - **Menü** (oder Esc): zurück ins Hauptmenü.
+5. **After the Exercise**  
+   You get an evaluation (WPM, accuracy, errors, time, characters).  
+   - **Next** (or Enter): next exercise/level.  
+   - **Retry:** same exercise again.  
+   - **Menu** (or Esc): back to the main menu.
 
-6. **Statistik**  
-   Über **„Dein Profil“** / Statistik erreichst du getippte Zeichen, Spielzeit, Rekord-WPM, absolvierte Übungen, Durchschnitts-WPM und Genauigkeit.
+6. **Statistics**  
+   Via **"Your Profile"** / Statistics, you can access typed characters, playtime, record WPM, completed exercises, average WPM, and accuracy.
 
-### Tastenkürzel (Auswahl)
+### Keyboard Shortcuts (Selection)
 
-- **Enter** – Starten / Weiter  
-- **Esc** – Zurück zum Menü (z. B. aus Statistik oder Ergebnis)  
-- **Pfeiltasten / W A S D** – Im Menü zwischen Stufen und Leveln navigieren  
+- **Enter** – Start / Next  
+- **Esc** – Back to menu (e.g., from statistics or results)  
+- **Arrow Keys / W A S D** – Navigate between stages and levels in the menu  
 
 ---
 
-## 🛠 Technik
+## 🛠 Technology
 
 - **React 19** + **TypeScript**
-- **Vite 6** (Build & Dev-Server)
-- **Tailwind-kompatible** Utility-Klassen (u. a. für Dark Theme)
-- **Lucide React** für Icons
+- **Vite 6** (Build & Dev Server)
+- **Tailwind-compatible** utility classes (including Dark Theme)
+- **Lucide React** for icons
 
 ---
 
-## 📄 Lizenz
+## 📄 License
 
-Dieses Projekt steht unter der [GNU General Public License v3.0](LICENSE) (GPL-3.0).
+This project is licensed under the [GNU General Public License v3.0](LICENSE) (GPL-3.0).
 
 ---
 
-*Viel Erfolg beim Tippen lernen mit Tippsy!* ⌨️
+*Good luck learning to type with Tippsy!* ⌨️
