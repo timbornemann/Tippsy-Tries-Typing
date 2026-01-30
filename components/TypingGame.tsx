@@ -99,6 +99,7 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
   }, [content.length, inputIndex, startTime, mistakes, errorCountByChar, onFinish, stage.id, totalCharsTyped]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    // Escape/Enter: handle before modifier check (navigation / newline in content)
     if (e.key === 'Escape') {
       e.preventDefault();
       if (stage.id === 15) {
@@ -109,6 +110,9 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
       }
       return;
     }
+
+    // Ignore key combinations with Ctrl/Meta/Alt (browser shortcuts, etc.; debug shortcut lives in App)
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
 
     const keyForPress = (e.key === 'Minus' ? '-' : e.key === 'Comma' ? ',' : e.key === 'Period' ? '.' : e.key === 'Enter' ? '\n' : e.key);
     setPressedKeys(prev => {
