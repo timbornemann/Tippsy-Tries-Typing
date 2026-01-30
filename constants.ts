@@ -1,4 +1,4 @@
-import { Finger, KeyConfig, Level } from './types';
+import { Finger, KeyConfig, Stage } from './types';
 
 // Finger Color Mapping
 export const FINGER_COLORS: Record<Finger, string> = {
@@ -98,75 +98,85 @@ export const KEYBOARD_LAYOUT: KeyConfig[][] = [
   ]
 ];
 
-export const LEVELS: Level[] = [
+export const STAGES: Stage[] = [
   {
     id: 1,
-    name: 'Grundstellung 1',
-    description: 'Wir beginnen mit den Zeigefingern: F und J.',
+    name: 'Basis: Zeigefinger',
+    description: 'Starte deine Reise mit der Grundstellung F und J.',
+    color: 'emerald',
     chars: ['f', 'j', ' '],
-    prompt: 'Generiere eine Sequenz von 30 Zeichen oder Wörtern, die NUR aus den Buchstaben "f" und "j" sowie Leerzeichen bestehen. Keine anderen Buchstaben. Sprache: Deutsch (wenn möglich echte Wörter oder sinnvolle Silben).'
+    basePrompt: 'Verwende NUR die Buchstaben "f" und "j" sowie Leerzeichen.'
   },
   {
     id: 2,
-    name: 'Grundstellung 2',
-    description: 'Dazu kommen die Mittelfinger: D und K.',
+    name: 'Basis: Mittelfinger',
+    description: 'Erweitere deine Reichweite auf D und K.',
+    color: 'teal',
     chars: ['f', 'j', 'd', 'k', ' '],
-    prompt: 'Generiere eine Übungssequenz (ca. 40 Zeichen), die NUR die Buchstaben d, f, j, k verwendet. Bilde möglichst viele echte deutsche Wörter oder gängige Silben.'
+    basePrompt: 'Verwende NUR die Buchstaben "d", "f", "j", "k" sowie Leerzeichen.'
   },
   {
     id: 3,
-    name: 'Grundstellung 3',
-    description: 'Die Ringfinger kommen ins Spiel: S und L.',
+    name: 'Basis: Ringfinger',
+    description: 'Die Ringfinger S und L kommen hinzu.',
+    color: 'cyan',
     chars: ['f', 'j', 'd', 'k', 's', 'l', ' '],
-    prompt: 'Generiere 10 einfache deutsche Wörter oder eine Zeichenfolge, die NUR aus den Buchstaben s, l, d, k, f, j besteht.'
+    basePrompt: 'Verwende NUR die Buchstaben "s", "l", "d", "k", "f", "j" und Leerzeichen.'
   },
   {
     id: 4,
-    name: 'Grundstellung Komplett',
-    description: 'Die kleinen Finger: A und Ö.',
+    name: 'Basis: Kleine Finger',
+    description: 'Vervollständige die Grundreihe mit A und Ö.',
+    color: 'sky',
     chars: ['a', 's', 'd', 'f', 'j', 'k', 'l', 'ö', ' '],
-    prompt: 'Generiere einen deutschen Übungstext (ca. 15 Wörter), der NUR die Buchstaben der Grundreihe (a, s, d, f, j, k, l, ö) verwendet.'
+    basePrompt: 'Verwende NUR die Buchstaben der Grundreihe (a, s, d, f, j, k, l, ö) und Leerzeichen.'
   },
   {
     id: 5,
-    name: 'Zeigefinger Erweitert',
-    description: 'Die Tasten G und H in der Mitte.',
+    name: 'Zentrum: G & H',
+    description: 'Lerne die inneren Tasten G und H zu erreichen.',
+    color: 'blue',
     chars: ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'ö', ' '],
-    prompt: 'Generiere einen deutschen Übungstext (ca. 15 Wörter) unter Verwendung der Grundreihe sowie g und h.'
+    basePrompt: 'Verwende die Grundreihe sowie g und h.'
   },
   {
     id: 6,
     name: 'Oberreihe Links',
-    description: 'Q, W, E, R, T dazu.',
+    description: 'Der Aufstieg beginnt: Q, W, E, R, T.',
+    color: 'indigo',
     chars: ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'ö', 'q', 'w', 'e', 'r', 't', ' '],
-    prompt: 'Generiere 15 deutsche Wörter, die vorwiegend die linke Hand und die Oberreihe trainieren (q, w, e, r, t, a, s, d, f, g).'
+    basePrompt: 'Fokussiere dich auf die linke Oberreihe (q, w, e, r, t) in Kombination mit der Grundreihe.'
   },
   {
     id: 7,
     name: 'Oberreihe Rechts',
-    description: 'Z, U, I, O, P, Ü dazu.',
+    description: 'Die rechte Seite zieht nach: Z, U, I, O, P, Ü.',
+    color: 'violet',
     chars: ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'ö', 'q', 'w', 'e', 'r', 't', 'z', 'u', 'i', 'o', 'p', 'ü', ' '],
-    prompt: 'Generiere 3 kurze deutsche Sätze. Verwende nur Kleinbuchstaben (außer Satzanfang).'
+    basePrompt: 'Nutze nun auch die rechte Oberreihe (z, u, i, o, p, ü).'
   },
   {
     id: 8,
     name: 'Unterreihe',
-    description: 'Y, X, C, V, B, N, M.',
+    description: 'Der Abstieg in die Tiefe: Y, X, C, V, B, N, M.',
+    color: 'purple',
     chars: ['y', 'x', 'c', 'v', 'b', 'n', 'm', ' '],
-    prompt: 'Generiere 15 deutsche Wörter, die besonders die untere Tastenreihe (y, x, c, v, b, n, m) nutzen.'
+    basePrompt: 'Konzentriere dich stark auf die untere Reihe (y, x, c, v, b, n, m) gemischt mit bekannten Buchstaben.'
   },
   {
     id: 9,
     name: 'Großschreibung',
-    description: 'Nutzung der Shift-Taste.',
-    chars: [], // All chars allowed
-    prompt: 'Generiere 5 deutsche Sätze mit komplexer Groß- und Kleinschreibung. '
+    description: 'Meistere die Shift-Taste für Satzanfänge.',
+    color: 'fuchsia',
+    chars: [], 
+    basePrompt: 'Verwende nun auch Großbuchstaben. Bilde korrekte Nomen und Satzanfänge.'
   },
   {
     id: 10,
-    name: 'Meisterprüfung',
-    description: 'Zahlen und Sonderzeichen.',
+    name: 'Satzzeichen & Zahlen',
+    description: 'Das Finale: Alles kombiniert mit Zahlen und Zeichen.',
+    color: 'rose',
     chars: [],
-    prompt: 'Generiere einen komplexen deutschen Text inklusive Zahlen (0-9) und Satzzeichen (. , - ? !). Länge: ca. 300 Zeichen.'
+    basePrompt: 'Verwende den vollen Zeichensatz inklusive Zahlen und Satzzeichen (. , - ? !).'
   }
 ];

@@ -1,18 +1,19 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Level, GameState, GameStats, Finger } from '../types';
+import { Stage, GameStats } from '../types';
 import { KEYBOARD_LAYOUT, FINGER_NAMES_DE, FINGER_COLORS } from '../constants';
 import VirtualKeyboard from './VirtualKeyboard';
-import { ArrowRight, RotateCcw, Home } from 'lucide-react';
+import { RotateCcw, Home, Crown } from 'lucide-react';
 
 interface TypingGameProps {
-  level: Level;
+  stage: Stage;
+  subLevelId: number;
   content: string;
   onFinish: (stats: GameStats) => void;
   onBack: () => void;
   onRetry: () => void;
 }
 
-const TypingGame: React.FC<TypingGameProps> = ({ level, content, onFinish, onBack, onRetry }) => {
+const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content, onFinish, onBack, onRetry }) => {
   const [inputIndex, setInputIndex] = useState(0);
   const [mistakes, setMistakes] = useState(0);
   const [startTime, setStartTime] = useState<number | null>(null);
@@ -22,14 +23,10 @@ const TypingGame: React.FC<TypingGameProps> = ({ level, content, onFinish, onBac
   // Stats for real-time display
   const [wpm, setWpm] = useState(0);
 
-  // Focus hidden input to capture mobile keyboard or just ensure focus
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // Focus automatically on mount
     inputRef.current?.focus();
-    
-    // Global click listener to re-focus if user clicks away
     const handleGlobalClick = () => inputRef.current?.focus();
     document.addEventListener('click', handleGlobalClick);
     return () => document.removeEventListener('click', handleGlobalClick);
@@ -39,7 +36,7 @@ const TypingGame: React.FC<TypingGameProps> = ({ level, content, onFinish, onBac
     if (!startTime) return;
     const now = Date.now();
     const minutes = (now - startTime) / 60000;
-    const words = inputIndex / 5; // Standard word length
+    const words = inputIndex / 5;
     const currentWpm = Math.round(words / minutes) || 0;
     setWpm(currentWpm);
   }, [inputIndex, startTime]);
@@ -50,17 +47,13 @@ const TypingGame: React.FC<TypingGameProps> = ({ level, content, onFinish, onBac
   }, [calculateStats]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    // Track pressed keys for visual feedback
     setPressedKeys(prev => {
         const newSet = new Set(prev);
         newSet.add(e.key);
         return newSet;
     });
 
-    // Ignore modifiers for game logic
     if (['Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'Tab'].includes(e.key)) return;
-    
-    // Prevent default scrolling for Space
     if (e.key === ' ') e.preventDefault();
 
     if (startTime === null) {
@@ -70,12 +63,10 @@ const TypingGame: React.FC<TypingGameProps> = ({ level, content, onFinish, onBac
     const targetChar = content[inputIndex];
     
     if (e.key === targetChar) {
-      // Correct
       const nextIndex = inputIndex + 1;
       setInputIndex(nextIndex);
       
       if (nextIndex === content.length) {
-        // Finished
         const endTime = Date.now();
         const timeElapsed = (endTime - (startTime || endTime)) / 1000;
         const finalWpm = Math.round((content.length / 5) / (timeElapsed / 60));
@@ -90,7 +81,6 @@ const TypingGame: React.FC<TypingGameProps> = ({ level, content, onFinish, onBac
         });
       }
     } else {
-      // Mistake
       setMistakes(m => m + 1);
       setErrorShake(true);
       setTimeout(() => setErrorShake(false), 300);
@@ -130,23 +120,29 @@ const TypingGame: React.FC<TypingGameProps> = ({ level, content, onFinish, onBac
         }
       }
     }
-    // Default fallback if char not found
-    return { finger: Finger.RightIndex, color: 'bg-gray-500' };
+    // Default fallback (e.g. for punctuation not on layout yet)
+    return null;
   };
 
   const fingerInfo = getActiveFingerInfo();
+  const isMasterLevel = subLevelId === 5;
 
   return (
     <div className="flex flex-col items-center w-full max-w-5xl mx-auto min-h-screen pt-8 px-4">
       {/* Header / Stats */}
-      <div className="w-full flex justify-between items-center mb-8 bg-slate-800/50 p-4 rounded-lg border border-slate-700 backdrop-blur-sm">
+      <div className={`w-full flex justify-between items-center mb-8 p-4 rounded-lg border backdrop-blur-sm transition-colors ${isMasterLevel ? 'bg-yellow-900/30 border-yellow-700/50' : 'bg-slate-800/50 border-slate-700'}`}>
         <div className="flex items-center gap-4">
           <button onClick={onBack} className="p-2 hover:bg-slate-700 rounded-full transition-colors" title="Zurück zum Menü">
             <Home size={20} className="text-slate-400 hover:text-white" />
           </button>
           <div>
-            <h2 className="text-xl font-bold text-white">{level.name}</h2>
-            <p className="text-xs text-slate-400">Level {level.id}</p>
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              {stage.name}
+              {isMasterLevel && <Crown className="w-5 h-5 text-yellow-400 fill-yellow-400 animate-pulse" />}
+            </h2>
+            <p className={`text-xs ${isMasterLevel ? 'text-yellow-200' : 'text-slate-400'}`}>
+              Level {stage.id} - {isMasterLevel ? 'Meisterprüfung' : `Übung ${subLevelId}/5`}
+            </p>
           </div>
         </div>
         
@@ -207,12 +203,12 @@ const TypingGame: React.FC<TypingGameProps> = ({ level, content, onFinish, onBac
       {/* Virtual Keyboard */}
       <VirtualKeyboard activeKey={content[inputIndex] || ''} pressedKeys={pressedKeys} />
 
-      {/* Hidden Input for focus handling */}
       <input ref={inputRef} type="text" className="opacity-0 absolute top-0" />
       
-      {/* Helper text */}
       <div className="mt-8 text-slate-500 text-sm text-center max-w-lg">
-        Tippe die angezeigten Zeichen. Achte auf die farbige Hervorhebung auf der Tastatur und benutze den richtigen Finger!
+        {isMasterLevel 
+          ? "Zeig was du kannst! Keine Fehler erlaubt, volle Konzentration." 
+          : "Tippe die angezeigten Zeichen. Achte auf die farbige Hervorhebung!"}
       </div>
     </div>
   );

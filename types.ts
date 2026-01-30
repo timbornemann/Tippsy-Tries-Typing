@@ -12,18 +12,26 @@ export enum Finger {
 
 export interface KeyConfig {
   key: string;
-  display: string; // What shows on the key cap
+  display: string;
   finger: Finger;
-  width?: number; // Relative width (1 is standard)
+  width?: number;
   row: number;
 }
 
-export interface Level {
+export interface SubLevel {
+  id: number; // 1 to 5
+  name: string;
+  type: 'practice' | 'master';
+  difficultyModifier: string; // Hint for AI prompt
+}
+
+export interface Stage {
   id: number;
   name: string;
   description: string;
-  chars: string[]; // Characters introduced/focused in this level
-  prompt: string; // Prompt for Gemini
+  color: string; // Tailwind color class base (e.g. 'emerald', 'blue')
+  chars: string[]; 
+  basePrompt: string;
 }
 
 export interface GameStats {
@@ -32,6 +40,11 @@ export interface GameStats {
   errors: number;
   totalChars: number;
   timeElapsed: number;
+}
+
+export interface UserProgress {
+  unlockedStageId: number;
+  unlockedSubLevelId: number; // 1-5
 }
 
 export enum GameState {

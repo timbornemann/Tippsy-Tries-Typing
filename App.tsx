@@ -1,20 +1,34 @@
-import React, { useState } from 'react';
-import { GameState, Level, GameStats } from './types';
-import { LEVELS } from './constants';
+import React, { useState, useEffect } from 'react';
+import { GameState, Stage, GameStats, UserProgress } from './types';
+import { STAGES } from './constants';
 import { generateLevelContent } from './services/geminiService';
 import TypingGame from './components/TypingGame';
-import { Keyboard, Play, Trophy, BarChart3, Star, Loader2, RotateCcw } from 'lucide-react';
+import { Keyboard, Trophy, BarChart3, Star, Loader2, RotateCcw, Lock, Check, Crown } from 'lucide-react';
 
 const App: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>(GameState.MENU);
-  const [currentLevel, setCurrentLevel] = useState<Level | null>(null);
+  
+  // Progress State
+  const [progress, setProgress] = useState<UserProgress>(() => {
+    const saved = localStorage.getItem('tippmeister_progress');
+    return saved ? JSON.parse(saved) : { unlockedStageId: 1, unlockedSubLevelId: 1 };
+  });
+
+  // Current Session State
+  const [currentStage, setCurrentStage] = useState<Stage | null>(null);
+  const [currentSubLevel, setCurrentSubLevel] = useState<number>(1);
   const [gameContent, setGameContent] = useState<string>('');
   const [lastStats, setLastStats] = useState<GameStats | null>(null);
 
-  const startLevel = async (level: Level) => {
-    setCurrentLevel(level);
+  useEffect(() => {
+    localStorage.setItem('tippmeister_progress', JSON.stringify(progress));
+  }, [progress]);
+
+  const startLevel = async (stage: Stage, subLevelId: number) => {
+    setCurrentStage(stage);
+    setCurrentSubLevel(subLevelId);
     setGameState(GameState.LOADING);
-    const content = await generateLevelContent(level);
+    const content = await generateLevelContent(stage, subLevelId);
     setGameContent(content);
     setGameState(GameState.PLAYING);
   };
@@ -22,21 +36,63 @@ const App: React.FC = () => {
   const handleFinish = (stats: GameStats) => {
     setLastStats(stats);
     setGameState(GameState.FINISHED);
+    
+    // Unlock Logic
+    if (currentStage && currentSubLevel) {
+      const isCurrentLevel = currentStage.id === progress.unlockedStageId && currentSubLevel === progress.unlockedSubLevelId;
+      
+      if (isCurrentLevel) {
+        if (currentSubLevel < 5) {
+          // Unlock next sub level
+          setProgress(p => ({ ...p, unlockedSubLevelId: p.unlockedSubLevelId + 1 }));
+        } else if (currentSubLevel === 5) {
+          // Unlock next stage, reset sub level to 1
+          setProgress(p => ({ 
+            unlockedStageId: p.unlockedStageId + 1,
+            unlockedSubLevelId: 1
+          }));
+        }
+      }
+    }
   };
 
   const handleBackToMenu = () => {
     setGameState(GameState.MENU);
-    setCurrentLevel(null);
+    setCurrentStage(null);
   };
 
   const handleRetry = () => {
-    if (currentLevel) {
-      startLevel(currentLevel);
+    if (currentStage) {
+      startLevel(currentStage, currentSubLevel);
     }
   };
 
+  const handleNextLevel = () => {
+    if (!currentStage) return;
+
+    if (currentSubLevel < 5) {
+      startLevel(currentStage, currentSubLevel + 1);
+    } else {
+      // Find next stage
+      const nextStage = STAGES.find(s => s.id === currentStage.id + 1);
+      if (nextStage) {
+        startLevel(nextStage, 1);
+      } else {
+        // End of all content
+        handleBackToMenu();
+      }
+    }
+  };
+
+  // Helper to determine color classes based on stage color name
+  const getColorClasses = (colorBase: string, type: 'bg' | 'text' | 'border' | 'ring') => {
+    // Simplified mapping for dynamic classes since Tailwind needs full class names at build time
+    // We'll trust the default color palette and common names
+    return `${type}-${colorBase}-500`;
+  };
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-50 selection:bg-emerald-500/30">
+    <div className="min-h-screen bg-slate-950 text-slate-50 selection:bg-emerald-500/30 font-sans">
       
       {/* Background Gradient Mesh */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
@@ -44,71 +100,113 @@ const App: React.FC = () => {
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-emerald-900/20 rounded-full blur-[128px]"></div>
       </div>
 
-      <div className="relative z-10">
+      <div className="relative z-10 flex flex-col min-h-screen">
         
-        {/* MENU STATE */}
+        {/* HEADER */}
         {gameState === GameState.MENU && (
-          <div className="container mx-auto px-4 py-12 max-w-6xl">
-            <header className="text-center mb-16 space-y-4">
-              <div className="inline-flex items-center justify-center p-4 bg-slate-900 rounded-2xl shadow-2xl border border-slate-800 mb-4">
-                <Keyboard className="w-12 h-12 text-emerald-400 mr-4" />
-                <h1 className="text-5xl font-extrabold tracking-tight bg-gradient-to-r from-emerald-400 to-blue-500 bg-clip-text text-transparent">
-                  TippMeister
-                </h1>
-              </div>
-              <p className="text-xl text-slate-400 max-w-2xl mx-auto">
-                Lerne das 10-Finger-System spielerisch. Wähle ein Level und verbessere deine Geschwindigkeit und Präzision.
-              </p>
-            </header>
+          <header className="py-8 text-center sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800">
+            <div className="inline-flex items-center justify-center gap-3">
+              <Keyboard className="w-8 h-8 text-emerald-400" />
+              <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-emerald-400 to-blue-500 bg-clip-text text-transparent">
+                TippMeister
+              </h1>
+            </div>
+          </header>
+        )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {LEVELS.map((level) => (
-                <button
-                  key={level.id}
-                  onClick={() => startLevel(level)}
-                  className="group relative flex flex-col items-start p-6 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-emerald-500/50 rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl text-left"
-                >
-                  <div className="flex items-center justify-between w-full mb-4">
-                    <span className="px-3 py-1 text-xs font-bold text-emerald-300 bg-emerald-950/50 border border-emerald-900 rounded-full">
-                      LEVEL {level.id}
-                    </span>
-                    <Play className="w-5 h-5 text-slate-600 group-hover:text-emerald-400 transition-colors" />
+        {/* MENU STATE (Learning Path) */}
+        {gameState === GameState.MENU && (
+          <div className="flex-1 container mx-auto px-4 py-8 max-w-2xl">
+            <div className="flex flex-col gap-12 pb-24">
+              {STAGES.map((stage) => {
+                const isStageLocked = stage.id > progress.unlockedStageId;
+                const isStageActive = stage.id === progress.unlockedStageId;
+                const isStageCompleted = stage.id < progress.unlockedStageId;
+
+                return (
+                  <div key={stage.id} className={`relative rounded-3xl p-6 border-2 transition-all duration-500 ${isStageLocked ? 'border-slate-800 bg-slate-900/50 grayscale opacity-70' : `border-${stage.color}-900/50 bg-slate-900/80 shadow-2xl shadow-${stage.color}-900/20`}`}>
+                    
+                    {/* Stage Header */}
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-xl border shadow-lg ${isStageLocked ? 'bg-slate-800 border-slate-700 text-slate-500' : `bg-${stage.color}-500 border-${stage.color}-400 text-white`}`}>
+                        {isStageCompleted ? <Check strokeWidth={4} /> : stage.id}
+                      </div>
+                      <div>
+                        <h3 className={`text-xl font-bold ${isStageLocked ? 'text-slate-500' : 'text-white'}`}>{stage.name}</h3>
+                        <p className="text-sm text-slate-400">{stage.description}</p>
+                      </div>
+                    </div>
+
+                    {/* Path / SubLevels */}
+                    <div className="relative flex flex-col items-center gap-6">
+                      {/* Vertical connector line */}
+                      <div className="absolute top-4 bottom-4 w-1 bg-slate-800 rounded-full z-0"></div>
+
+                      {[1, 2, 3, 4, 5].map((subLevelId) => {
+                        const isMaster = subLevelId === 5;
+                        let status: 'locked' | 'active' | 'completed' = 'locked';
+                        
+                        if (isStageCompleted) status = 'completed';
+                        else if (isStageActive) {
+                          if (subLevelId < progress.unlockedSubLevelId) status = 'completed';
+                          else if (subLevelId === progress.unlockedSubLevelId) status = 'active';
+                        }
+
+                        // Slight horizontal offset for snake effect
+                        const offsetClass = subLevelId % 2 === 0 ? 'translate-x-8' : '-translate-x-8';
+                        const masterClass = isMaster ? 'scale-125 my-4' : '';
+
+                        return (
+                          <button
+                            key={subLevelId}
+                            disabled={status === 'locked'}
+                            onClick={() => startLevel(stage, subLevelId)}
+                            className={`
+                              relative z-10 w-16 h-16 rounded-full flex items-center justify-center border-4 transition-all duration-300
+                              ${masterClass} ${subLevelId !== 3 ? offsetClass : ''}
+                              ${status === 'locked' 
+                                ? 'bg-slate-800 border-slate-700 text-slate-600 cursor-not-allowed' 
+                                : status === 'completed'
+                                  ? 'bg-yellow-500 border-yellow-400 text-yellow-900 shadow-[0_0_20px_rgba(234,179,8,0.4)] hover:scale-110'
+                                  : `bg-${stage.color}-500 border-${stage.color}-400 text-white animate-bounce-slow shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:scale-110 cursor-pointer`
+                              }
+                            `}
+                          >
+                            {status === 'locked' && <Lock size={20} />}
+                            {status === 'completed' && <Star fill="currentColor" size={24} />}
+                            {status === 'active' && !isMaster && <span className="font-bold text-xl">{subLevelId}</span>}
+                            {status === 'active' && isMaster && <Crown fill="white" size={24} />}
+                            
+                            {/* Star count or detail for active/completed could go here */}
+                            {isMaster && <div className="absolute -bottom-6 text-[10px] font-bold uppercase tracking-wider text-slate-400 whitespace-nowrap bg-slate-900 px-2 py-0.5 rounded-full border border-slate-800">Master</div>}
+                          </button>
+                        );
+                      })}
+                    </div>
+
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-2 group-hover:text-emerald-300 transition-colors">
-                    {level.name}
-                  </h3>
-                  <p className="text-sm text-slate-400 leading-relaxed">
-                    {level.description}
-                  </p>
-                  
-                  {/* Decorative Key Preview */}
-                  <div className="mt-6 flex flex-wrap gap-1">
-                     {level.chars.slice(0, 5).map((char, i) => (
-                       <span key={i} className="w-6 h-6 flex items-center justify-center text-[10px] font-mono bg-slate-800 rounded border-b border-slate-700 text-slate-300 uppercase">
-                         {char === ' ' ? '␣' : char}
-                       </span>
-                     ))}
-                     {level.chars.length > 5 && <span className="text-slate-600 text-xs self-center">...</span>}
-                  </div>
-                </button>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
 
         {/* LOADING STATE */}
         {gameState === GameState.LOADING && (
-          <div className="flex flex-col items-center justify-center min-h-screen">
+          <div className="flex-1 flex flex-col items-center justify-center">
              <Loader2 className="w-16 h-16 text-emerald-500 animate-spin mb-6" />
-             <h2 className="text-2xl font-bold text-white mb-2">Übung wird erstellt...</h2>
+             <h2 className="text-2xl font-bold text-white mb-2">
+               {currentSubLevel === 5 ? 'Meisterprüfung wird vorbereitet...' : 'Übung wird geladen...'}
+             </h2>
              <p className="text-slate-400">Unsere KI bereitet den perfekten Text für dich vor.</p>
           </div>
         )}
 
         {/* PLAYING STATE */}
-        {gameState === GameState.PLAYING && currentLevel && (
+        {gameState === GameState.PLAYING && currentStage && (
           <TypingGame 
-            level={currentLevel}
+            stage={currentStage}
+            subLevelId={currentSubLevel}
             content={gameContent}
             onFinish={handleFinish}
             onBack={handleBackToMenu}
@@ -117,18 +215,23 @@ const App: React.FC = () => {
         )}
 
         {/* FINISHED STATE */}
-        {gameState === GameState.FINISHED && lastStats && (
-          <div className="flex flex-col items-center justify-center min-h-screen px-4">
+        {gameState === GameState.FINISHED && lastStats && currentStage && (
+          <div className="flex-1 flex flex-col items-center justify-center px-4 py-12">
             <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-2xl w-full shadow-2xl relative overflow-hidden">
                {/* Background Glow */}
-               <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-emerald-500 via-blue-500 to-purple-500"></div>
+               <div className={`absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-${currentStage.color}-500 to-blue-500`}></div>
                
                <div className="text-center mb-10">
-                 <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-800 mb-6 border border-slate-700">
-                    <Trophy className="w-10 h-10 text-yellow-400" />
+                 <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-slate-800 mb-6 border-4 border-slate-700 relative">
+                    <Trophy className="w-12 h-12 text-yellow-400" />
+                    <Star className="w-6 h-6 text-yellow-200 absolute top-0 right-0 animate-ping" />
                  </div>
-                 <h2 className="text-4xl font-bold text-white mb-2">Klasse gemacht!</h2>
-                 <p className="text-slate-400">Level {currentLevel?.id}: {currentLevel?.name} abgeschlossen.</p>
+                 <h2 className="text-4xl font-bold text-white mb-2">
+                   {currentSubLevel === 5 ? 'Stufe gemeistert!' : 'Level geschafft!'}
+                 </h2>
+                 <p className="text-slate-400">
+                   {currentStage.name} • {currentSubLevel === 5 ? 'Meisterprüfung' : `Übung ${currentSubLevel}`}
+                 </p>
                </div>
 
                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
@@ -161,10 +264,16 @@ const App: React.FC = () => {
                  </button>
                  <button 
                    onClick={handleRetry}
-                   className="px-8 py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-bold shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2"
+                   className="px-8 py-4 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-bold transition-all flex items-center justify-center gap-2"
                  >
                    <RotateCcw className="w-5 h-5" />
-                   Nochmal üben
+                   Wiederholen
+                 </button>
+                 <button 
+                   onClick={handleNextLevel}
+                   className="px-8 py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-bold shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2"
+                 >
+                   Weiter
                  </button>
                </div>
             </div>
