@@ -3,9 +3,8 @@ import { Stage } from '../types';
 // Vowels for pronounceability logic
 const VOWELS = ['a', 'e', 'i', 'o', 'u', 'ä', 'ö', 'ü'];
 
-// A small subset of common German words to check against available chars
-// If the user has unlocked the letters for these, they will be used.
-const COMMON_WORDS_DB = [
+// A small subset of common German words (exported for wordSentenceGenerator)
+export const COMMON_WORDS_DB = [
   "der", "die", "das", "und", "ist", "in", "den", "von", "zu", "mit", "sich", "auf", "für",
   "nicht", "es", "dem", "an", "auch", "als", "da", "nach", "wie", "wir", "aus", "er", "sie",
   "so", "dass", "was", "wird", "bei", "oder", "ein", "eine", "einer", "nur", "vor", "am", 
@@ -16,13 +15,13 @@ const COMMON_WORDS_DB = [
 
 const getRandomItem = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 
-// Checks if a word can be typed with the given allowed characters
-const canTypeWord = (word: string, allowedChars: Set<string>): boolean => {
+// Checks if a word can be typed with the given allowed characters (exported for wordSentenceGenerator)
+export const canTypeWord = (word: string, allowedChars: Set<string>): boolean => {
   return word.split('').every(char => allowedChars.has(char.toLowerCase()) || allowedChars.has(char));
 };
 
-// Generates a pronounceable pseudo-word
-const generatePseudoWord = (pool: string[], length: number): string => {
+// Generates a pronounceable pseudo-word (exported for wordSentenceGenerator)
+export const generatePseudoWord = (pool: string[], length: number): string => {
   if (pool.length === 0) return "";
   
   const vowels = pool.filter(c => VOWELS.includes(c));

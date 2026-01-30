@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { GameState, Stage, GameStats, UserProgress, GameMode, SessionRecord } from '../types';
 import { STAGES } from '../constants';
 import { generatePatternLevel } from '../services/patternGenerator';
+import { generateWordSentenceLevel } from '../services/wordSentenceGenerator';
 
 const SESSION_HISTORY_MAX = 30;
 
@@ -136,6 +137,27 @@ export const useGameEngine = () => {
     setGameState(GameState.PLAYING);
   };
 
+  // Start Word/Sentence practice mode
+  const startWordSentencePractice = async (stage: Stage) => {
+    if (gameState === GameState.MENU) {
+      setSessionStartProgress({ ...progress });
+    }
+
+    setCurrentStage(stage);
+    setCurrentSubLevel(0);
+    setGameMode('WORDS_SENTENCES');
+    setGameState(GameState.LOADING);
+
+    await new Promise((r) => setTimeout(r, 600));
+
+    let content = generateWordSentenceLevel(stage);
+    if (typeof content !== 'string' || !content.trim()) {
+      content = 'fff jjj fff jjj fff jjj';
+    }
+    setGameContent(content);
+    setGameState(GameState.PLAYING);
+  };
+
   const handleFinish = (gameStats: GameStats) => {
     setLastStats(gameStats);
     const key = currentStage ? progressKey(currentStage.id, currentSubLevel) : '';
@@ -224,20 +246,25 @@ export const useGameEngine = () => {
 
   const handleRetry = () => {
     if (!currentStage) return;
-    
+
     if (gameMode === 'PRACTICE') {
-      startPractice(currentStage); // Generates new random text
+      startPractice(currentStage);
+    } else if (gameMode === 'WORDS_SENTENCES') {
+      startWordSentencePractice(currentStage);
     } else {
-      startLevel(currentStage, currentSubLevel); // Regenerates pattern
+      startLevel(currentStage, currentSubLevel);
     }
   };
 
   const handleNextLevel = () => {
     if (!currentStage) return;
 
-    // If we are in practice mode, just do another practice
     if (gameMode === 'PRACTICE') {
       startPractice(currentStage);
+      return;
+    }
+    if (gameMode === 'WORDS_SENTENCES') {
+      startWordSentencePractice(currentStage);
       return;
     }
 
@@ -283,6 +310,7 @@ export const useGameEngine = () => {
     previousLevelStats,
     startLevel,
     startPractice,
+    startWordSentencePractice,
     handleFinish,
     handleBackToMenu,
     handleRetry,

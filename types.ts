@@ -95,4 +95,4 @@ export enum GameState {
   STATISTICS = 'STATISTICS',
 }
 
-export type GameMode = 'STANDARD' | 'PRACTICE';
+export type GameMode = 'STANDARD' | 'PRACTICE' | 'WORDS_SENTENCES';

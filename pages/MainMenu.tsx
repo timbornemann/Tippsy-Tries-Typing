@@ -15,16 +15,18 @@ interface MainMenuProps {
   gameState: GameState;
   onStartLevel: (s: Stage, l: number) => void;
   onStartPractice: (s: Stage) => void;
+  onStartWordSentencePractice: (s: Stage) => void;
   onOpenStats: () => void;
 }
 
-const MainMenu: React.FC<MainMenuProps> = ({ 
-  progress, 
+const MainMenu: React.FC<MainMenuProps> = ({
+  progress,
   sessionStartProgress,
-  gameState, 
-  onStartLevel, 
+  gameState,
+  onStartLevel,
   onStartPractice,
-  onOpenStats 
+  onStartWordSentencePractice,
+  onOpenStats
 }) => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showStorageHint, setShowStorageHint] = useState(false);
@@ -109,13 +111,14 @@ const MainMenu: React.FC<MainMenuProps> = ({
 
         <div className="flex flex-col gap-16 pb-32">
           {STAGES.map((stage) => (
-            <StageCard 
-              key={stage.id} 
-              stage={stage} 
-              progress={progress} 
+            <StageCard
+              key={stage.id}
+              stage={stage}
+              progress={progress}
               sessionStartProgress={sessionStartProgress}
               onStartLevel={onStartLevel}
               onStartPractice={onStartPractice}
+              onStartWordSentencePractice={onStartWordSentencePractice}
             />
           ))}
         </div>

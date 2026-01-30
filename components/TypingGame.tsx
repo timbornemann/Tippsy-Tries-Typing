@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Stage, GameStats, GameMode, ErrorCountByChar } from '../types';
 import { KEYBOARD_LAYOUT, FINGER_NAMES_DE, FINGER_COLORS } from '../constants';
 import VirtualKeyboard from './VirtualKeyboard';
-import { RotateCcw, Home, Crown, Zap } from 'lucide-react';
+import { RotateCcw, Home, Crown, Zap, BookOpen } from 'lucide-react';
 
 interface TypingGameProps {
   stage: Stage;
@@ -144,11 +144,12 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
   const fingerInfo = getActiveFingerInfo();
   const isMasterLevel = subLevelId === 5;
   const isPractice = gameMode === 'PRACTICE';
+  const isWordsSentences = gameMode === 'WORDS_SENTENCES';
 
   return (
     <div className="flex flex-col items-center w-full max-w-5xl mx-auto min-h-screen pt-8 px-4">
       {/* Header / Stats */}
-      <div className={`w-full flex justify-between items-center mb-8 p-4 rounded-lg border backdrop-blur-sm transition-colors ${isMasterLevel && !isPractice ? 'bg-yellow-900/30 border-yellow-700/50' : isPractice ? 'bg-purple-900/30 border-purple-700/50' : 'bg-slate-800/50 border-slate-700'}`}>
+      <div className={`w-full flex justify-between items-center mb-8 p-4 rounded-lg border backdrop-blur-sm transition-colors ${isMasterLevel && !isPractice && !isWordsSentences ? 'bg-yellow-900/30 border-yellow-700/50' : isWordsSentences ? 'bg-teal-900/30 border-teal-700/50' : isPractice ? 'bg-purple-900/30 border-purple-700/50' : 'bg-slate-800/50 border-slate-700'}`}>
         <div className="flex items-center gap-4">
           <button onClick={onBack} className="p-2 hover:bg-slate-700 rounded-full transition-colors" title="Zurück zum Menü">
             <Home size={20} className="text-slate-400 hover:text-white" />
@@ -156,11 +157,12 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
           <div>
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
               {stage.name}
-              {isMasterLevel && !isPractice && <Crown className="w-5 h-5 text-yellow-400 fill-yellow-400 animate-pulse" />}
+              {isMasterLevel && !isPractice && !isWordsSentences && <Crown className="w-5 h-5 text-yellow-400 fill-yellow-400 animate-pulse" />}
               {isPractice && <Zap className="w-5 h-5 text-purple-400 fill-purple-400" />}
+              {isWordsSentences && <BookOpen className="w-5 h-5 text-teal-400 fill-teal-400" />}
             </h2>
-            <p className={`text-xs ${isMasterLevel && !isPractice ? 'text-yellow-200' : isPractice ? 'text-purple-200' : 'text-slate-400'}`}>
-              Level {stage.id} - {isPractice ? 'Üben' : isMasterLevel ? 'Meisterprüfung' : `Übung ${subLevelId}/5`}
+            <p className={`text-xs ${isMasterLevel && !isPractice && !isWordsSentences ? 'text-yellow-200' : isWordsSentences ? 'text-teal-200' : isPractice ? 'text-purple-200' : 'text-slate-400'}`}>
+              Level {stage.id} - {isWordsSentences ? 'Wort & Satz' : isPractice ? 'Üben' : isMasterLevel ? 'Meisterprüfung' : `Übung ${subLevelId}/5`}
             </p>
           </div>
         </div>
@@ -268,9 +270,11 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
       `}</style>
 
       <div className="mt-8 text-slate-500 text-sm text-center max-w-lg">
-        {isMasterLevel && !isPractice
-          ? "Zeig was du kannst! Keine Fehler erlaubt, volle Konzentration." 
-          : "Tippe die angezeigten Zeichen. Achte auf die farbige Hervorhebung!"}
+        {isMasterLevel && !isPractice && !isWordsSentences
+          ? "Zeig was du kannst! Keine Fehler erlaubt, volle Konzentration."
+          : isWordsSentences
+            ? "Tippe die Wörter und Sätze. Achte auf die farbige Hervorhebung!"
+            : "Tippe die angezeigten Zeichen. Achte auf die farbige Hervorhebung!"}
       </div>
     </div>
   );

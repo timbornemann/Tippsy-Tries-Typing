@@ -21,6 +21,7 @@ const App: React.FC = () => {
     previousLevelStats,
     startLevel,
     startPractice,
+    startWordSentencePractice,
     handleFinish,
     handleBackToMenu,
     handleRetry,
@@ -83,12 +84,13 @@ const App: React.FC = () => {
         
         {/* MENU STATE (Learning Path) */}
         {gameState === GameState.MENU && (
-          <MainMenu 
+          <MainMenu
             progress={progress}
             sessionStartProgress={sessionStartProgress}
             gameState={gameState}
             onStartLevel={startLevel}
             onStartPractice={startPractice}
+            onStartWordSentencePractice={startWordSentencePractice}
             onOpenStats={() => setGameState(GameState.STATISTICS)}
           />
         )}
@@ -106,10 +108,10 @@ const App: React.FC = () => {
                <Bot className="w-20 h-20 text-emerald-400 relative z-10 animate-bounce" />
              </div>
              <h2 className="text-3xl font-bold text-white mb-2">
-               {gameMode === 'PRACTICE' ? 'Erstelle Mega-Level...' : currentSubLevel === 5 ? 'Meisterprüfung!' : 'Lektion wird geladen'}
+               {gameMode === 'PRACTICE' ? 'Erstelle Mega-Level...' : gameMode === 'WORDS_SENTENCES' ? 'Erstelle Wörter & Sätze…' : currentSubLevel === 5 ? 'Meisterprüfung!' : 'Lektion wird geladen'}
              </h2>
              <p className="text-slate-400 text-lg">
-               {gameMode === 'PRACTICE' ? 'Mische Wörter und Übungen für dich.' : 'Mach deine Finger bereit!'}
+               {gameMode === 'PRACTICE' ? 'Mische Wörter und Übungen für dich.' : gameMode === 'WORDS_SENTENCES' ? 'Echte Wörter und Sätze zum Tippen.' : 'Mach deine Finger bereit!'}
              </p>
           </div>
         )}
@@ -141,10 +143,10 @@ const App: React.FC = () => {
                     <Sparkles className="w-8 h-8 text-yellow-200 absolute -top-2 -right-2 animate-pulse" />
                  </div>
                  <h2 className="text-4xl font-bold text-white mb-2">
-                   {gameMode === 'PRACTICE' ? 'Training beendet!' : currentSubLevel === 5 ? 'Meisterhaft!' : 'Gut gemacht!'}
+                   {gameMode === 'PRACTICE' ? 'Training beendet!' : gameMode === 'WORDS_SENTENCES' ? 'Wörter & Sätze beendet!' : currentSubLevel === 5 ? 'Meisterhaft!' : 'Gut gemacht!'}
                  </h2>
                  <p className="text-slate-400 text-lg">
-                   {currentStage.name} • {gameMode === 'PRACTICE' ? 'Freies Üben' : (currentSubLevel === 5 ? 'Meisterprüfung' : `Übung ${currentSubLevel}`)}
+                   {currentStage.name} • {gameMode === 'PRACTICE' ? 'Freies Üben' : gameMode === 'WORDS_SENTENCES' ? 'Wort & Satz' : (currentSubLevel === 5 ? 'Meisterprüfung' : `Übung ${currentSubLevel}`)}
                  </p>
                </div>
 
@@ -191,13 +193,13 @@ const App: React.FC = () => {
                    className="px-8 py-4 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-bold transition-all flex items-center justify-center gap-2 border border-slate-600"
                  >
                    <RotateCcw className="w-5 h-5" />
-                   {gameMode === 'PRACTICE' ? 'Neue Übung' : 'Wiederholen'}
+                   {gameMode === 'PRACTICE' || gameMode === 'WORDS_SENTENCES' ? 'Neue Übung' : 'Wiederholen'}
                  </button>
                  <button 
                    onClick={handleNextLevel}
                    className="px-8 py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-bold shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 transform hover:scale-105"
                  >
-                   {gameMode === 'PRACTICE' ? 'Noch eine' : 'Weiter'}
+                   {gameMode === 'PRACTICE' || gameMode === 'WORDS_SENTENCES' ? 'Noch eine' : 'Weiter'}
                  </button>
                </div>
             </div>

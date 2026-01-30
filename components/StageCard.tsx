@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Stage, UserProgress } from '../types';
 import { STAGE_COLOR_CLASSES } from '../constants';
-import { Check, Lock, Star, Crown, Zap } from 'lucide-react';
+import { Check, Lock, Star, Crown, Zap, BookOpen } from 'lucide-react';
 import TippsyAvatar from './TippsyAvatar';
 
 interface StageCardProps {
@@ -10,14 +10,16 @@ interface StageCardProps {
   sessionStartProgress: UserProgress | null;
   onStartLevel: (s: Stage, l: number) => void;
   onStartPractice: (s: Stage) => void;
+  onStartWordSentencePractice: (s: Stage) => void;
 }
 
-const StageCard: React.FC<StageCardProps> = ({ 
-  stage, 
-  progress, 
+const StageCard: React.FC<StageCardProps> = ({
+  stage,
+  progress,
   sessionStartProgress,
-  onStartLevel, 
-  onStartPractice 
+  onStartLevel,
+  onStartPractice,
+  onStartWordSentencePractice
 }) => {
   const isLocked = stage.id > progress.unlockedStageId;
   const isCompleted = stage.id < progress.unlockedStageId;
@@ -277,22 +279,36 @@ const StageCard: React.FC<StageCardProps> = ({
         </div>
       </div>
 
-      {/* PRACTICE BUTTON */}
+      {/* PRACTICE BUTTONS */}
       {isCompleted && (
-        <div className="mt-8 pt-6 border-t border-slate-800/50 flex justify-center">
+        <div className="mt-8 pt-6 border-t border-slate-800/50 flex flex-col sm:flex-row gap-4 justify-center items-center">
           <button
-             onClick={() => onStartPractice(stage)}
-             className={`
-               flex items-center gap-3 px-8 py-4 rounded-2xl 
-               bg-slate-800 border border-slate-700
-               ${c.practiceHover}
-               text-slate-300 font-bold transition-all duration-300 group/practice w-full sm:w-auto justify-center
-             `}
+            onClick={() => onStartPractice(stage)}
+            className={`
+              flex items-center gap-3 px-8 py-4 rounded-2xl 
+              bg-slate-800 border border-slate-700
+              ${c.practiceHover}
+              text-slate-300 font-bold transition-all duration-300 group/practice w-full sm:w-auto justify-center
+            `}
           >
             <div className={`p-1.5 rounded-lg ${c.practiceIconBg} transition-colors`}>
               <Zap className={`w-5 h-5 ${c.practiceIconText}`} />
             </div>
             <span>Endlos-Üben (Mega-Level)</span>
+          </button>
+          <button
+            onClick={() => onStartWordSentencePractice(stage)}
+            className={`
+              flex items-center gap-3 px-8 py-4 rounded-2xl 
+              bg-slate-800 border border-slate-700
+              ${c.practiceHover}
+              text-slate-300 font-bold transition-all duration-300 group/practice w-full sm:w-auto justify-center
+            `}
+          >
+            <div className={`p-1.5 rounded-lg ${c.practiceIconBg} transition-colors`}>
+              <BookOpen className={`w-5 h-5 ${c.practiceIconText}`} />
+            </div>
+            <span>Wort & Satz</span>
           </button>
         </div>
       )}
