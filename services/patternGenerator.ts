@@ -144,26 +144,57 @@ const MEISTERKLASSE_TEXTS: string[] = [
   "Der Zug hatte 20 Minuten Verspätung. Statt um 18.00 Uhr kam er erst um 18.20 Uhr. Auf dem Bahnsteig warteten Dutzende Menschen mit genervten Gesichtern. Ein Kind weinte, ein Mann schimpfte laut in sein Handy. Die Ansage entschuldigte sich und versprach: Nächster Zug in 10 Minuten."
 ];
 
+// Profi-Texte (Stage 12): Sonderzeichen, E-Mails, Code, Preise, Gesetze
+const PROFI_TEXTS: string[] = [
+  // --- E-MAIL & KONTAKT ---
+  "Bitte senden Sie die Unterlagen an max.mustermann@example.com oder rufen Sie uns unter +49 30 1234567 an. Unser Support-Team ist auch per Chat erreichbar. Wir freuen uns auf Ihr Feedback!",
+  "Die neue Adresse lautet: Firmenname GmbH, Hauptstr. 42 / Gebäude B, 10115 Berlin. (Eingang im Hinterhof). Bitte klingeln Sie bei 'Müller & Partner'.",
+  "Betreff: AW: Rechnung Nr. 2024-001 / Kunden-ID #9923. Sehr geehrte Frau Schmidt, hiermit bestätigen wir den Eingang Ihrer Zahlung in Höhe von 450,00 €. Vielen Dank!",
+
+  // --- FINANZEN & PREISE ---
+  "Das Sonderangebot gilt nur heute: 3 T-Shirts für 29,99 € (statt 45,00 €). Sie sparen über 30 %! Greifen Sie zu, solange der Vorrat reicht. Inkl. 19 % MwSt., zzgl. Versand.",
+  "Die Aktie stieg um 2,5 % auf einen Wert von 123,45 $. Analysten erwarten einen weiteren Anstieg auf bis zu 130,00 $. Das Kurs-Gewinn-Verhältnis (KGV) liegt bei 15,2.",
+  "Miete: 850,00 € + 120,00 € Nebenkosten = 970,00 € Gesamtmiete. Die Kaution beträgt 3 Monatsmieten (2.550,00 €). Bitte überweisen Sie den Betrag bis zum 3. Werktag des Monats.",
+
+  // --- RECHT & GESETZE ---
+  "Gemäß § 433 BGB ist der Verkäufer verpflichtet, dem Käufer die Sache zu übergeben und das Eigentum daran zu verschaffen. Der Käufer ist verpflichtet, den vereinbarten Kaufpreis zu zahlen.",
+  "Laut StVO § 3 Abs. 3 beträgt die zulässige Höchstgeschwindigkeit innerhalb geschlossener Ortschaften 50 km/h. Auf Autobahnen gilt eine Richtgeschwindigkeit von 130 km/h, sofern nicht anders ausgeschildert.",
+  "Datenschutzerklärung: Wir speichern Ihre Daten gemäß Art. 6 Abs. 1 lit. b DSGVO zur Vertragserfüllung. Sie haben jederzeit das Recht auf Auskunft, Berichtigung und Löschung (§§ 15-17 DSGVO).",
+
+  // --- TECHNIK & CODE (Light) ---
+  "Um die Datei zu speichern, drücken Sie Strg + S (Windows) oder Cmd + S (Mac). Mit Alt + F4 schließen Sie das Fenster. Der Pfad lautet: C:\\Dokumente\\Projekte\\Bericht_Final_v2.docx",
+  "HTML-Grundgerüst: <html> <head> <title>Meine Seite</title> </head> <body> <h1>Hallo Welt!</h1> <p>Das ist ein Absatz.</p> </body> </html>. Vergessen Sie nicht das schließende Tag!",
+  "Fehlermeldung: 'Error 404: Page not found'. Bitte überprüfen Sie die URL (http://www.beispiel.de/index.php?id=123&lang=de) oder versuchen Sie es später erneut.",
+  "Die Funktion berechnet den Durchschnitt: f(x) = (a + b) / 2. Wenn a = 10 und b = 20, dann ist f(x) = 15. Mathe ist gar nicht so schwer, oder?",
+
+  // --- LEBENSMITTEL & MENGEN ---
+  "Rezept für Pfannkuchen: 200 g Mehl, 2 Eier, 300 ml Milch, 1 Prise Salz und 1 EL Zucker. Alles verrühren und in der Pfanne goldbraun backen. Lecker! Servieren mit Apfelmus oder Schokolade.",
+  "Einkaufsliste: 1,5 kg Kartoffeln, 500 g Hackfleisch, 1 l Milch (3,5 % Fett), 6 Eier (Größe M) und 1 Netz Orangen. Vergiss nicht das Basilikum!",
+  "Die Temperatur im Kühlschrank sollte zwischen 5 °C und 7 °C liegen. Im Gefrierfach sind -18 °C optimal, um Lebensmittel lange frisch zu halten.",
+
+  // --- TYPOGRAFIE & SYMBOLE ---
+  "Sonderzeichen-Test: @ (At-Zeichen), & (Kaufmanns-Und), § (Paragraf), € (Euro), % (Prozent), # (Raute/Hashtag). Alles gefunden? Super! Weiter geht's mit Klammern: ( ) [ ] { }.",
+  "Das Zitat lautet: „Der Weg ist das Ziel.“ (Konfuzius). Manchmal schreibt man auch 'Der Weg ist das Ziel' oder sogar »Der Weg ist das Ziel«.",
+  "Groß- und Kleinschreibung nicht vergessen! DIE KATZE SCHLÄFT auf dem Sofa. der hund bellt im garten. ACHTUNG: Hier gilt Rechts-Vor-Links!"
+];
+
 // Generates the content based on pedagogical levels
 export const generatePatternLevel = (stage: Stage, subLevelId: number): string => {
-  // Meisterklasse (Stage 11): Echte Texte, mehrere Sätze mit Satzzeichen und Zahlen
-  if (stage.id === 11) {
-    // Pick specific paragraphs to ensure coherence (no shuffling of sentences within)
-    // subLevelId 0 = Mega Level = Mix of 2 paragraphs
-    // subLevelId 1-5 = Single paragraph of increasing complexity/length logic (simulated by random pick for now)
+  // Meisterklasse (Stage 11) & Profi (Stage 12)
+  if (stage.id === 11 || stage.id === 12) {
+    // Stage 12 uses PROFI_TEXTS, Stage 11 uses MEISTERKLASSE_TEXTS
+    const texts = stage.id === 12 ? PROFI_TEXTS : MEISTERKLASSE_TEXTS;
+    const count = texts.length;
     
-    const count = MEISTERKLASSE_TEXTS.length;
-    
+    // Pick specific paragraphs to ensure coherence
     if (subLevelId === 0) {
-      const p1 = MEISTERKLASSE_TEXTS[Math.floor(Math.random() * count)];
-      let p2 = MEISTERKLASSE_TEXTS[Math.floor(Math.random() * count)];
-      while(p1 === p2) p2 = MEISTERKLASSE_TEXTS[Math.floor(Math.random() * count)];
+      const p1 = texts[Math.floor(Math.random() * count)];
+      let p2 = texts[Math.floor(Math.random() * count)];
+      while(p1 === p2) p2 = texts[Math.floor(Math.random() * count)];
       return p1 + " " + p2;
     }
 
-    // For other sub-levels, pick one coherent text. 
-    // Ideally we could sort by length, but random variation is fine for "Practice".
-    return MEISTERKLASSE_TEXTS[Math.floor(Math.random() * count)];
+    return texts[Math.floor(Math.random() * count)];
   }
 
   const allChars = new Set(stage.chars);

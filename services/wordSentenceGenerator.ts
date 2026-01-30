@@ -25,7 +25,9 @@ const EXTRA_WORDS = [
   "abend", "arbeit", "augen", "auto", "ball", "baum", "bett", "bild", "brot", "buch", "boden", "brief", "dank", "ding", "eltern", "ende", "erste", "essen", "frage", "freund", "früh", "geld", "geschichte", "gesicht", "glück", "grund", "hand", "haus", "heim", "herz", "hund", "jahr", "kind", "kopf", "kraft", "kreis", "land", "leben", "licht", "luft", "minute", "moment", "mond", "morgen", "name", "nacht", "ort", "platz", "recht", "rest", "raum", "satz", "schule", "stadt", "stunde", "tag", "teil", "tür", "uhr", "vater", "welt", "woche", "wort", "zeit", "zimmer",
   "alt", "arm", "best", "dein", "eigen", "einfach", "ganz", "gut", "gern", "gross", "halb", "hart", "hoch", "klar", "klein", "kurz", "lang", "leicht", "neu", "nächst", "richtig", "schnell", "schwer", "schön", "spät", "stark", "tief", "voll", "wahr", "warm", "weit", "wenig", "wichtig", "wunderbar",
   "arbeiten", "beginnen", "bleiben", "bringen", "denken", "fahren", "finden", "fragen", "geben", "gehen", "halten", "heissen", "kennen", "kommen", "lassen", "leben", "legen", "lesen", "liegen", "machen", "meinen", "nehmen", "nennen", "reden", "sagen", "sehen", "sein", "sitzen", "spielen", "sprechen", "stehen", "stellen", "tragen", "treffen", "tun", "verstehen", "warten", "werden", "wissen", "wohnen", "wollen", "zeigen",
-  "ab", "an", "aus", "bei", "bis", "durch", "für", "gegen", "in", "mit", "nach", "ohne", "über", "um", "unter", "von", "vor", "zu", "zwischen",
+  // --- SPECIAL CHARS (Stage 12) ---
+  "groß", "weiß", "heiß", "süß", "fuß", "spaß", "maß", "straße", "grüße", "fließen", "außen", "schießen", "schließlich", "regelmäßig",
+  "email@test.de", "info@web.de", "100%", "50%", "19,99€", "10€", "(neu)", "(alt)", "§123", "a+b", "x=y", "#hashtag", "@user"
 ];
 
 // Large set of German sentences (without trailing punctuation; punctuation added when stage allows)
@@ -433,6 +435,39 @@ const MEISTERKLASSE_SENTENCES = [
   "Übung macht den Meister. - Das gilt auch beim Tippen."
 ];
 
+const PROFI_SENTENCES = [
+  "Preise: 19,99 € inkl. MwSt.",
+  "Kontakt: info@example.com oder admin@web.de",
+  "Skonto: 2 % bei Zahlung binnen 7 Tagen.",
+  "Login: User_123 & Pass#wort!",
+  "Gesetz: § 433 BGB regelt den Kaufvertrag.",
+  "Temperatur: Heute sind es 23 °C.",
+  "Rechnung: (10 + 5) * 2 = 30.",
+  "Rabatt-Code: #SALE2024",
+  "Datei: C:\\Windows\\System32\\drivers",
+  "Webseite: https://www.google.de",
+  "Er rief: Achtung, fertig, los!",
+  "Die Straße ist nass.",
+  "Grüße aus Berlin, deine Susi.",
+  "Spaß muss sein!",
+  "Das Maß ist voll.",
+  "Fußball-WM 2026: Wer ist dabei?",
+  "100 % Motivation ist nötig.",
+  "Bitte überweisen Sie 45,50 €.",
+  "Tel: +49 (0) 30 / 123 45 67",
+  "Öffnungszeiten: Mo–Fr 9:00–18:00 Uhr.",
+  "Währungskurs: 1 € = 1,10 $.",
+  "Programmierer nutzen oft { } und [ ].",
+  "HTML nutzt <tags> und </tags>.",
+  "Bitte nicht stören!",
+  "Der § 1 DSGVO ist wichtig.",
+  "Kosten: 50 € zzgl. 3,50 € Versand.",
+  "Email: max_mustermann@provider.net",
+  "Mathe: 50 % von 200 ist 100.",
+  "Ort: 52° 31' N, 13° 24' O",
+  "Status: Online (grün) / Offline (rot)"
+];
+
 /**
  * Generates typing content focused on real words and sentences when possible,
  * or word-like / sentence-like pseudo content when the stage has few letters.
@@ -442,18 +477,24 @@ export function generateWordSentenceLevel(stage: Stage): string {
   const useCapitalization = stage.id >= 9;
   const usePunctuation = stage.id >= 10;
   const isMeisterklasse = stage.id >= 11;
+  const isProfi = stage.id === 12;
 
   const poolAll = stage.chars.filter((c) => c !== ' ' && c.length === 1);
   const allWords = [...COMMON_WORDS_DB, ...EXTRA_WORDS];
   const possibleWords = allWords.filter((w) => canTypeWord(w, allChars));
   let possibleSentences = SENTENCES_DB.filter((s) => canTypeWord(s, allChars));
-  if (isMeisterklasse && usePunctuation) {
+  
+  if (isMeisterklasse && usePunctuation && !isProfi) {
     const extra = MEISTERKLASSE_SENTENCES.filter((s) => canTypeWord(s, allChars));
     possibleSentences = [...possibleSentences, ...extra];
+  } else if (isProfi) {
+    // In Profi stage, prioritize sentences with special chars
+    const extra = PROFI_SENTENCES.filter((s) => canTypeWord(s, allChars));
+    possibleSentences = [...extra, ...MEISTERKLASSE_SENTENCES, ...possibleSentences];
   }
 
-  const sentenceCount = isMeisterklasse
-    ? 6 + Math.floor(Math.random() * 5)   // 6–10 Sätze für Meisterklasse
+  const sentenceCount = (isMeisterklasse || isProfi)
+    ? 6 + Math.floor(Math.random() * 5)   // 6–10 Sätze für Meister/Profi
     : 3 + Math.floor(Math.random() * 3);   // 3–5 Sätze sonst
   const result: string[] = [];
 
