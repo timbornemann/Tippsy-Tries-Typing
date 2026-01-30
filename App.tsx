@@ -1,8 +1,9 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { GameState } from './types';
 import TypingGame from './components/TypingGame';
 import Statistics from './components/Statistics';
 import StartScreen from './components/StartScreen';
+import SetupScreen from './components/SetupScreen';
 import { Bot, Trophy, BarChart3, Star, RotateCcw, Sparkles, Type, Clock } from 'lucide-react';
 import { useGameEngine } from './hooks/useGameEngine';
 import MainMenu from './pages/MainMenu';
@@ -50,6 +51,12 @@ const App: React.FC = () => {
     return () => window.removeEventListener('keydown', onKey);
   }, [debugPassCurrentLevel]);
 
+  // When entering START (first time or "Tutorial"), show setup (language + keyboard) first, then tutorial
+  const [startPhase, setStartPhase] = useState<'setup' | 'tutorial'>('setup');
+  useEffect(() => {
+    if (gameState === GameState.START) setStartPhase('setup');
+  }, [gameState]);
+
   const stageColorClasses = currentStage ? STAGE_COLOR_CLASSES[currentStage.color] ?? STAGE_COLOR_CLASSES.emerald : STAGE_COLOR_CLASSES.emerald;
 
   const finishedTippsyMessage = useMemo(() => {
@@ -91,8 +98,11 @@ const App: React.FC = () => {
 
       <div className="relative z-10 flex flex-col min-h-screen">
         
-        {/* START SCREEN (Onboarding/Tutorial) */}
-        {gameState === GameState.START && (
+        {/* START: First setup (language + keyboard), then onboarding/tutorial */}
+        {gameState === GameState.START && startPhase === 'setup' && (
+          <SetupScreen onComplete={() => setStartPhase('tutorial')} />
+        )}
+        {gameState === GameState.START && startPhase === 'tutorial' && (
           <StartScreen onComplete={handleCompleteTutorial} />
         )}
 

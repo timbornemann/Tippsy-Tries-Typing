@@ -56,6 +56,11 @@ export const translations = {
       moreLessons: 'More lessons coming soon!',
       settings: 'Settings',
     },
+    setup: {
+      title: 'Before we start',
+      description: 'Choose your language and keyboard layout so the tutorial matches your setup.',
+      continue: 'Continue',
+    },
     start: {
       intro: {
         title: 'Welcome to Tippsy',
@@ -318,6 +323,11 @@ export const translations = {
       close: 'Schließen',
       moreLessons: 'Mehr Lektionen folgen bald!',
       settings: 'Einstellungen',
+    },
+    setup: {
+      title: 'Bevor wir starten',
+      description: 'Wähle deine Sprache und dein Tastaturlayout, damit das Tutorial zu deiner Tastatur passt.',
+      continue: 'Weiter',
     },
     start: {
       intro: {
