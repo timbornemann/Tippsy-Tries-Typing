@@ -60,10 +60,10 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
 
     const keyForPress = (e.key === 'Minus' ? '-' : e.key === 'Comma' ? ',' : e.key === 'Period' ? '.' : e.key);
     setPressedKeys(prev => {
-        const newSet = new Set(prev);
-        newSet.add(e.key);
-        newSet.add(keyForPress);
-        return newSet;
+      const newSet = new Set(prev);
+      newSet.add(e.key);
+      if (keyForPress !== e.key) newSet.add(keyForPress);
+      return newSet;
     });
 
     if (['Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'Tab'].includes(e.key)) return;
@@ -108,19 +108,30 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
   }, [content, inputIndex, mistakes, onFinish, startTime, onBack, errorCountByChar]);
 
   const handleKeyUp = useCallback((e: KeyboardEvent) => {
+    const normalized = (k: string) => (k === 'Minus' ? '-' : k === 'Comma' ? ',' : k === 'Period' ? '.' : k);
     setPressedKeys(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(e.key);
-        return newSet;
+      const newSet = new Set(prev);
+      newSet.delete(e.key);
+      const n = normalized(e.key);
+      if (n !== e.key) newSet.delete(n);
+      // Shift+Buchstabe: keydown liefert oft "A", keyup oft "a" (physische Taste) – beide entfernen
+      if (e.key.length === 1) {
+        newSet.delete(e.key.toLowerCase());
+        newSet.delete(e.key.toUpperCase());
+      }
+      return newSet;
     });
   }, []);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
+    const onBlur = () => setPressedKeys(new Set());
+    window.addEventListener('blur', onBlur);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('blur', onBlur);
     };
   }, [handleKeyDown, handleKeyUp]);
 
