@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { useSettings } from '../contexts/SettingsContext';
 import { useI18n } from '../hooks/useI18n';
 import { useSound } from '../hooks/useSound';
-import { Home, Download, Upload, Trash2 } from 'lucide-react';
+import { Home, Download, Upload, Trash2, Info } from 'lucide-react';
 import { UserProgress } from '../types';
 
 const PROGRESS_STORAGE_KEY = 'tippsy_progress';
@@ -223,6 +223,16 @@ const Settings: React.FC<SettingsProps> = ({ onBack }) => {
           <Trash2 size={18} />
           <span>{t('settings.reset')}</span>
         </button>
+      </div>
+
+      <div className="mt-8 p-4 rounded-xl bg-slate-800/60 border border-slate-700 flex gap-3">
+        <Info size={20} className="text-slate-400 shrink-0 mt-0.5" />
+        <div>
+          <p className="text-slate-300 text-sm font-medium mb-1">
+            <kbd className="px-1.5 py-0.5 rounded bg-slate-700 font-mono text-xs">{t('settings.skipLevelShortcut')}</kbd>
+          </p>
+          <p className="text-slate-500 text-xs">{t('settings.skipLevelHint')}</p>
+        </div>
       </div>
     </div>
   );

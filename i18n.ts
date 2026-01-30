@@ -203,6 +203,8 @@ export const translations = {
       resetHint: 'Clear all local progress. This cannot be undone.',
       resetConfirm: 'Reset all progress? This cannot be undone.',
       importError: 'Invalid file. Use an exported Tippsy progress file.',
+      skipLevelShortcut: 'Shift + Ctrl + Alt + P',
+      skipLevelHint: 'Skip the current level (e.g. if you\'re stuck or want to try the next one).',
     },
     stage: {
       1: {
@@ -484,6 +486,8 @@ export const translations = {
       resetHint: 'Alle lokalen Fortschrittsdaten löschen. Das kann nicht rückgängig gemacht werden.',
       resetConfirm: 'Fortschritt wirklich zurücksetzen? Das kann nicht rückgängig gemacht werden.',
       importError: 'Ungültige Datei. Bitte eine exportierte Tippsy-Fortschrittsdatei verwenden.',
+      skipLevelShortcut: 'Umschalt + Strg + Alt + P',
+      skipLevelHint: 'Aktuelles Level überspringen (z. B. wenn du nicht weiterkommst oder das nächste ausprobieren möchtest).',
     },
     stage: {
       1: {
