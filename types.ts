@@ -35,12 +35,17 @@ export interface Stage {
   basePrompt: string;
 }
 
+/** Per-session error count per expected character (what was shown when user typed wrong). */
+export type ErrorCountByChar = Record<string, number>;
+
 export interface GameStats {
   wpm: number;
   accuracy: number;
   errors: number;
   totalChars: number;
   timeElapsed: number;
+  /** Optional: which characters were mistyped how often this session */
+  errorCountByChar?: ErrorCountByChar;
 }
 
 export interface GlobalStats {
@@ -52,10 +57,34 @@ export interface GlobalStats {
   averageAccuracy: number;
 }
 
+/** One session entry for history (WPM/accuracy over time). */
+export interface SessionRecord {
+  date: string; // ISO date YYYY-MM-DD
+  wpm: number;
+  accuracy: number;
+  stageId?: number;
+  subLevelId?: number;
+}
+
+/** Last and best stats per stage (key: "stageId_subLevelId" or "stageId_0" for practice). */
+export interface StageLevelStats {
+  last?: GameStats;
+  bestWpm?: number;
+  bestAccuracy?: number;
+}
+
 export interface UserProgress {
   unlockedStageId: number;
   unlockedSubLevelId: number; // 1-5
   stats: GlobalStats;
+  /** Last session stats per stage+subLevel for "compared to last time" */
+  lastSessionByKey?: Record<string, GameStats>;
+  /** Last N sessions for WPM/accuracy over time (e.g. 30). */
+  sessionHistory?: SessionRecord[];
+  /** Per stage/subLevel: best WPM and best accuracy. */
+  perStageBest?: Record<string, StageLevelStats>;
+  /** Global error count by character (accumulated). */
+  errorCountByChar?: ErrorCountByChar;
 }
 
 export enum GameState {

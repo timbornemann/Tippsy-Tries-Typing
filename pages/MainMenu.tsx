@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { GameState, UserProgress, Stage } from '../types';
 import { STAGES } from '../constants';
-import { Keyboard, User } from 'lucide-react';
+import { Keyboard, User, X, Info } from 'lucide-react';
 import Mascot from '../components/Mascot';
 import StageCard from '../components/StageCard';
+
+const ONBOARDING_KEY = 'tippmeister_onboarding_seen';
+const STORAGE_HINT_KEY = 'tippmeister_storage_hint_seen';
 
 interface MainMenuProps {
   progress: UserProgress;
@@ -22,6 +25,36 @@ const MainMenu: React.FC<MainMenuProps> = ({
   onStartPractice,
   onOpenStats 
 }) => {
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showStorageHint, setShowStorageHint] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (progress.stats.gamesPlayed === 0 && !localStorage.getItem(ONBOARDING_KEY)) {
+        setShowOnboarding(true);
+      }
+      if (!localStorage.getItem(STORAGE_HINT_KEY)) {
+        setShowStorageHint(true);
+      }
+    } catch {
+      setShowOnboarding(progress.stats.gamesPlayed === 0);
+    }
+  }, [progress.stats.gamesPlayed]);
+
+  const dismissOnboarding = () => {
+    setShowOnboarding(false);
+    try {
+      localStorage.setItem(ONBOARDING_KEY, '1');
+    } catch {}
+  };
+
+  const dismissStorageHint = () => {
+    setShowStorageHint(false);
+    try {
+      localStorage.setItem(STORAGE_HINT_KEY, '1');
+    } catch {}
+  };
+
   return (
     <>
       <header className="py-6 px-6 text-center sticky top-0 z-50 bg-[#0a0f1c]/80 backdrop-blur-xl border-b border-slate-800/60 shadow-lg flex justify-between items-center">
@@ -55,6 +88,31 @@ const MainMenu: React.FC<MainMenuProps> = ({
 
       <div className="flex-1 container mx-auto px-4 py-12 max-w-2xl">
         
+        {showOnboarding && (
+          <div className="mb-6 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 relative">
+            <button onClick={dismissOnboarding} className="absolute top-3 right-3 p-1 rounded-lg hover:bg-emerald-500/20 text-slate-400 hover:text-white" aria-label="Schließen">
+              <X size={18} />
+            </button>
+            <h3 className="text-emerald-300 font-bold text-sm uppercase tracking-wider mb-2">So geht&apos;s los</h3>
+            <p className="text-slate-200 text-sm leading-relaxed">
+              Tippe die <span className="text-emerald-400 font-semibold">grün hervorgehobenen</span> Zeichen nacheinander. 
+              Dein aktueller Finger wird unten auf der Tastatur angezeigt. Viel Erfolg!
+            </p>
+          </div>
+        )}
+
+        {showStorageHint && (
+          <div className="mb-6 p-3 rounded-xl bg-slate-800/80 border border-slate-700 flex items-center gap-3">
+            <Info size={20} className="text-slate-400 shrink-0" />
+            <p className="text-slate-400 text-sm flex-1">
+              Dein Fortschritt wird nur auf diesem Gerät gespeichert.
+            </p>
+            <button onClick={dismissStorageHint} className="p-1 rounded hover:bg-slate-700 text-slate-500 hover:text-white shrink-0" aria-label="Schließen">
+              <X size={16} />
+            </button>
+          </div>
+        )}
+
         <Mascot progress={progress} gameState={gameState} />
 
         <div className="flex flex-col gap-16 pb-32">

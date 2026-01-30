@@ -1,29 +1,76 @@
 import { useState, useEffect } from 'react';
-import { GameState, Stage, GameStats, UserProgress, GameMode } from '../types';
+import { GameState, Stage, GameStats, UserProgress, GameMode, SessionRecord } from '../types';
 import { STAGES } from '../constants';
 import { generatePatternLevel } from '../services/patternGenerator';
+
+const SESSION_HISTORY_MAX = 30;
+
+function progressKey(stageId: number, subLevelId: number): string {
+  return `${stageId}_${subLevelId}`;
+}
+
+/** Unlock logic: returns new { unlockedStageId, unlockedSubLevelId } from previous progress and current level result. */
+function computeUnlock(
+  prev: UserProgress,
+  gameMode: GameMode,
+  stage: Stage | null,
+  subLevelId: number
+): { unlockedStageId: number; unlockedSubLevelId: number } {
+  if (gameMode !== 'STANDARD' || !stage) {
+    return { unlockedStageId: prev.unlockedStageId, unlockedSubLevelId: prev.unlockedSubLevelId };
+  }
+  const isCurrentStage = stage.id === prev.unlockedStageId;
+  const isCurrentSub = subLevelId === prev.unlockedSubLevelId;
+  if (!isCurrentStage || !isCurrentSub) {
+    return { unlockedStageId: prev.unlockedStageId, unlockedSubLevelId: prev.unlockedSubLevelId };
+  }
+  if (subLevelId === 5) {
+    return { unlockedStageId: prev.unlockedStageId + 1, unlockedSubLevelId: 1 };
+  }
+  return { unlockedStageId: prev.unlockedStageId, unlockedSubLevelId: prev.unlockedSubLevelId + 1 };
+}
 
 export const useGameEngine = () => {
   const [gameState, setGameState] = useState<GameState>(GameState.MENU);
   
-  // Progress State with safe initialization for new stats field
   const [progress, setProgress] = useState<UserProgress>(() => {
-    const saved = localStorage.getItem('tippmeister_progress');
-    const parsed = saved ? JSON.parse(saved) : {};
-    
-    // Ensure structure exists even for old saves
-    return {
-      unlockedStageId: parsed.unlockedStageId || 1,
-      unlockedSubLevelId: parsed.unlockedSubLevelId || 1,
-      stats: parsed.stats || {
-        totalCharsTyped: 0,
-        totalTimePlayed: 0,
-        gamesPlayed: 0,
-        highestWpm: 0,
-        averageWpm: 0,
-        averageAccuracy: 0
-      }
-    };
+    try {
+      const saved = localStorage.getItem('tippmeister_progress');
+      const parsed = saved ? JSON.parse(saved) : {};
+      return {
+        unlockedStageId: parsed.unlockedStageId ?? 1,
+        unlockedSubLevelId: parsed.unlockedSubLevelId ?? 1,
+        stats: parsed.stats ?? {
+          totalCharsTyped: 0,
+          totalTimePlayed: 0,
+          gamesPlayed: 0,
+          highestWpm: 0,
+          averageWpm: 0,
+          averageAccuracy: 0
+        },
+        lastSessionByKey: parsed.lastSessionByKey ?? {},
+        sessionHistory: parsed.sessionHistory ?? [],
+        perStageBest: parsed.perStageBest ?? {},
+        errorCountByChar: parsed.errorCountByChar ?? {}
+      };
+    } catch {
+      return {
+        unlockedStageId: 1,
+        unlockedSubLevelId: 1,
+        stats: {
+          totalCharsTyped: 0,
+          totalTimePlayed: 0,
+          gamesPlayed: 0,
+          highestWpm: 0,
+          averageWpm: 0,
+          averageAccuracy: 0
+        },
+        lastSessionByKey: {},
+        sessionHistory: [],
+        perStageBest: {},
+        errorCountByChar: {}
+      };
+    }
   });
 
   // Current Session State
@@ -32,6 +79,8 @@ export const useGameEngine = () => {
   const [gameMode, setGameMode] = useState<GameMode>('STANDARD');
   const [gameContent, setGameContent] = useState<string>('');
   const [lastStats, setLastStats] = useState<GameStats | null>(null);
+  /** Previous run for this stage+subLevel (for "compared to last time" on Finished screen). */
+  const [previousLevelStats, setPreviousLevelStats] = useState<GameStats | null>(null);
 
   // Track progress at the start of a session to enable "walking" animation on return
   const [sessionStartProgress, setSessionStartProgress] = useState<UserProgress | null>(null);
@@ -83,20 +132,53 @@ export const useGameEngine = () => {
 
   const handleFinish = (gameStats: GameStats) => {
     setLastStats(gameStats);
+    const key = currentStage ? progressKey(currentStage.id, currentSubLevel) : '';
+    setPreviousLevelStats(progress.lastSessionByKey?.[key] ?? null);
     setGameState(GameState.FINISHED);
     
-    // Update Global Stats
     setProgress(prev => {
       const p = prev;
       const s = p.stats;
       const newGamesPlayed = s.gamesPlayed + 1;
-      
-      // Calculate new averages
       const newAvgWpm = ((s.averageWpm * s.gamesPlayed) + gameStats.wpm) / newGamesPlayed;
       const newAvgAcc = ((s.averageAccuracy * s.gamesPlayed) + gameStats.accuracy) / newGamesPlayed;
 
+      const { unlockedStageId, unlockedSubLevelId } = computeUnlock(p, gameMode, currentStage, currentSubLevel);
+
+      const key = currentStage ? progressKey(currentStage.id, currentSubLevel) : '';
+      const lastByKey = { ...(p.lastSessionByKey ?? {}), [key]: gameStats };
+      const today = new Date().toISOString().slice(0, 10);
+      const sessionRecord: SessionRecord = {
+        date: today,
+        wpm: gameStats.wpm,
+        accuracy: gameStats.accuracy,
+        stageId: currentStage?.id,
+        subLevelId: currentSubLevel
+      };
+      const history = [...(p.sessionHistory ?? []), sessionRecord].slice(-SESSION_HISTORY_MAX);
+
+      const perBest = { ...(p.perStageBest ?? {}) };
+      if (key) {
+        const existing = perBest[key] ?? {};
+        perBest[key] = {
+          ...existing,
+          last: gameStats,
+          bestWpm: Math.max(existing.bestWpm ?? 0, gameStats.wpm),
+          bestAccuracy: Math.max(existing.bestAccuracy ?? 0, gameStats.accuracy)
+        };
+      }
+
+      const mergedErrors: Record<string, number> = { ...(p.errorCountByChar ?? {}) };
+      if (gameStats.errorCountByChar) {
+        for (const [char, count] of Object.entries(gameStats.errorCountByChar)) {
+          mergedErrors[char] = (mergedErrors[char] ?? 0) + count;
+        }
+      }
+
       return {
         ...p,
+        unlockedStageId,
+        unlockedSubLevelId,
         stats: {
           totalCharsTyped: s.totalCharsTyped + gameStats.totalChars,
           totalTimePlayed: s.totalTimePlayed + gameStats.timeElapsed,
@@ -105,9 +187,10 @@ export const useGameEngine = () => {
           averageWpm: newAvgWpm,
           averageAccuracy: newAvgAcc
         },
-        // Unlock Logic (Only for standard levels)
-        unlockedSubLevelId: (gameMode === 'STANDARD' && currentStage && currentSubLevel === 5 && currentStage.id === p.unlockedStageId && currentSubLevel === p.unlockedSubLevelId) ? 1 : (gameMode === 'STANDARD' && currentStage && currentSubLevel < 5 && currentStage.id === p.unlockedStageId && currentSubLevel === p.unlockedSubLevelId) ? p.unlockedSubLevelId + 1 : p.unlockedSubLevelId,
-        unlockedStageId: (gameMode === 'STANDARD' && currentStage && currentSubLevel === 5 && currentStage.id === p.unlockedStageId && currentSubLevel === p.unlockedSubLevelId) ? p.unlockedStageId + 1 : p.unlockedStageId
+        lastSessionByKey: lastByKey,
+        sessionHistory: history,
+        perStageBest: perBest,
+        errorCountByChar: mergedErrors
       };
     });
   };
@@ -170,12 +253,13 @@ export const useGameEngine = () => {
     gameState,
     setGameState,
     progress,
-    sessionStartProgress, // Export this
+    sessionStartProgress,
     currentStage,
     currentSubLevel,
     gameMode,
     gameContent,
     lastStats,
+    previousLevelStats,
     startLevel,
     startPractice,
     handleFinish,

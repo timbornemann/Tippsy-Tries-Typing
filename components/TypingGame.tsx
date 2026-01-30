@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Stage, GameStats, GameMode } from '../types';
+import { Stage, GameStats, GameMode, ErrorCountByChar } from '../types';
 import { KEYBOARD_LAYOUT, FINGER_NAMES_DE, FINGER_COLORS } from '../constants';
 import VirtualKeyboard from './VirtualKeyboard';
 import { RotateCcw, Home, Crown, Zap } from 'lucide-react';
@@ -20,8 +20,9 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content, onF
   const [startTime, setStartTime] = useState<number | null>(null);
   const [errorShake, setErrorShake] = useState(false);
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
+  /** Per-session: which expected character was mistyped how often */
+  const [errorCountByChar, setErrorCountByChar] = useState<ErrorCountByChar>({});
   
-  // Stats for real-time display
   const [wpm, setWpm] = useState(0);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -48,6 +49,12 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content, onF
   }, [calculateStats]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      onBack();
+      return;
+    }
+
     setPressedKeys(prev => {
         const newSet = new Set(prev);
         newSet.add(e.key);
@@ -78,15 +85,21 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content, onF
           accuracy: Math.max(0, accuracy),
           errors: mistakes,
           totalChars: content.length,
-          timeElapsed
+          timeElapsed,
+          errorCountByChar: Object.keys(errorCountByChar).length > 0 ? errorCountByChar : undefined
         });
       }
     } else {
       setMistakes(m => m + 1);
+      setErrorCountByChar(prev => {
+        const next = { ...prev };
+        next[targetChar] = (next[targetChar] ?? 0) + 1;
+        return next;
+      });
       setErrorShake(true);
       setTimeout(() => setErrorShake(false), 300);
     }
-  }, [content, inputIndex, mistakes, onFinish, startTime]);
+  }, [content, inputIndex, mistakes, onFinish, startTime, onBack, errorCountByChar]);
 
   const handleKeyUp = useCallback((e: KeyboardEvent) => {
     setPressedKeys(prev => {

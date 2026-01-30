@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { GameState } from './types';
 import TypingGame from './components/TypingGame';
 import Statistics from './components/Statistics';
 import { Bot, Trophy, BarChart3, Star, RotateCcw, Sparkles } from 'lucide-react';
 import { useGameEngine } from './hooks/useGameEngine';
 import MainMenu from './pages/MainMenu';
+import { STAGE_COLOR_CLASSES } from './constants';
 
 const App: React.FC = () => {
   const {
@@ -17,6 +18,7 @@ const App: React.FC = () => {
     gameMode,
     gameContent,
     lastStats,
+    previousLevelStats,
     startLevel,
     startPractice,
     handleFinish,
@@ -24,6 +26,35 @@ const App: React.FC = () => {
     handleRetry,
     handleNextLevel
   } = useGameEngine();
+
+  const stageColorClasses = currentStage ? STAGE_COLOR_CLASSES[currentStage.color] ?? STAGE_COLOR_CLASSES.emerald : STAGE_COLOR_CLASSES.emerald;
+
+  const finishedTippsyMessage = useMemo(() => {
+    if (!lastStats || !previousLevelStats) return null;
+    const wpmDiff = lastStats.wpm - previousLevelStats.wpm;
+    const accDiff = lastStats.accuracy - previousLevelStats.accuracy;
+    if (wpmDiff > 0 && accDiff >= 0) return 'Du warst schneller als beim letzten Mal – super!';
+    if (wpmDiff > 0) return 'Deine Geschwindigkeit steigt! Beim nächsten Mal noch mehr auf Genauigkeit achten.';
+    if (accDiff > 0) return 'Bessere Genauigkeit als letztes Mal – sehr gut!';
+    if (lastStats.accuracy === 100) return '100 % Genauigkeit – meisterhaft!';
+    return null;
+  }, [lastStats, previousLevelStats]);
+
+  useEffect(() => {
+    if (gameState !== GameState.FINISHED || !currentStage || !lastStats) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleNextLevel();
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handleBackToMenu();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [gameState, currentStage, lastStats, handleNextLevel, handleBackToMenu]);
 
   return (
     <div className="min-h-screen bg-[#0a0f1c] text-slate-50 selection:bg-emerald-500/30 font-sans flex flex-col">
@@ -51,7 +82,7 @@ const App: React.FC = () => {
 
         {/* STATISTICS STATE */}
         {gameState === GameState.STATISTICS && (
-          <Statistics stats={progress.stats} onBack={handleBackToMenu} />
+          <Statistics progress={progress} onBack={handleBackToMenu} />
         )}
 
         {/* LOADING STATE */}
@@ -88,9 +119,10 @@ const App: React.FC = () => {
           <div className="flex-1 flex flex-col items-center justify-center px-4 py-12">
             <div className="bg-[#0f1623] border border-slate-800 rounded-[2.5rem] p-8 max-w-2xl w-full shadow-2xl relative overflow-hidden">
                {/* Background Glow */}
-               <div className={`absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-${currentStage.color}-500 to-blue-500`}></div>
+               <div className={`absolute top-0 left-0 w-full h-2 bg-gradient-to-r ${stageColorClasses.gradient} to-blue-500`}></div>
                
-               <div className="text-center mb-10 relative">
+               {/* 1. Success: Title + Stage */}
+               <div className="text-center mb-6 relative">
                  <div className="inline-flex items-center justify-center w-28 h-28 rounded-full bg-slate-800 mb-6 border-4 border-slate-700 relative shadow-xl">
                     <Trophy className="w-14 h-14 text-yellow-400" />
                     <Sparkles className="w-8 h-8 text-yellow-200 absolute -top-2 -right-2 animate-pulse" />
@@ -103,6 +135,14 @@ const App: React.FC = () => {
                  </p>
                </div>
 
+               {/* 2. Optional Tippsy message */}
+               {finishedTippsyMessage && (
+                 <div className="text-center mb-6 px-4 py-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
+                   <p className="text-emerald-300 text-sm font-medium">{finishedTippsyMessage}</p>
+                 </div>
+               )}
+
+               {/* 3. Kennzahlen */}
                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
                  <div className="bg-slate-800/50 p-5 rounded-2xl text-center border border-slate-700/50">
                    <BarChart3 className="w-6 h-6 text-blue-400 mx-auto mb-2" />
@@ -124,6 +164,8 @@ const App: React.FC = () => {
                  </div>
                </div>
                
+               {/* 4. Buttons (Enter = Weiter) */}
+               <p className="text-slate-500 text-xs text-center mb-4">Enter = Weiter, Esc = Menü</p>
                <div className="flex flex-col sm:flex-row gap-4 justify-center">
                  <button 
                    onClick={handleBackToMenu}

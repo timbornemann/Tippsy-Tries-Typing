@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Stage, UserProgress } from '../types';
+import { STAGE_COLOR_CLASSES } from '../constants';
 import { Check, Lock, Star, Crown, Zap } from 'lucide-react';
 import TippsyAvatar from './TippsyAvatar';
 
@@ -108,26 +109,25 @@ const StageCard: React.FC<StageCardProps> = ({
   // 4: 90 (center)
   // 5: 90
   const getVerticalPos = (xPercent: number) => {
-      // Rough approximation
-      if (xPercent < 23) return 90; // Node 1
-      if (xPercent < 41) return 122; // Node 2 (Down)
-      if (xPercent < 58) return 58;  // Node 3 (Up)
-      if (xPercent < 76) return 90;  // Node 4
-      return 90; // Node 5
+      if (xPercent < 23) return 90;
+      if (xPercent < 41) return 122;
+      if (xPercent < 58) return 58;
+      if (xPercent < 76) return 90;
+      return 90;
   };
 
+  const c = STAGE_COLOR_CLASSES[stage.color] ?? STAGE_COLOR_CLASSES.emerald;
 
   return (
     <div className={`
       relative rounded-[2.5rem] p-8 border-[3px] transition-all duration-500 overflow-hidden group
       ${isLocked 
-        ? 'border-slate-800 bg-slate-900/40 grayscale-[0.8] opacity-60' 
-        : `border-${stage.color}-500/20 bg-gradient-to-b from-slate-900 via-slate-900 to-${stage.color}-950/20 shadow-2xl shadow-${stage.color}-900/10`
+        ? 'border-[3px] border-slate-800 bg-slate-900/40 grayscale-[0.8] opacity-60' 
+        : `border-[3px] bg-gradient-to-b from-slate-900 via-slate-900 ${c.cardBorder} ${c.cardBg} shadow-2xl ${c.shadow}`
       }
     `}>
-      {/* Decorative background blob */}
       {!isLocked && (
-        <div className={`absolute -top-20 -right-20 w-64 h-64 bg-${stage.color}-500/10 rounded-full blur-[80px] group-hover:bg-${stage.color}-500/20 transition-all duration-700 pointer-events-none`}></div>
+        <div className={`absolute -top-20 -right-20 w-64 h-64 ${c.blobBg} rounded-full blur-[80px] ${c.blobHover} transition-all duration-700 pointer-events-none`}></div>
       )}
 
       {/* HEADER SECTION */}
@@ -140,7 +140,7 @@ const StageCard: React.FC<StageCardProps> = ({
               ? 'bg-slate-800 border-slate-700 text-slate-600' 
               : isCompleted
                 ? 'bg-emerald-500 border-emerald-400 text-white'
-                : `bg-${stage.color}-500 border-${stage.color}-400 text-white`
+                : `${c.badgeBg} ${c.badgeBorder} text-white`
             }
           `}>
             {isCompleted ? <Check strokeWidth={4} className="w-7 h-7" /> : stage.id}
@@ -155,12 +155,12 @@ const StageCard: React.FC<StageCardProps> = ({
         {/* New Keys Preview Pill */}
         {!isLocked && (
           <div className="hidden sm:flex flex-col items-end">
-            <span className={`text-[10px] font-bold uppercase tracking-widest mb-2 text-${stage.color}-400`}>Neue Tasten</span>
+            <span className={`text-[10px] font-bold uppercase tracking-widest mb-2 ${c.labelText}`}>Neue Tasten</span>
             <div className="flex gap-1">
               {stage.newChars.slice(0, 4).map((char, i) => (
                 <div key={i} className={`
                   w-8 h-8 rounded-lg flex items-center justify-center font-mono text-sm font-bold border border-b-2
-                  bg-slate-800 border-${stage.color}-500/30 text-white shadow-sm
+                  bg-slate-800 ${c.keyBorder} text-white shadow-sm
                 `}>
                   {char === 'Shift' ? '⇧' : char.toUpperCase()}
                 </div>
@@ -182,7 +182,7 @@ const StageCard: React.FC<StageCardProps> = ({
           </div>
           <div className="h-3 w-full bg-slate-800 rounded-full overflow-hidden border border-slate-800/50">
             <div 
-              className={`h-full bg-gradient-to-r from-${stage.color}-600 to-${stage.color}-400 transition-all duration-1000 ease-out rounded-full`}
+              className={`h-full ${c.progressBar} transition-all duration-1000 ease-out rounded-full`}
               style={{ width: `${completionPercent}%` }}
             ></div>
           </div>
@@ -217,7 +217,7 @@ const StageCard: React.FC<StageCardProps> = ({
                stroke={isLocked ? "#334155" : "currentColor"} 
                strokeWidth="4" 
                strokeDasharray="8 8"
-               className={`text-${stage.color}-500`}
+               className={c.pathText}
              />
            </svg>
         )}
@@ -254,7 +254,7 @@ const StageCard: React.FC<StageCardProps> = ({
                      ? 'bg-slate-800 border-slate-700 text-slate-600 scale-90' 
                      : status === 'completed'
                        ? 'bg-slate-800 border-emerald-500 text-emerald-400 scale-100 hover:scale-110'
-                       : `bg-${stage.color}-500 border-white text-white scale-110 hover:scale-125 shadow-[0_0_30px_rgba(255,255,255,0.3)]`
+                       : `${c.nodeActive} border-white text-white scale-110 hover:scale-125 shadow-[0_0_30px_rgba(255,255,255,0.3)]`
                    }
                    ${isMaster && status !== 'locked' ? 'w-16 h-16' : ''}
                  `}>
@@ -285,12 +285,12 @@ const StageCard: React.FC<StageCardProps> = ({
              className={`
                flex items-center gap-3 px-8 py-4 rounded-2xl 
                bg-slate-800 border border-slate-700
-               hover:bg-${stage.color}-500 hover:border-${stage.color}-400 hover:text-white hover:shadow-[0_0_25px_rgba(0,0,0,0.3)]
+               ${c.practiceHover}
                text-slate-300 font-bold transition-all duration-300 group/practice w-full sm:w-auto justify-center
              `}
           >
-            <div className={`p-1.5 rounded-lg bg-${stage.color}-500/20 group-hover/practice:bg-white/20 transition-colors`}>
-              <Zap className={`w-5 h-5 text-${stage.color}-400 group-hover/practice:text-white`} />
+            <div className={`p-1.5 rounded-lg ${c.practiceIconBg} transition-colors`}>
+              <Zap className={`w-5 h-5 ${c.practiceIconText}`} />
             </div>
             <span>Endlos-Üben (Mega-Level)</span>
           </button>
