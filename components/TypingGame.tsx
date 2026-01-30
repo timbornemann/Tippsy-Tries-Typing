@@ -58,9 +58,11 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
       return;
     }
 
+    const keyForPress = (e.key === 'Minus' ? '-' : e.key === 'Comma' ? ',' : e.key === 'Period' ? '.' : e.key);
     setPressedKeys(prev => {
         const newSet = new Set(prev);
         newSet.add(e.key);
+        newSet.add(keyForPress);
         return newSet;
     });
 
@@ -72,8 +74,9 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
     }
 
     const targetChar = content[inputIndex];
-    
-    if (e.key === targetChar) {
+    // Normalize key: some keyboards/browsers send "Minus"/"Comma"/"Period" instead of the character
+    const key = (e.key === 'Minus' ? '-' : e.key === 'Comma' ? ',' : e.key === 'Period' ? '.' : e.key);
+    if (key === targetChar) {
       const nextIndex = inputIndex + 1;
       setInputIndex(nextIndex);
       

@@ -121,7 +121,9 @@ const StageCard: React.FC<StageCardProps> = ({
   const c = STAGE_COLOR_CLASSES[stage.color] ?? STAGE_COLOR_CLASSES.emerald;
 
   return (
-    <div className={`
+    <div
+      data-stage-id={stage.id}
+      className={`
       relative rounded-[2.5rem] p-8 border-[3px] transition-all duration-500 overflow-hidden group
       ${isLocked 
         ? 'border-[3px] border-slate-800 bg-slate-900/40 grayscale-[0.8] opacity-60' 

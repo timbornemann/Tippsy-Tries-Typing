@@ -318,6 +318,30 @@ const SENTENCES_DB = [
   "Wir verstehen uns",
 ];
 
+// Meisterklasse (Stage 11): Sätze mit Zahlen und Satzzeichen für längere Texte
+const MEISTERKLASSE_SENTENCES = [
+  "Am Montag beginnt die Schule um 8.00 Uhr.",
+  "Der Zug fährt um 14.30 Uhr ab.",
+  "Die Rechnung beträgt 45,50 Euro.",
+  "Treffen wir uns um 18.00 Uhr?",
+  "Das Buch hat 256 Seiten.",
+  "Der Film dauert 2 Stunden.",
+  "In Deutschland leben etwa 84 Millionen Menschen.",
+  "Der Supermarkt hat von 7.00 bis 22.00 Uhr geöffnet.",
+  "Das Meeting ist am 15. März um 10.00 Uhr.",
+  "Die Prüfung findet am 20. Juni statt.",
+  "Preis: 19,90 Euro inkl. MwSt.",
+  "Das Konzert beginnt um 19.30 Uhr.",
+  "Die Strecke ist 120 km lang.",
+  "Angebot gültig bis 31.12.2024.",
+  "Eintritt: 5,00 Euro für Erwachsene.",
+  "Der Weg ist 2,5 km lang.",
+  "Von 9.00 bis 12.00 Uhr bin ich in Besprechungen.",
+  "Es ist 23.59 Uhr – gleich Mitternacht.",
+  "Kosten: 9,99 Euro pro Person.",
+  "Die Kinder sind 6, 8 und 11 Jahre alt.",
+];
+
 /**
  * Generates typing content focused on real words and sentences when possible,
  * or word-like / sentence-like pseudo content when the stage has few letters.
@@ -326,13 +350,20 @@ export function generateWordSentenceLevel(stage: Stage): string {
   const allChars = new Set(stage.chars);
   const useCapitalization = stage.id >= 9;
   const usePunctuation = stage.id >= 10;
+  const isMeisterklasse = stage.id >= 11;
 
   const poolAll = stage.chars.filter((c) => c !== ' ' && c.length === 1);
   const allWords = [...COMMON_WORDS_DB, ...EXTRA_WORDS];
   const possibleWords = allWords.filter((w) => canTypeWord(w, allChars));
-  const possibleSentences = SENTENCES_DB.filter((s) => canTypeWord(s, allChars));
+  let possibleSentences = SENTENCES_DB.filter((s) => canTypeWord(s, allChars));
+  if (isMeisterklasse && usePunctuation) {
+    const extra = MEISTERKLASSE_SENTENCES.filter((s) => canTypeWord(s, allChars));
+    possibleSentences = [...possibleSentences, ...extra];
+  }
 
-  const sentenceCount = 3 + Math.floor(Math.random() * 3); // 3–5 sentences
+  const sentenceCount = isMeisterklasse
+    ? 6 + Math.floor(Math.random() * 5)   // 6–10 Sätze für Meisterklasse
+    : 3 + Math.floor(Math.random() * 3);   // 3–5 Sätze sonst
   const result: string[] = [];
 
   const capitalize = (w: string) =>

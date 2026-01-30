@@ -116,6 +116,7 @@ export const STAGE_COLOR_CLASSES: Record<string, {
   purple:  { border: 'border-purple-500', bg: 'bg-purple-500', text: 'text-purple-400', gradient: 'from-purple-500', shadow: 'shadow-purple-500/20', cardBorder: 'border-purple-500/20', cardBg: 'to-purple-950/20', blobBg: 'bg-purple-500/10', blobHover: 'group-hover:bg-purple-500/20', badgeBg: 'bg-purple-500', badgeBorder: 'border-purple-400', labelText: 'text-purple-400', keyBorder: 'border-purple-500/30', progressBar: 'bg-gradient-to-r from-purple-600 to-purple-400', pathText: 'text-purple-500', nodeActive: 'bg-purple-500', practiceHover: 'hover:bg-purple-500 hover:border-purple-400 hover:text-white hover:shadow-[0_0_25px_rgba(0,0,0,0.3)]', practiceIconBg: 'bg-purple-500/20 group-hover/practice:bg-white/20', practiceIconText: 'text-purple-400 group-hover/practice:text-white' },
   fuchsia: { border: 'border-fuchsia-500', bg: 'bg-fuchsia-500', text: 'text-fuchsia-400', gradient: 'from-fuchsia-500', shadow: 'shadow-fuchsia-500/20', cardBorder: 'border-fuchsia-500/20', cardBg: 'to-fuchsia-950/20', blobBg: 'bg-fuchsia-500/10', blobHover: 'group-hover:bg-fuchsia-500/20', badgeBg: 'bg-fuchsia-500', badgeBorder: 'border-fuchsia-400', labelText: 'text-fuchsia-400', keyBorder: 'border-fuchsia-500/30', progressBar: 'bg-gradient-to-r from-fuchsia-600 to-fuchsia-400', pathText: 'text-fuchsia-500', nodeActive: 'bg-fuchsia-500', practiceHover: 'hover:bg-fuchsia-500 hover:border-fuchsia-400 hover:text-white hover:shadow-[0_0_25px_rgba(0,0,0,0.3)]', practiceIconBg: 'bg-fuchsia-500/20 group-hover/practice:bg-white/20', practiceIconText: 'text-fuchsia-400 group-hover/practice:text-white' },
   rose:    { border: 'border-rose-500', bg: 'bg-rose-500', text: 'text-rose-400', gradient: 'from-rose-500', shadow: 'shadow-rose-500/20', cardBorder: 'border-rose-500/20', cardBg: 'to-rose-950/20', blobBg: 'bg-rose-500/10', blobHover: 'group-hover:bg-rose-500/20', badgeBg: 'bg-rose-500', badgeBorder: 'border-rose-400', labelText: 'text-rose-400', keyBorder: 'border-rose-500/30', progressBar: 'bg-gradient-to-r from-rose-600 to-rose-400', pathText: 'text-rose-500', nodeActive: 'bg-rose-500', practiceHover: 'hover:bg-rose-500 hover:border-rose-400 hover:text-white hover:shadow-[0_0_25px_rgba(0,0,0,0.3)]', practiceIconBg: 'bg-rose-500/20 group-hover/practice:bg-white/20', practiceIconText: 'text-rose-400 group-hover/practice:text-white' },
+  amber:   { border: 'border-amber-500', bg: 'bg-amber-500', text: 'text-amber-400', gradient: 'from-amber-500', shadow: 'shadow-amber-500/20', cardBorder: 'border-amber-500/20', cardBg: 'to-amber-950/20', blobBg: 'bg-amber-500/10', blobHover: 'group-hover:bg-amber-500/20', badgeBg: 'bg-amber-500', badgeBorder: 'border-amber-400', labelText: 'text-amber-400', keyBorder: 'border-amber-500/30', progressBar: 'bg-gradient-to-r from-amber-600 to-amber-400', pathText: 'text-amber-500', nodeActive: 'bg-amber-500', practiceHover: 'hover:bg-amber-500 hover:border-amber-400 hover:text-white hover:shadow-[0_0_25px_rgba(0,0,0,0.3)]', practiceIconBg: 'bg-amber-500/20 group-hover/practice:bg-white/20', practiceIconText: 'text-amber-400 group-hover/practice:text-white' },
 };
 
 export const STAGES: Stage[] = [
@@ -208,5 +209,14 @@ export const STAGES: Stage[] = [
     newChars: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '.', ',', '-', '?', '!'],
     chars: ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Q', 'W', 'E', 'R', 'T', 'Z', 'U', 'I', 'O', 'P', 'Y', 'X', 'C', 'V', 'B', 'N', 'M', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'ö', 'q', 'w', 'e', 'r', 't', 'z', 'u', 'i', 'o', 'p', 'ü', 'y', 'x', 'c', 'v', 'b', 'n', 'm', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '.', ',', '-', '?', '!', ' '],
     basePrompt: 'Verwende den vollen Zeichensatz inklusive Zahlen und Satzzeichen (. , - ? !).'
+  },
+  {
+    id: 11,
+    name: 'Meisterklasse',
+    description: 'Echte Texte: Längere Sätze mit Satzzeichen, Sonderzeichen und Zahlen.',
+    color: 'amber',
+    newChars: [],
+    chars: ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Q', 'W', 'E', 'R', 'T', 'Z', 'U', 'I', 'O', 'P', 'Y', 'X', 'C', 'V', 'B', 'N', 'M', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'ö', 'q', 'w', 'e', 'r', 't', 'z', 'u', 'i', 'o', 'p', 'ü', 'y', 'x', 'c', 'v', 'b', 'n', 'm', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '.', ',', '-', '?', '!', ' '],
+    basePrompt: 'Tippe vollständige, sinnvolle Texte mit allen Zeichen.'
   }
 ];

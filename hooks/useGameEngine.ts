@@ -85,6 +85,10 @@ export const useGameEngine = () => {
 
   // Track progress at the start of a session to enable "walking" animation on return
   const [sessionStartProgress, setSessionStartProgress] = useState<UserProgress | null>(null);
+  /** When returning to menu, scroll to this stage id (cleared after scroll). */
+  const [scrollToStageId, setScrollToStageId] = useState<number | null>(null);
+
+  const clearScrollToStageId = useCallback(() => setScrollToStageId(null), []);
 
   useEffect(() => {
     localStorage.setItem('tippmeister_progress', JSON.stringify(progress));
@@ -224,6 +228,8 @@ export const useGameEngine = () => {
   };
 
   const handleBackToMenu = () => {
+    const stageId = currentStage?.id ?? null;
+    setScrollToStageId(stageId);
     setGameState(GameState.MENU);
     setCurrentStage(null);
 
@@ -302,6 +308,8 @@ export const useGameEngine = () => {
     setGameState,
     progress,
     sessionStartProgress,
+    scrollToStageId,
+    clearScrollToStageId,
     currentStage,
     currentSubLevel,
     gameMode,

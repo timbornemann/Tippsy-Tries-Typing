@@ -76,8 +76,68 @@ export const generatePseudoWord = (pool: string[], length: number): string => {
   return word;
 };
 
+// Meisterklasse (Stage 11): Echte, sinnvolle Texte mit Satzzeichen und Zahlen
+const MEISTERKLASSE_TEXTS: string[] = [
+  "Am Montag beginnt die Schule um 8.00 Uhr. Die Kinder freuen sich auf den Tag.",
+  "Im Jahr 2024 haben wir viel vor. Reisen, lernen, Freunde treffen – das steht auf dem Plan.",
+  "Der Zug fährt um 14.30 Uhr ab. Bitte seid pünktlich am Gleis 3!",
+  "Kaffee oder Tee? Beides schmeckt gut an einem kalten Wintertag.",
+  "Die Adresse lautet: Musterstrasse 42, 12345 Berlin. Schick mir eine Nachricht!",
+  "Wir haben am 24. Dezember frei. Frohe Weihnachten an alle!",
+  "Die Temperatur sinkt auf minus 5 Grad. Zieht euch warm an.",
+  "Kosten: 9,99 Euro pro Person. Kinder unter 6 Jahren zahlen nichts.",
+  "Treffen wir uns um 18.00 Uhr? Ich warte vor dem Kino.",
+  "Das Buch hat 256 Seiten. Es ist spannend von der ersten bis zur letzten Seite.",
+  "Meine Telefonnummer ist 0176-12345678. Ruf mich morgen an!",
+  "Der Film dauert 2 Stunden. Er startet um 20.15 Uhr.",
+  "In Deutschland leben etwa 84 Millionen Menschen. Die Hauptstadt ist Berlin.",
+  "Der Supermarkt hat von 7.00 bis 22.00 Uhr geöffnet. Sonntags bleibt er zu.",
+  "Die Rechnung beträgt 45,50 Euro. Zahlen Sie bar oder mit Karte?",
+  "Das Meeting ist am 15. März um 10.00 Uhr. Alle sind eingeladen.",
+  "Ich habe 3 Geschwister: 2 Schwestern und 1 Bruder. Wir verstehen uns gut.",
+  "Der Bus kommt in 5 Minuten. Warte bitte an der Haltestelle!",
+  "Öffnungszeiten: Mo–Fr 9.00–18.00, Sa 9.00–13.00. Wir freuen uns auf Ihren Besuch.",
+  "Die Prüfung findet am 20. Juni statt. Viel Erfolg allen Teilnehmern!",
+  "Es ist 23.59 Uhr – gleich Mitternacht. Guten Rutsch ins neue Jahr!",
+  "Der Weg ist 2,5 km lang. Zu Fuss brauchst du etwa 30 Minuten.",
+  "Preis: 19,90 Euro (inkl. MwSt.). Bestellung unter www.example.de.",
+  "Das Konzert beginnt um 19.30 Uhr. Die Türen öffnen um 18.00 Uhr.",
+  "Wir haben 10 Äpfel, 3 Birnen und 1 Kilo Bananen gekauft. Das reicht für die Woche.",
+  "Der Arzt hat Termine am 12., 13. und 14. April. Wann passt dir?",
+  "Geschwindigkeit: maximal 50 km/h. Hier gilt Tempo 30 für die Sicherheit.",
+  "Die Lieferung kommt zwischen 14.00 und 18.00 Uhr. Bitte jemanden zu Hause lassen!",
+  "Kapitel 1 – Der Anfang. Es war einmal vor langer Zeit...",
+  "Die Durchschnittstemperatur im Juli liegt bei 18–22 Grad. Perfekt für Ausflüge!",
+  "Passwort: mindestens 8 Zeichen, mit Zahlen und Sonderzeichen. Bitte merken!",
+  "Von 9.00 bis 12.00 Uhr bin ich in Besprechungen. Danach bin ich erreichbar.",
+  "Die Strecke ist 120 km lang. Mit dem Auto dauert es etwa 1,5 Stunden.",
+  "Angebot gültig bis 31.12.2024. Nur solange der Vorrat reicht!",
+  "Die Kinder sind 6, 8 und 11 Jahre alt. Sie gehen in die Grundschule.",
+  "Rückruf bitte bis 17.00 Uhr unter 030-123456. Vielen Dank!",
+  "Der Roman hat 400 Seiten – ein echter Wälzer. Aber jede Seite lohnt sich.",
+  "Eintritt: 5,00 Euro für Erwachsene, 2,50 Euro für Kinder. Familien zahlen 10,00 Euro.",
+];
+
 // Generates the content based on pedagogical levels
 export const generatePatternLevel = (stage: Stage, subLevelId: number): string => {
+  // Meisterklasse (Stage 11): Echte Texte, mehrere Sätze mit Satzzeichen und Zahlen
+  if (stage.id === 11) {
+    const sentences = MEISTERKLASSE_TEXTS.flatMap((t) => t.split(/(?<=[.!?])\s+/).filter(Boolean));
+    const getParagraph = (minSentences: number, maxSentences: number) => {
+      const n = minSentences + Math.floor(Math.random() * (maxSentences - minSentences + 1));
+      const shuffled = [...sentences].sort(() => Math.random() - 0.5);
+      return shuffled.slice(0, n).join(' ');
+    };
+    if (subLevelId === 0) {
+      return getParagraph(8, 12) + ' ' + getParagraph(6, 10);
+    }
+    if (subLevelId === 1) return getParagraph(2, 3);
+    if (subLevelId === 2) return getParagraph(3, 4);
+    if (subLevelId === 3) return getParagraph(5, 6);
+    if (subLevelId === 4) return getParagraph(7, 9);
+    if (subLevelId === 5) return getParagraph(10, 14);
+  }
+
   const allChars = new Set(stage.chars);
   const newChars = stage.newChars.filter(c => c !== 'Shift'); // Exclude control keys from direct generation logic
   

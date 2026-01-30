@@ -13,6 +13,8 @@ interface MainMenuProps {
   progress: UserProgress;
   sessionStartProgress: UserProgress | null;
   gameState: GameState;
+  scrollToStageId: number | null;
+  clearScrollToStageId: () => void;
   onStartLevel: (s: Stage, l: number) => void;
   onStartPractice: (s: Stage) => void;
   onStartWordSentencePractice: (s: Stage) => void;
@@ -23,6 +25,8 @@ const MainMenu: React.FC<MainMenuProps> = ({
   progress,
   sessionStartProgress,
   gameState,
+  scrollToStageId,
+  clearScrollToStageId,
   onStartLevel,
   onStartPractice,
   onStartWordSentencePractice,
@@ -30,6 +34,17 @@ const MainMenu: React.FC<MainMenuProps> = ({
 }) => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showStorageHint, setShowStorageHint] = useState(false);
+
+  // Beim Zurückkehren ins Menü zur zuletzt verlassenen Stage scrollen
+  useEffect(() => {
+    if (scrollToStageId == null) return;
+    const timer = requestAnimationFrame(() => {
+      const el = document.querySelector(`[data-stage-id="${scrollToStageId}"]`);
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      clearScrollToStageId();
+    });
+    return () => cancelAnimationFrame(timer);
+  }, [scrollToStageId, clearScrollToStageId]);
 
   useEffect(() => {
     try {

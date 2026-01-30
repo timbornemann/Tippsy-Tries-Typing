@@ -13,6 +13,8 @@ const App: React.FC = () => {
     setGameState,
     progress,
     sessionStartProgress,
+    scrollToStageId,
+    clearScrollToStageId,
     currentStage,
     currentSubLevel,
     gameMode,
@@ -88,6 +90,8 @@ const App: React.FC = () => {
             progress={progress}
             sessionStartProgress={sessionStartProgress}
             gameState={gameState}
+            scrollToStageId={scrollToStageId}
+            clearScrollToStageId={clearScrollToStageId}
             onStartLevel={startLevel}
             onStartPractice={startPractice}
             onStartWordSentencePractice={startWordSentencePractice}
