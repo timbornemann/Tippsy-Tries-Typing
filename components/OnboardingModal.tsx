@@ -57,6 +57,7 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ onDismiss }) => {
           </div>
           
           <button 
+            data-testid="onboarding-dismiss"
             onClick={onDismiss}
             className="w-full py-4 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold rounded-xl shadow-lg shadow-emerald-900/20 transition-all transform hover:scale-[1.02] active:scale-[0.98] border border-emerald-500/20"
           >

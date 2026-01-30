@@ -34,7 +34,11 @@ function computeUnlock(
 export const useGameEngine = () => {
 
   const [gameState, setGameState] = useState<GameState>(() => {
-    // Check if user has seen onboarding
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('stats') === '1') return GameState.STATISTICS;
+      if (params.get('menu') === '1') return GameState.MENU;
+    }
     try {
       const hasSeenOnboarding = localStorage.getItem('tippsy_onboarding_seen');
       return hasSeenOnboarding ? GameState.MENU : GameState.START;
@@ -98,6 +102,32 @@ export const useGameEngine = () => {
   const [scrollToStageId, setScrollToStageId] = useState<number | null>(null);
 
   const clearScrollToStageId = useCallback(() => setScrollToStageId(null), []);
+
+  // URL params for screenshots/demos: ?finished=1 | ?play=1
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('finished') === '1') {
+      setCurrentStage(STAGES[0]);
+      setCurrentSubLevel(1);
+      setGameMode('STANDARD');
+      setLastStats({
+        wpm: 42,
+        accuracy: 98,
+        errors: 2,
+        totalChars: 120,
+        timeElapsed: 28,
+      });
+      setGameState(GameState.FINISHED);
+    } else if (params.get('loading') === '1') {
+      setCurrentStage(STAGES[0]);
+      setCurrentSubLevel(1);
+      setGameMode('STANDARD');
+      setGameState(GameState.LOADING);
+    } else if (params.get('play') === '1') {
+      startLevel(STAGES[0], 1);
+    }
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('tippsy_progress', JSON.stringify(progress));
