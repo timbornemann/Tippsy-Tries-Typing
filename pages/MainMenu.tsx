@@ -61,48 +61,48 @@ const MainMenu: React.FC<MainMenuProps> = ({
       if (showOnboarding) return;
 
       const key = e.key.toLowerCase();
-      
-      // STAGE NAVIGATION (Vertical)
+
+      const maxSubLevelForStage = (stageId: number) => (stageId === 15 ? 1 : 5);
+      const effectiveMaxSubLevel = (stageId: number) => {
+        if (stageId > progress.unlockedStageId) return 1;
+        if (stageId < progress.unlockedStageId) return maxSubLevelForStage(stageId);
+        return Math.min(progress.unlockedSubLevelId, maxSubLevelForStage(stageId));
+      };
+
+      // W/S and Arrow Up/Down: direct stage jump (next/prev stage, sublevel 1)
       if (key === 'arrowdown' || key === 's') {
         e.preventDefault();
         playMenuClick();
         setFocusedStageId(prev => Math.min(prev + 1, stages.length));
-        setFocusedSubLevelId(1); // Reset sub-level focus when changing stage
+        setFocusedSubLevelId(1);
       } else if (key === 'arrowup' || key === 'w') {
         e.preventDefault();
         playMenuClick();
         setFocusedStageId(prev => Math.max(prev - 1, 1));
         setFocusedSubLevelId(1);
-      } 
-      
-      // LEVEL NAVIGATION (Horizontal)
+      }
+      // A/D and Arrow Left/Right: first move within levels (1–5), only at last/first level jump to next/prev stage
       else if (key === 'arrowright' || key === 'd') {
         e.preventDefault();
         playMenuClick();
-        // Check if next level is unlocked for current focused stage
-        // Use STAGES data if needed, but logic is uniform: max 5 levels usually.
-        // If Stage 15 (Endless), only 1 level.
-        const maxLevel = focusedStageId === 15 ? 1 : 5;
-        
-        setFocusedSubLevelId(prev => {
-            const next = Math.min(prev + 1, maxLevel);
-            // Check formatted constraints: "sofern sie freigeschaltet sind"
-            // If focusedStage is completed, all are unlocked.
-            // If focusedStage is current, max is progress.unlockedSubLevelId.
-            // If focusedStage is locked, nothing is selectable really (or subLevel 1 is locked).
-            
-            if (focusedStageId < progress.unlockedStageId) return next; // Completed stage, freely nav
-            if (focusedStageId === progress.unlockedStageId) {
-                return Math.min(next, progress.unlockedSubLevelId);
-            }
-            return 1; // Locked stage, stick to 1
-        });
+        const maxSub = effectiveMaxSubLevel(focusedStageId);
+        if (focusedSubLevelId < maxSub) {
+          setFocusedSubLevelId(prev => Math.min(prev + 1, maxSub));
+        } else {
+          setFocusedStageId(prev => Math.min(prev + 1, stages.length));
+          setFocusedSubLevelId(1);
+        }
       } else if (key === 'arrowleft' || key === 'a') {
         e.preventDefault();
         playMenuClick();
-        setFocusedSubLevelId(prev => Math.max(prev - 1, 1));
+        if (focusedSubLevelId > 1) {
+          setFocusedSubLevelId(prev => prev - 1);
+        } else {
+          const prevStageId = Math.max(focusedStageId - 1, 1);
+          setFocusedStageId(prevStageId);
+          setFocusedSubLevelId(effectiveMaxSubLevel(prevStageId));
+        }
       }
-
       // ENTER ACTION
       else if (key === 'enter') {
         e.preventDefault();
@@ -125,11 +125,11 @@ const MainMenu: React.FC<MainMenuProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [focusedStageId, focusedSubLevelId, progress, showOnboarding, onStartLevel, stages, playMenuClick]);
 
-  // Auto-scroll to Focused Stage
+  // Auto-scroll to Focused Stage (horizontal)
   useEffect(() => {
     const el = document.querySelector(`[data-stage-id="${focusedStageId}"]`);
     if (el) {
-       el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
     }
   }, [focusedStageId]);
 
@@ -218,7 +218,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
         </div>
       </header>
 
-      <div className="flex-1 container mx-auto px-4 py-12 max-w-2xl">
+      <div className="flex-1 container mx-auto px-4 py-12 max-w-[1600px]">
         
         {showOnboarding && (
           <OnboardingModal onDismiss={dismissOnboarding} />
@@ -238,25 +238,30 @@ const MainMenu: React.FC<MainMenuProps> = ({
 
         <Mascot progress={progress} gameState={gameState} />
 
-        <div className="flex flex-col gap-16 pb-32">
-          {stages.map((stage) => (
-            <StageCard
-              key={stage.id}
-              stage={stage}
-              progress={progress}
-              sessionStartProgress={sessionStartProgress}
-              onStartLevel={(s, l) => { playMenuClick(); onStartLevel(s, l); }}
-              onStartPractice={(s) => { playMenuClick(); onStartPractice(s); }}
-              onStartWordSentencePractice={(s) => { playMenuClick(); onStartWordSentencePractice(s); }}
-              isStageFocused={focusedStageId === stage.id}
-              focusedSubLevelId={focusedStageId === stage.id ? focusedSubLevelId : null}
-            />
-          ))}
+        <div className="overflow-x-auto overflow-y-hidden scroll-smooth -mx-4 pl-4 pr-12">
+          <div className="flex flex-row flex-nowrap gap-8 pb-8 pt-4">
+            {stages.map((stage) => (
+              <div key={stage.id} className="min-w-[600px] w-[600px] shrink-0 overflow-visible">
+                <StageCard
+                  stage={stage}
+                  progress={progress}
+                  sessionStartProgress={sessionStartProgress}
+                  onStartLevel={(s, l) => { playMenuClick(); onStartLevel(s, l); }}
+                  onStartPractice={(s) => { playMenuClick(); onStartPractice(s); }}
+                  onStartWordSentencePractice={(s) => { playMenuClick(); onStartWordSentencePractice(s); }}
+                  isStageFocused={focusedStageId === stage.id}
+                  focusedSubLevelId={focusedStageId === stage.id ? focusedSubLevelId : null}
+                />
+              </div>
+            ))}
+            {/* Spacer so last card halo/shadow is not clipped when scrolled to end */}
+            <div className="shrink-0 w-48" aria-hidden="true" />
+          </div>
         </div>
-        
+
         {/* End of Content Message */}
-        <div className="text-center pb-12">
-            <p className="text-slate-500 text-sm">{t('menu.moreLessons')}</p>
+        <div className="text-center pb-12 pt-8">
+          <p className="text-slate-500 text-sm">{t('menu.moreLessons')}</p>
         </div>
       </div>
     </>

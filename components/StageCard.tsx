@@ -106,7 +106,7 @@ const StageCard: React.FC<StageCardProps> = ({
     <div
       data-stage-id={stage.id}
       className={`
-      relative rounded-[2.5rem] p-8 transition-all duration-300 overflow-hidden group
+      relative rounded-[2.5rem] p-8 transition-all duration-300 overflow-hidden group w-full flex flex-col
       ${isLocked 
         ? 'border-[3px] border-slate-800 bg-slate-900/40 grayscale-[0.8] opacity-60' 
         : `border-[3px] bg-gradient-to-b from-slate-900 via-slate-900 ${c.cardBorder} ${c.cardBg} ${c.shadow}`
@@ -160,7 +160,7 @@ const StageCard: React.FC<StageCardProps> = ({
         )}
       </div>
 
-      {/* PROGRESS BAR */}
+      {/* PROGRESS BAR (or spacer for Endless so card height matches others) */}
       {!isLocked && stage.id !== 15 && (
         <div className="mb-10 relative">
           <div className="flex justify-between text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
@@ -174,6 +174,9 @@ const StageCard: React.FC<StageCardProps> = ({
             ></div>
           </div>
         </div>
+      )}
+      {!isLocked && stage.id === 15 && (
+        <div className="mb-10 min-h-[52px] flex-shrink-0" aria-hidden="true" />
       )}
 
       {/* PATH / LEVEL MAP */}
@@ -303,6 +306,11 @@ const StageCard: React.FC<StageCardProps> = ({
           </>
         )}
       </div>
+
+      {/* Bottom spacer for Endless (stage 15) so card height matches completed cards with practice buttons */}
+      {!isLocked && stage.id === 15 && (
+        <div className="mt-8 pt-6 border-t border-slate-800/50 min-h-[124px] flex-shrink-0" aria-hidden="true" />
+      )}
 
       {/* PRACTICE BUTTONS */}
       {isCompleted && (
