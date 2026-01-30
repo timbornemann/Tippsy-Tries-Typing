@@ -30,7 +30,8 @@ export interface Stage {
   name: string;
   description: string;
   color: string; // Tailwind color class base (e.g. 'emerald', 'blue')
-  chars: string[]; 
+  chars: string[]; // Cumulative available chars
+  newChars: string[]; // Specific chars introduced in this stage
   basePrompt: string;
 }
 

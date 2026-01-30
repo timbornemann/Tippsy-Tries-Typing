@@ -104,6 +104,7 @@ export const STAGES: Stage[] = [
     name: 'Basis: Zeigefinger',
     description: 'Starte deine Reise mit der Grundstellung F und J.',
     color: 'emerald',
+    newChars: ['f', 'j'],
     chars: ['f', 'j', ' '],
     basePrompt: 'Verwende NUR die Buchstaben "f" und "j" sowie Leerzeichen.'
   },
@@ -112,6 +113,7 @@ export const STAGES: Stage[] = [
     name: 'Basis: Mittelfinger',
     description: 'Erweitere deine Reichweite auf D und K.',
     color: 'teal',
+    newChars: ['d', 'k'],
     chars: ['f', 'j', 'd', 'k', ' '],
     basePrompt: 'Verwende NUR die Buchstaben "d", "f", "j", "k" sowie Leerzeichen.'
   },
@@ -120,6 +122,7 @@ export const STAGES: Stage[] = [
     name: 'Basis: Ringfinger',
     description: 'Die Ringfinger S und L kommen hinzu.',
     color: 'cyan',
+    newChars: ['s', 'l'],
     chars: ['f', 'j', 'd', 'k', 's', 'l', ' '],
     basePrompt: 'Verwende NUR die Buchstaben "s", "l", "d", "k", "f", "j" und Leerzeichen.'
   },
@@ -128,6 +131,7 @@ export const STAGES: Stage[] = [
     name: 'Basis: Kleine Finger',
     description: 'Vervollständige die Grundreihe mit A und Ö.',
     color: 'sky',
+    newChars: ['a', 'ö'],
     chars: ['a', 's', 'd', 'f', 'j', 'k', 'l', 'ö', ' '],
     basePrompt: 'Verwende NUR die Buchstaben der Grundreihe (a, s, d, f, j, k, l, ö) und Leerzeichen.'
   },
@@ -136,6 +140,7 @@ export const STAGES: Stage[] = [
     name: 'Zentrum: G & H',
     description: 'Lerne die inneren Tasten G und H zu erreichen.',
     color: 'blue',
+    newChars: ['g', 'h'],
     chars: ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'ö', ' '],
     basePrompt: 'Verwende die Grundreihe sowie g und h.'
   },
@@ -144,6 +149,7 @@ export const STAGES: Stage[] = [
     name: 'Oberreihe Links',
     description: 'Der Aufstieg beginnt: Q, W, E, R, T.',
     color: 'indigo',
+    newChars: ['q', 'w', 'e', 'r', 't'],
     chars: ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'ö', 'q', 'w', 'e', 'r', 't', ' '],
     basePrompt: 'Fokussiere dich auf die linke Oberreihe (q, w, e, r, t) in Kombination mit der Grundreihe.'
   },
@@ -152,6 +158,7 @@ export const STAGES: Stage[] = [
     name: 'Oberreihe Rechts',
     description: 'Die rechte Seite zieht nach: Z, U, I, O, P, Ü.',
     color: 'violet',
+    newChars: ['z', 'u', 'i', 'o', 'p', 'ü'],
     chars: ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'ö', 'q', 'w', 'e', 'r', 't', 'z', 'u', 'i', 'o', 'p', 'ü', ' '],
     basePrompt: 'Nutze nun auch die rechte Oberreihe (z, u, i, o, p, ü).'
   },
@@ -160,7 +167,8 @@ export const STAGES: Stage[] = [
     name: 'Unterreihe',
     description: 'Der Abstieg in die Tiefe: Y, X, C, V, B, N, M.',
     color: 'purple',
-    chars: ['y', 'x', 'c', 'v', 'b', 'n', 'm', ' '],
+    newChars: ['y', 'x', 'c', 'v', 'b', 'n', 'm'],
+    chars: ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'ö', 'q', 'w', 'e', 'r', 't', 'z', 'u', 'i', 'o', 'p', 'ü', 'y', 'x', 'c', 'v', 'b', 'n', 'm', ' '],
     basePrompt: 'Konzentriere dich stark auf die untere Reihe (y, x, c, v, b, n, m) gemischt mit bekannten Buchstaben.'
   },
   {
@@ -168,7 +176,8 @@ export const STAGES: Stage[] = [
     name: 'Großschreibung',
     description: 'Meistere die Shift-Taste für Satzanfänge.',
     color: 'fuchsia',
-    chars: [], 
+    newChars: ['Shift'],
+    chars: ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Q', 'W', 'E', 'R', 'T', 'Z', 'U', 'I', 'O', 'P', 'Y', 'X', 'C', 'V', 'B', 'N', 'M', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'ö', 'q', 'w', 'e', 'r', 't', 'z', 'u', 'i', 'o', 'p', 'ü', 'y', 'x', 'c', 'v', 'b', 'n', 'm', ' '], 
     basePrompt: 'Verwende nun auch Großbuchstaben. Bilde korrekte Nomen und Satzanfänge.'
   },
   {
@@ -176,7 +185,8 @@ export const STAGES: Stage[] = [
     name: 'Satzzeichen & Zahlen',
     description: 'Das Finale: Alles kombiniert mit Zahlen und Zeichen.',
     color: 'rose',
-    chars: [],
+    newChars: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '.', ',', '-', '?', '!'],
+    chars: ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Q', 'W', 'E', 'R', 'T', 'Z', 'U', 'I', 'O', 'P', 'Y', 'X', 'C', 'V', 'B', 'N', 'M', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'ö', 'q', 'w', 'e', 'r', 't', 'z', 'u', 'i', 'o', 'p', 'ü', 'y', 'x', 'c', 'v', 'b', 'n', 'm', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '.', ',', '-', '?', '!', ' '],
     basePrompt: 'Verwende den vollen Zeichensatz inklusive Zahlen und Satzzeichen (. , - ? !).'
   }
 ];
