@@ -230,7 +230,11 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
       {/* Header / Stats */}
       <div className={`w-full flex justify-between items-center mb-8 p-4 rounded-lg border backdrop-blur-sm transition-colors ${isMasterLevel && !isPractice && !isWordsSentences ? 'bg-yellow-900/30 border-yellow-700/50' : isWordsSentences ? 'bg-teal-900/30 border-teal-700/50' : isPractice ? 'bg-purple-900/30 border-purple-700/50' : 'bg-slate-800/50 border-slate-700'}`}>
         <div className="flex items-center gap-4">
-          <button onClick={onBack} className="p-2 hover:bg-slate-700 rounded-full transition-colors" title="Zurück zum Menü">
+          <button
+            onClick={() => (stage.id === 15 ? finishGame() : onBack())}
+            className="p-2 hover:bg-slate-700 rounded-full transition-colors"
+            title={stage.id === 15 ? 'Beenden & Statistik anzeigen' : 'Zurück zum Menü'}
+          >
             <Home size={20} className="text-slate-400 hover:text-white" />
           </button>
           <div>

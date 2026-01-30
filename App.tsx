@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 import { GameState } from './types';
 import TypingGame from './components/TypingGame';
 import Statistics from './components/Statistics';
-import { Bot, Trophy, BarChart3, Star, RotateCcw, Sparkles } from 'lucide-react';
+import { Bot, Trophy, BarChart3, Star, RotateCcw, Sparkles, Type, Clock } from 'lucide-react';
 import { useGameEngine } from './hooks/useGameEngine';
 import MainMenu from './pages/MainMenu';
 import { STAGE_COLOR_CLASSES } from './constants';
@@ -162,26 +162,46 @@ const App: React.FC = () => {
                )}
 
                {/* 3. Kennzahlen */}
-               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-                 <div className="bg-slate-800/50 p-5 rounded-2xl text-center border border-slate-700/50">
-                   <BarChart3 className="w-6 h-6 text-blue-400 mx-auto mb-2" />
-                   <div className="text-3xl font-bold text-white font-mono">{lastStats.wpm}</div>
-                   <div className="text-xs text-slate-400 uppercase tracking-wider font-bold">WPM</div>
-                 </div>
-                 <div className="bg-slate-800/50 p-5 rounded-2xl text-center border border-slate-700/50">
-                   <Star className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
-                   <div className="text-3xl font-bold text-white font-mono">{lastStats.accuracy}%</div>
-                   <div className="text-xs text-slate-400 uppercase tracking-wider font-bold">Genauigkeit</div>
-                 </div>
-                 <div className="bg-slate-800/50 p-5 rounded-2xl text-center border border-slate-700/50">
-                   <div className={`text-3xl font-bold font-mono mt-8 ${lastStats.errors === 0 ? 'text-emerald-400' : 'text-white'}`}>{lastStats.errors}</div>
-                   <div className="text-xs text-slate-400 uppercase tracking-wider font-bold">Fehler</div>
-                 </div>
-                 <div className="bg-slate-800/50 p-5 rounded-2xl text-center border border-slate-700/50">
-                   <div className="text-3xl font-bold text-white font-mono mt-8">{Math.round(lastStats.timeElapsed)}s</div>
-                   <div className="text-xs text-slate-400 uppercase tracking-wider font-bold">Zeit</div>
-                 </div>
-               </div>
+               {(() => {
+                 const timeStr = lastStats.timeElapsed >= 60
+                   ? `${Math.floor(lastStats.timeElapsed / 60)} min ${Math.round(lastStats.timeElapsed % 60)} s`
+                   : `${Math.round(lastStats.timeElapsed)} s`;
+                 const charsPerSec = lastStats.timeElapsed > 0
+                   ? (lastStats.totalChars / lastStats.timeElapsed).toFixed(1)
+                   : '0';
+                 return (
+                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-10">
+                     <div className="bg-slate-800/50 p-5 rounded-2xl text-center border border-slate-700/50">
+                       <BarChart3 className="w-6 h-6 text-blue-400 mx-auto mb-2" />
+                       <div className="text-3xl font-bold text-white font-mono">{lastStats.wpm}</div>
+                       <div className="text-xs text-slate-400 uppercase tracking-wider font-bold">WPM</div>
+                     </div>
+                     <div className="bg-slate-800/50 p-5 rounded-2xl text-center border border-slate-700/50">
+                       <Star className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
+                       <div className="text-3xl font-bold text-white font-mono">{lastStats.accuracy}%</div>
+                       <div className="text-xs text-slate-400 uppercase tracking-wider font-bold">Genauigkeit</div>
+                     </div>
+                     <div className="bg-slate-800/50 p-5 rounded-2xl text-center border border-slate-700/50">
+                       <div className={`text-3xl font-bold font-mono mt-8 ${lastStats.errors === 0 ? 'text-emerald-400' : 'text-white'}`}>{lastStats.errors}</div>
+                       <div className="text-xs text-slate-400 uppercase tracking-wider font-bold">Fehler</div>
+                     </div>
+                     <div className="bg-slate-800/50 p-5 rounded-2xl text-center border border-slate-700/50">
+                       <Clock className="w-6 h-6 text-slate-400 mx-auto mb-2" />
+                       <div className="text-3xl font-bold text-white font-mono">{timeStr}</div>
+                       <div className="text-xs text-slate-400 uppercase tracking-wider font-bold">Zeit</div>
+                     </div>
+                     <div className="bg-slate-800/50 p-5 rounded-2xl text-center border border-slate-700/50">
+                       <Type className="w-6 h-6 text-cyan-400 mx-auto mb-2" />
+                       <div className="text-3xl font-bold text-white font-mono">{lastStats.totalChars.toLocaleString('de-DE')}</div>
+                       <div className="text-xs text-slate-400 uppercase tracking-wider font-bold">Zeichen getippt</div>
+                     </div>
+                     <div className="bg-slate-800/50 p-5 rounded-2xl text-center border border-slate-700/50">
+                       <div className="text-3xl font-bold text-white font-mono mt-8">{charsPerSec}</div>
+                       <div className="text-xs text-slate-400 uppercase tracking-wider font-bold">Zeichen/Sek.</div>
+                     </div>
+                   </div>
+                 );
+               })()}
                
                {/* 4. Buttons (Enter = Weiter) */}
                <p className="text-slate-500 text-xs text-center mb-4">Enter = Weiter, Esc = Menü</p>
