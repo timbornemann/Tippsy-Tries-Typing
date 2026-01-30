@@ -77,7 +77,7 @@ export const generatePseudoWord = (pool: string[], length: number): string => {
 };
 
 // Meisterklasse (Stage 11): Echte, sinnvolle Texte (Absätze)
-const MEISTERKLASSE_TEXTS: string[] = [
+export const MEISTERKLASSE_TEXTS: string[] = [
   // --- ALLTAG & BUSINESS ---
   "Am Montag beginnt die Schule um 8.00 Uhr. Die Kinder freuen sich auf den Tag, da sie ihre Freunde wiedersehen. Im klassenzimmer ist es hell und freundlich, und der Lehrer hat eine spannende Geschichte vorbereitet. In der Pause essen alle ihr Butterbrot und spielen auf dem Hof.",
   "Die Rechnung beträgt 45,50 Euro inklusive Mehrwertsteuer. Bitte überweisen Sie den Betrag innerhalb von 14 Tagen auf unser Konto. Geben Sie als Verwendungszweck unbedingt Ihre Kundennummer 12345 an, damit wir die Zahlung zuordnen können. Vielen Dank für Ihren Einkauf!",
@@ -145,41 +145,73 @@ const MEISTERKLASSE_TEXTS: string[] = [
 ];
 
 // Profi-Texte (Stage 12): Sonderzeichen, E-Mails, Code, Preise, Gesetze
-const PROFI_TEXTS: string[] = [
-  // --- E-MAIL & KONTAKT ---
-  "Bitte senden Sie die Unterlagen an max.mustermann@example.com oder rufen Sie uns unter +49 30 1234567 an. Unser Support-Team ist auch per Chat erreichbar. Wir freuen uns auf Ihr Feedback!",
-  "Die neue Adresse lautet: Firmenname GmbH, Hauptstr. 42 / Gebäude B, 10115 Berlin. (Eingang im Hinterhof). Bitte klingeln Sie bei 'Müller & Partner'.",
-  "Betreff: AW: Rechnung Nr. 2024-001 / Kunden-ID #9923. Sehr geehrte Frau Schmidt, hiermit bestätigen wir den Eingang Ihrer Zahlung in Höhe von 450,00 €. Vielen Dank!",
+export const PROFI_TEXTS: string[] = [
+  "Im Jahr 1969 betrat der erste Mensch den Mond. Neil Armstrong sprach die berühmten Worte, die in die Geschichte eingingen: Ein kleiner Schritt für einen Menschen, aber ein grosser Sprung für die Menschheit. Dieses Ereignis zeigte der Welt, was durch Technik, Mut und Zusammenarbeit möglich ist.",
+  "Die Digitalisierung verändert unsere Arbeitswelt rasant. Immer mehr Prozesse werden automatisiert, was neue Chancen, aber auch Herausforderungen mit sich bringt. Es ist wichtig, sich ständig weiterzubilden, um am Ball zu bleiben. Wer offen für Neues ist, wird die Zukunft aktiv mitgestalten können.",
+  "Künstliche Intelligenz, kurz KI, ist ein Teilgebiet der Informatik. Sie befasst sich mit der Automatisierung intelligenten Verhaltens und dem maschinellen Lernen. Computer können heute schon Bilder erkennen, Sprachen übersetzen und komplexe Spiele wie Schach oder Go gewinnen.",
+  "Das Internet verbindet Milliarden von Menschen weltweit. Innerhalb von Sekunden können Informationen von einem Ende der Welt zum anderen gesendet werden. Soziale Netzwerke ermöglichen es uns, in Kontakt zu bleiben, auch wenn wir weit voneinander entfernt sind. Doch man sollte auch auf seine Daten achten.",
 
-  // --- FINANZEN & PREISE ---
-  "Das Sonderangebot gilt nur heute: 3 T-Shirts für 29,99 € (statt 45,00 €). Sie sparen über 30 %! Greifen Sie zu, solange der Vorrat reicht. Inkl. 19 % MwSt., zzgl. Versand.",
-  "Die Aktie stieg um 2,5 % auf einen Wert von 123,45 $. Analysten erwarten einen weiteren Anstieg auf bis zu 130,00 $. Das Kurs-Gewinn-Verhältnis (KGV) liegt bei 15,2.",
-  "Miete: 850,00 € + 120,00 € Nebenkosten = 970,00 € Gesamtmiete. Die Kaution beträgt 3 Monatsmieten (2.550,00 €). Bitte überweisen Sie den Betrag bis zum 3. Werktag des Monats.",
+  // --- NATUR & UMWELT ---
+  "Der Wald ist ein komplexes Ökosystem, in dem Pflanzen und Tiere in einem empfindlichen Gleichgewicht leben. Bäume kommunizieren über ihre Wurzeln und teilen Nährstoffe miteinander. Ein Spaziergang im Grünen senkt nachweislich den Stresspegel und tut der Seele gut.",
+  "Bienen sind für unsere Umwelt unverzichtbar. Sie bestäuben Blüten und sorgen so dafür, dass Obst und Gemüse wachsen können. Ohne diese fleißigen Insekten hätten wir viel weniger Nahrungsmittel zur Verfügung. Deshalb ist es wichtig, bienenfreundliche Blumen zu pflanzen.",
+  "Wasser ist die Grundlage allen Lebens. Unser Körper besteht zu einem großen Teil aus Wasser, und wir müssen täglich genug trinken, um gesund zu bleiben. Wir sollten sparsam mit dieser kostbaren Ressource umgehen und sie nicht verschwenden.",
+  "Der Klimawandel ist eine der größten Herausforderungen unserer Zeit. Die Temperaturen steigen, und das Wetter wird extremer. Jeder kann einen kleinen Beitrag leisten, indem er Energie spart, weniger Auto fährt oder regionale Produkte kauft.",
 
-  // --- RECHT & GESETZE ---
-  "Gemäß § 433 BGB ist der Verkäufer verpflichtet, dem Käufer die Sache zu übergeben und das Eigentum daran zu verschaffen. Der Käufer ist verpflichtet, den vereinbarten Kaufpreis zu zahlen.",
-  "Laut StVO § 3 Abs. 3 beträgt die zulässige Höchstgeschwindigkeit innerhalb geschlossener Ortschaften 50 km/h. Auf Autobahnen gilt eine Richtgeschwindigkeit von 130 km/h, sofern nicht anders ausgeschildert.",
-  "Datenschutzerklärung: Wir speichern Ihre Daten gemäß Art. 6 Abs. 1 lit. b DSGVO zur Vertragserfüllung. Sie haben jederzeit das Recht auf Auskunft, Berichtigung und Löschung (§§ 15-17 DSGVO).",
+  // --- KULTUR & REISEN ---
+  "Berlin ist die Hauptstadt von Deutschland und hat rund 3,7 Millionen Einwohner. Die Stadt ist bekannt für ihre bewegte Geschichte, das Brandenburger Tor und die Museumsinsel. Touristen aus aller Welt kommen hierher, um die einzigartige Atmosphäre zu erleben.",
+  "Reisen erweitert den Horizont. Wer andere Länder besucht, lernt neue Kulturen, Sprachen und Menschen kennen. Man probiert fremdes Essen, sieht beeindruckende Landschaften und sammelt Erinnerungen, die ein Leben lang bleiben. Die Welt ist wie ein Buch, und wer nicht reist, liest nur eine Seite.",
+  "Musik ist eine Sprache, die jeder versteht. Egal ob Klassik, Rock, Pop oder Jazz – Klänge können Gefühle ausdrücken, die Worte oft nicht beschreiben können. Viele Menschen spielen ein Instrument oder singen im Chor, um gemeinsam mit anderen Musik zu machen.",
+  "Das Lesen von Büchern ist ein wunderbares Hobby. Man taucht in fremde Welten ein, erlebt Abenteuer und lernt viel über das Leben. Ob spannende Krimis, romantische Liebesromane oder interessante Sachbücher – für jeden Geschmack gibt es das passende Buch.",
 
-  // --- TECHNIK & CODE (Light) ---
-  "Um die Datei zu speichern, drücken Sie Strg + S (Windows) oder Cmd + S (Mac). Mit Alt + F4 schließen Sie das Fenster. Der Pfad lautet: C:\\Dokumente\\Projekte\\Bericht_Final_v2.docx",
-  "HTML-Grundgerüst: <html> <head> <title>Meine Seite</title> </head> <body> <h1>Hallo Welt!</h1> <p>Das ist ein Absatz.</p> </body> </html>. Vergessen Sie nicht das schließende Tag!",
-  "Fehlermeldung: 'Error 404: Page not found'. Bitte überprüfen Sie die URL (http://www.beispiel.de/index.php?id=123&lang=de) oder versuchen Sie es später erneut.",
-  "Die Funktion berechnet den Durchschnitt: f(x) = (a + b) / 2. Wenn a = 10 und b = 20, dann ist f(x) = 15. Mathe ist gar nicht so schwer, oder?",
+  // --- SHORT STORIES / EPISODES ---
+  "Es war ein kalter Winterabend im Dezember. Der Schnee fiel leise auf die Dächer der Stadt, und in den Fenstern leuchteten warme Lichter. Thomas saß in seinem Sessel, eine Tasse Tee in der Hand, und lauschte der Stille. Es war der perfekte Moment, um zur Ruhe zu kommen.",
+  "Anna lief so schnell sie konnte zum Bahnhof. Der Zug sollte in drei Minuten abfahren, und sie musste ihn unbedingt erreichen. Ausser Atem kam sie am Gleis 3 an, gerade als der Schaffner die Tür schliessen wollte. Noch geschafft!, rief sie erleichtert und sprang hinein.",
+  "Der kleine Hund bellte fröhlich, als er den Ball sah. Er rannte über die Wiese, schnappte sich das Spielzeug und brachte es schwanzwedelnd zu seinem Herrchen zurück. Braver Hund!, lobte der Mann und warf den Ball erneut weit weg.",
+  "Lisa hatte lange für diesen Tag geübt. Heute war das grosse Konzert in der Stadthalle. Mit zitternden Händen betrat sie die Bühne, doch als sie die ersten Töne auf ihrer Geige spielte, verflog die Aufregung. Die Musik erfüllte den Raum und das Publikum lauschte gebannt.",
 
-  // --- LEBENSMITTEL & MENGEN ---
-  "Rezept für Pfannkuchen: 200 g Mehl, 2 Eier, 300 ml Milch, 1 Prise Salz und 1 EL Zucker. Alles verrühren und in der Pfanne goldbraun backen. Lecker! Servieren mit Apfelmus oder Schokolade.",
-  "Einkaufsliste: 1,5 kg Kartoffeln, 500 g Hackfleisch, 1 l Milch (3,5 % Fett), 6 Eier (Größe M) und 1 Netz Orangen. Vergiss nicht das Basilikum!",
-  "Die Temperatur im Kühlschrank sollte zwischen 5 °C und 7 °C liegen. Im Gefrierfach sind -18 °C optimal, um Lebensmittel lange frisch zu halten.",
+  // --- GESUNDHEIT & ALLTAG ---
+  "Ausreichend Schlaf ist wichtig für die Gesundheit. Erwachsene brauchen etwa 7 bis 8 Stunden pro Nacht, um fit und leistungsfähig zu bleiben. Wer zu wenig schläft, wird schneller krank und kann sich schlechter konzentrieren. Ein fester Rhythmus hilft dem Körper, zur Ruhe zu kommen.",
+  "Der Arzt empfahl ihr, sich eine Woche zu schonen und viel zu trinken. Die Grippe war zwar überstanden, aber der Husten wollte nicht weichen. Sie blieb zu Hause, las ein Buch und trank täglich 2 Liter Tee. Nach sieben Tagen fühlte sie sich endlich wieder fit.",
+  "Bewegung an der frischen Luft tut gut. Schon 30 Minuten Spaziergang am Tag können das Wohlbefinden steigern. Viele Menschen fahren mit dem Rad zur Arbeit oder gehen in der Mittagspause eine Runde um den Block. Wer sich regelmässig bewegt, bleibt länger gesund.",
 
-  // --- TYPOGRAFIE & SYMBOLE ---
-  "Sonderzeichen-Test: @ (At-Zeichen), & (Kaufmanns-Und), § (Paragraf), € (Euro), % (Prozent), # (Raute/Hashtag). Alles gefunden? Super! Weiter geht's mit Klammern: ( ) [ ] { }.",
-  "Das Zitat lautet: „Der Weg ist das Ziel.“ (Konfuzius). Manchmal schreibt man auch 'Der Weg ist das Ziel' oder sogar »Der Weg ist das Ziel«.",
-  "Groß- und Kleinschreibung nicht vergessen! DIE KATZE SCHLÄFT auf dem Sofa. der hund bellt im garten. ACHTUNG: Hier gilt Rechts-Vor-Links!"
+  // --- SPORT & FREIZEIT ---
+  "Fussball ist in Deutschland die beliebteste Sportart. Millionen Menschen schauen jeden Samstag die Bundesliga im Fernsehen oder gehen ins Stadion. Die Nationalmannschaft hat schon vier Weltmeistertitel gewonnen, zuletzt 2014 in Brasilien. Der nächste EM-Termin steht schon fest.",
+  "Beim Joggen im Park begegnete er jeden Morgen denselben Gesichtern. Die ältere Dame mit dem Hund, der junge Mann mit den Kopfhörern, die Gruppe von drei Frauen, die schnell an ihm vorbeizogen. Er mochte diese stille Gemeinschaft, die sich nie grüsste und doch vertraut war.",
+  "Das Schwimmbad hat von 6.00 bis 22.00 Uhr geöffnet. Morgens kommen die Frühschwimmer, ab 10.00 Uhr die Familien mit Kindern, am Abend die Berufstätigen, die nach der Arbeit noch ihre Bahnen ziehen. Eintritt: 4,50 Euro für Erwachsene, 2,00 Euro für Kinder.",
+
+  // --- GESCHICHTE & WISSEN ---
+  "Die Mauer fiel am 9. November 1989. Nach Jahrzehnten der Teilung konnten die Menschen endlich wieder frei zwischen Ost und West reisen. Dieses Datum hat die deutsche Geschichte für immer verändert. Noch heute wird daran jedes Jahr erinnert.",
+  "Gutenberg erfand im 15. Jahrhundert den Buchdruck mit beweglichen Lettern. Dadurch konnten Bücher viel schneller und günstiger hergestellt werden. Das Wissen verbreitete sich in ganz Europa, und die Reformation wäre ohne den Druck vielleicht anders verlaufen.",
+  "In Deutschland gibt es 16 Bundesländer. Jedes hat seine eigene Hauptstadt, seine eigenen Gesetze in manchen Bereichen und oft auch einen eigenen Dialekt. Bayern ist das flächenmässig grösste Land, Berlin die bevölkerungsreichste Stadt. Die Kleinsten sind Bremen und das Saarland.",
+
+  // --- SPRACHE & KOMMUNIKATION ---
+  "Die deutsche Sprache hat viele lange Wörter. Zusammengesetzte Substantive wie Donaudampfschifffahrtsgesellschaft sind zwar selten, aber grammatikalisch völlig korrekt. Für Lernende kann das am Anfang verwirrend sein. Mit der Zeit gewöhnt man sich an die Struktur.",
+  "Höflichkeit ist in der Kommunikation wichtig. Bitte und Danke öffnen Türen, und ein freundlicher Ton macht vieles einfacher. Auch in E-Mails und Nachrichten sollte man nicht zu knapp oder unfreundlich wirken. Ein kurzer Gruss am Anfang und Ende wirkt Wunder.",
+  "Viele Deutsche sprechen neben ihrer Muttersprache noch Englisch. In der Schule wird es ab der 5. Klasse unterrichtet, und im Urlaub oder im Beruf kommt man oft nicht darum herum. Manche lernen auch Französisch, Spanisch oder Latein. Sprachen verbinden Menschen.",
+
+  // --- ARBEIT & WIRTSCHAFT ---
+  "Die Firma hat im letzten Quartal 15 Prozent mehr Umsatz gemacht als im Vorjahr. Die Geschäftsleitung ist zufrieden und plant, neue Mitarbeiter einzustellen. Ab dem 1. September sollen zehn Stellen in der IT-Abteilung besetzt werden. Bewerbungen sind ab sofort möglich.",
+  "Das Homeoffice hat sich in vielen Branchen durchgesetzt. Wer von zu Hause arbeitet, spart Fahrtzeit und kann sich die Zeit oft freier einteilen. Wichtig sind ein fester Arbeitsplatz, klare Zeiten und Pausen. Nicht jeder kommt damit gleich gut zurecht.",
+  "Die Geschäftszeiten sind von Montag bis Freitag, 8.00-17.00 Uhr. In dringenden Fällen erreichen Sie uns auch am Wochenende unter der Nummer 0800-123456. Bitte haben Sie Ihre Kundennummer bereit, wenn Sie anrufen. Wir freuen uns auf Ihre Nachricht.",
+
+  // --- NATUR & JAHRESZEITEN ---
+  "Im Herbst werden die Tage kürzer und die Blätter bunt. Viele Menschen sammeln Kastanien und Eicheln mit ihren Kindern oder backen den ersten Kuchen mit Äpfeln aus dem Garten. Die Erntezeit ist eine besondere Phase im Jahr. Bald kommt der erste Frost.",
+  "An Silvester um Mitternacht feuern viele Menschen Raketen und Böller ab. Der Himmel leuchtet in allen Farben, und überall hört man Lachen und Glückwünsche. Gutes neues Jahr!, ruft man sich zu. Der 1. Januar ist in Deutschland ein Feiertag, an dem die meisten ausschlafen.",
+  "Die Zugvögel fliegen im Herbst in den Süden und kehren im Frühling zurück. Störche, Schwalben und Kraniche legen dabei Tausende von Kilometern zurück. Sie orientieren sich am Magnetfeld der Erde und an den Sternen. Noch immer gibt es viele Rätsel um dieses Phänomen.",
+
+  // --- KURZE GESCHICHTEN ---
+  "Der Wecker klingelte um 6.30 Uhr, aber Markus drückte noch zweimal auf die Schlummertaste. Als er endlich aufstand, war die Kaffeemaschine kaputt. Er trank Tee, nahm den Bus statt das Rad und kam trotzdem pünktlich. Manchmal läuft eben alles schief - und dann doch wieder gut.",
+  "Sie öffnete den Brief und las die ersten Zeilen. Wir freuen uns, Ihnen mitteilen zu können... Sie musste nicht weiterlesen. Der Vertrag war ihr! Sie rief ihre Mutter an und weinte vor Glück. Fünf Jahre Bewerbungen, Absagen, Zweifel - und jetzt endlich ein Ja.",
+  "Der Zug hatte 20 Minuten Verspätung. Statt um 18.00 Uhr kam er erst um 18.20 Uhr. Auf dem Bahnsteig warteten Dutzende Menschen mit genervten Gesichtern. Ein Kind weinte, ein Mann schimpfte laut in sein Handy. Die Ansage entschuldigte sich und versprach: Nächster Zug in 10 Minuten."
 ];
 
+
+
+
+
+
 // Coder Mode (Stage 13): Echter Code (JS/TS/Python Style)
-const CODER_TEXTS: string[] = [
+export const CODER_TEXTS: string[] = [
   // --- BASICS & VARIABLES ---
   "const pi = 3.14159;\nlet radius = 10;\nlet area = pi * radius * radius;\nconsole.log('Area:', area);\nif (area > 100) {\n  console.log('Large Circle');\n} else {\n  console.log('Small Circle');\n}",
   "var name = 'Max';\nvar age = 25;\nvar isStudent = true;\nif (isStudent) {\n  console.log(name + ' is a student.');\n} else {\n  console.log(name + ' works.');\n}",
@@ -236,30 +268,42 @@ const CODER_TEXTS: string[] = [
 
 // Generates the content based on pedagogical levels
 export const generatePatternLevel = (stage: Stage, subLevelId: number): string => {
-  // Meisterklasse (Stage 11), Profi (Stage 12), Coder (Stage 13)
+  // Meisterklasse (Stage 11), Profi (Stage 12), Coder (Stage 13), Mixed (Stage 14/15)
   if (stage.id >= 11) {
     let texts: string[] = [];
     if (stage.id === 13) texts = CODER_TEXTS;
     else if (stage.id === 12) texts = PROFI_TEXTS;
-    else texts = MEISTERKLASSE_TEXTS;
+    else if (stage.id === 14 || stage.id === 15) {
+      // Stage 14 & 15 Mix: Combine everything!
+      texts = [...MEISTERKLASSE_TEXTS, ...PROFI_TEXTS, ...CODER_TEXTS];
+    } else {
+      texts = MEISTERKLASSE_TEXTS;
+    }
 
     const count = texts.length;
     
     // Pick specific paragraphs to ensure coherence
-    if (subLevelId === 0) {
+    if (subLevelId === 0 || stage.id === 15) {
+      // For Stage 15 (Endless) we start with a nice chunk too
       const p1 = texts[Math.floor(Math.random() * count)];
       let p2 = texts[Math.floor(Math.random() * count)];
       while(p1 === p2) p2 = texts[Math.floor(Math.random() * count)];
-      return p1 + " " + p2;
+      return p1 + (stage.id === 13 ? '\n\n' : ' ') + p2;
     }
 
     return texts[Math.floor(Math.random() * count)];
   }
 
   const allChars = new Set(stage.chars);
-  const newChars = stage.newChars.filter(c => c !== 'Shift'); // Exclude control keys from direct generation logic
-  
-  // If Stage 9+ (Capitalization/Punctuation), we need slightly different logic handled inside
+  // ... existing code ...
+  return generateStandardPattern(stage, subLevelId, allChars);
+};
+
+
+
+// Standard pattern generation (pseudo words)
+const generateStandardPattern = (stage: Stage, subLevelId: number, allChars: Set<string>): string => {
+  const newChars = stage.newChars.filter(c => c !== 'Shift'); // Exclude control keys
   const useCapitalization = stage.id >= 9;
   
   // Prepare pools

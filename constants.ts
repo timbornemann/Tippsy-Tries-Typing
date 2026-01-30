@@ -246,5 +246,33 @@ export const STAGES: Stage[] = [
       'ß', '@', '€', '%', '&', '(', ')', '=', '´', '#', '*', '+', '<', '>', '|', '§', '$', '{', '}', '[', ']', ':', ';', '_', '/', '\\', '"', "'"
     ],
     basePrompt: 'Tippe echten Code: Funktionen, Loops und Variablen.'
+  },
+  {
+    id: 14,
+    name: 'Grandmaster Mix',
+    description: 'Der ultimative Test: Text, Code, Zahlen & Sonderzeichen gemischt.',
+    color: 'rose',
+    newChars: [],
+    chars: [
+      'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Q', 'W', 'E', 'R', 'T', 'Z', 'U', 'I', 'O', 'P', 'Y', 'X', 'C', 'V', 'B', 'N', 'M', 
+      'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'ö', 'q', 'w', 'e', 'r', 't', 'z', 'u', 'i', 'o', 'p', 'ü', 'y', 'x', 'c', 'v', 'b', 'n', 'm', 
+      '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '.', ',', '-', '?', '!', ' ',
+      'ß', '@', '€', '%', '&', '(', ')', '=', '´', '#', '*', '+', '<', '>', '|', '§', '$', '{', '}', '[', ']', ':', ';', '_', '/', '\\', '"', "'"
+    ],
+    basePrompt: 'Alles kommt dran. Sei bereit für alles!'
+  },
+  {
+    id: 15,
+    name: 'Endless Zone',
+    description: 'Tippe unendlich lange weiter. Kein Limit.',
+    color: 'violet',
+    newChars: [],
+    chars: [
+      'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Q', 'W', 'E', 'R', 'T', 'Z', 'U', 'I', 'O', 'P', 'Y', 'X', 'C', 'V', 'B', 'N', 'M', 
+      'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'ö', 'q', 'w', 'e', 'r', 't', 'z', 'u', 'i', 'o', 'p', 'ü', 'y', 'x', 'c', 'v', 'b', 'n', 'm', 
+      '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '.', ',', '-', '?', '!', ' ',
+      'ß', '@', '€', '%', '&', '(', ')', '=', '´', '#', '*', '+', '<', '>', '|', '§', '$', '{', '}', '[', ']', ':', ';', '_', '/', '\\', '"', "'"
+    ],
+    basePrompt: 'Tippe solange du kannst. ESC zum Beenden.'
   }
 ];

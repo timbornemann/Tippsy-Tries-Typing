@@ -31,7 +31,7 @@ const EXTRA_WORDS = [
 ];
 
 // Large set of German sentences (without trailing punctuation; punctuation added when stage allows)
-const SENTENCES_DB = [
+export const SENTENCES_DB = [
   // --- SIMPLE (f, j, d, k, s, l, a, ö) ---
   "das das das", "ja ja ja", "lass das", "das all", "als das", "ja das", "da da da", "das fass", "lass alle", "das saal", "al al al", "das aal", 
 
@@ -64,74 +64,80 @@ const SENTENCES_DB = [
   "Wir haben Zeit",
   "Das Haus ist alt",
   "Sie gibt das Buch",
-  "Der Kopf tut weh",
-  "Die Hand ist warm",
-  "Er kommt mit dem Auto",
-  "Das Leben ist gut",
-  "Sie fragt nach dem Weg",
-  "Der Mann und die Frau",
-  "Ich gehe in die Stadt",
-  "Das Wetter ist schön heute",
-  "Er liest ein gutes Buch",
-  "Sie hat eine schöne Hand",
-  "Wir sind gut in der Schule",
-  "Der Hund liegt im Garten",
-  "Die Kinder spielen draussen",
-  "Er hat viel Arbeit",
-  "Sie kommt morgen",
-  "Das ist nicht schwer",
-  "Ich verstehe das gut",
-  "Wir warten auf den Bus",
-  "Der Tag war lang",
-  "Sie gibt mir das Buch",
-  "Er bleibt zu Hause",
-  "Die Zeit geht schnell",
-  "Das Kind hat Hunger",
-  "Wir fahren mit dem Auto",
-  "Er denkt an dich",
-  "Sie weiss die Antwort",
-  "Der Abend ist schön",
-  "Ich habe keine Zeit",
-  "Die Frau arbeitet viel",
-  "Er sitzt im Zimmer",
-  "Das Licht ist an",
-  "Sie findet den Weg",
-  "Wir leben in einer grossen Stadt",
-  "Der Mann kennt die Strasse",
-  "Die Mutter kocht das Essen",
-  "Er bringt uns das Brot",
-  "Sie nimmt den Zug",
-  "Das Haus hat einen Garten",
-  "Ich sehe den Berg",
-  "Wir sprechen Deutsch",
-  "Der Vater liest die Zeitung",
-  "Die Tochter geht zur Schule",
-  "Er stellt die Frage",
-  "Sie antwortet richtig",
-  "Das Buch liegt auf dem Tisch",
-  "Wir haben heute frei",
-  "Der Freund kommt mit",
-  "Die Tür geht auf",
-  "Er bleibt eine Woche",
-  "Sie hat ein neues Auto",
-  "Das Kind lernt schnell",
-  "Ich warte auf dich",
-  "Wir sind fast da",
-  "Der Weg ist nicht weit",
-  "Die Sonne scheint",
-  "Er trinkt gern Kaffee",
-  "Sie schreibt einen Brief",
-  "Das ist eine gute Idee",
-  "Wir machen das zusammen",
-  "Der Junge spielt Ball",
-  "Die Familie ist gross",
-  "Er holt die Milch",
-  "Sie ruft mich an",
-  "Das Essen schmeckt gut",
-  "Ich bin gleich fertig",
-  "Wir gehen ins Kino",
-  "Der Lehrer erklärt die Aufgabe",
-  "Die Schüler sind still",
+  "docker-compose up -d",
+  "python3 script.py --verbose"
+];
+
+/**
+ * --- DEUTSCH MEISTERKLASSE (Stage 11) ---
+ * Complex sentences, punctuation, capitalization.
+ */
+export const MEISTERKLASSE_SENTENCES = [
+  "Das Wetter ändert sich schnell.",
+  "Ich glaube, es wird bald regnen.",
+  "Kannst du mir bitte das Salz geben?",
+  "Wir fahren morgen in den Urlaub!",
+  "Achtung, der Hund beißt manchmal.",
+  "Warum hast du das nicht gesagt?",
+  "Es ist schon spät; wir müssen gehen.",
+  "Die Prüfung war schwerer als gedacht.",
+  "Er läuft jeden Morgen zehn Kilometer.",
+  "Sie liest gerne spannende Bücher.",
+  "Das Essen schmeckt wirklich gut.",
+  "Habt ihr die Hausaufgaben gemacht?",
+  "Der Zug hat leider Verspätung.",
+  "Ich freue mich auf das Wochenende.",
+  "Wo hast du deine Schlüssel gelassen?",
+  "Das Konzert beginnt um acht Uhr.",
+  "Wir haben viel Spaß zusammen.",
+  "Der Film war sehr interessant.",
+  "Kommst du heute Abend vorbei?",
+  "Das ist eine gute Idee!",
+  "Ich verstehe die Frage nicht ganz.",
+  "Er arbeitet als Lehrer in Berlin.",
+  "Sie singt wunderschön im Chor.",
+  "Der Kaffee ist noch zu heiß.",
+  "Wir spielen gerne Brettspiele.",
+  "Das Auto muss in die Werkstatt.",
+  "Ich habe meinen Regenschirm vergessen.",
+  "Der Himmel ist heute strahlend blau.",
+  "Wir gehen oft im Wald spazieren.",
+  "Das Leben ist voller Überraschungen."
+];
+
+/**
+ * --- PROFI & SONDERZEICHEN (Stage 12) ---
+ * Sentences with symbols, numbers, and tricky chars.
+ */
+export const PROFI_SENTENCES = [
+  "Der Preis beträgt 19,99€ (inkl. MwSt).",
+  "Bitte senden an: info@beispiel.de",
+  "Achtung: Baustelle auf der A7!",
+  "Die Formel lautet: a² + b² = c²",
+  "Treffen wir uns um 18:30 Uhr?",
+  "Er sagte: 'Das ist ja unglaublich!'",
+  "Rabatt-Code: SOMMER_2024",
+  "Temperatur: -5°C bis +10°C.",
+  "Status: [ON] / [OFF]",
+  "Login: User_123 & Pass#Word!",
+  "Größe: 100% oder 50%?",
+  "Datei 'bericht_final.pdf' gespeichert.",
+  "Kosten: 50$ (USD) / 45£ (GBP).",
+  "Ergebnis: 100 > 90 ist wahr.",
+  "Hast du die E-Mail (Re: Projekt) bekommen?",
+  "Fehler #404: Seite nicht gefunden.",
+  "Rechnung Nr. 2023/001 bezahlt.",
+  "Öffnungszeiten: Mo-Fr, 09:00 - 17:00.",
+  "Bitte bestätigen (Ja/Nein): ___",
+  "Upload: 5.5 MB / 10 MB fertig.",
+  "Vorsicht! Hochspannung!",
+  "Die 'Große' Pause beginnt jetzt.",
+  "Paragraph §123 BGB beachten.",
+  "Windows\\System32\\drivers",
+  "http://www.google.de/search?q=tippen",
+  "1 + 2 * 3 = 7 (Punkt vor Strich!)"
+];
+export const CODER_SENTENCES = [
   "Er legt das Buch weg",
   "Sie denkt an morgen",
   "Das Fenster ist offen",
@@ -320,319 +326,6 @@ const SENTENCES_DB = [
   "Wir verstehen uns",
 ];
 
-// Meisterklasse (Stage 11): Sätze mit Zahlen und Satzzeichen für längere Texte
-const MEISTERKLASSE_SENTENCES = [
-  "Am Montag beginnt die Schule um 8.00 Uhr.",
-  "Der Zug fährt um 14.30 Uhr ab.",
-  "Die Rechnung beträgt 45,50 Euro.",
-  "Treffen wir uns um 18.00 Uhr?",
-  "Das Buch hat 256 Seiten.",
-  "Der Film dauert 2 Stunden.",
-  "In Deutschland leben etwa 84 Millionen Menschen.",
-  "Der Supermarkt hat von 7.00 bis 22.00 Uhr geöffnet.",
-  "Das Meeting ist am 15. März um 10.00 Uhr.",
-  "Die Prüfung findet am 20. Juni statt.",
-  "Preis: 19,90 Euro inkl. MwSt.",
-  "Das Konzert beginnt um 19.30 Uhr.",
-  "Die Strecke ist 120 km lang.",
-  "Angebot gültig bis 31.12.2024.",
-  "Eintritt: 5,00 Euro für Erwachsene.",
-  "Der Weg ist 2,5 km lang.",
-  "Von 9.00 bis 12.00 Uhr bin ich in Besprechungen.",
-  "Es ist 23.59 Uhr – gleich Mitternacht.",
-  "Kosten: 9,99 Euro pro Person.",
-  "Die Kinder sind 6, 8 und 11 Jahre alt.",
-  "Bitte bestätige den Termin per E-Mail.",
-  "Hast du die Hausaufgaben schon gemacht?",
-  "Der neue Mitarbeiter beginnt am 1. September.",
-  "Wir fliegen am Freitag nach London.",
-  "Die Temperatur ist unter null Grad gefallen.",
-  "Mein Geburtstag ist am 4. Juli.",
-  "Die Telefonnummer ist 030-12345678.",
-  "Ich habe 50 Euro im Lotto gewonnen!",
-  "Wer hat die Mona Lisa gemalt?",
-  "Das Brandenburger Tor steht in Berlin.",
-  "Wir brauchen noch Milch, Eier und Brot.",
-  "Der Kurs von Bitcoin schwankt stark.",
-  "Österreich hat 9 Bundesländer.",
-  "Die Schweiz ist bekannt für Schokolade.",
-  "Rom ist eine sehr alte Stadt.",
-  "Wie viel kostet das Ticket?",
-  "Ich warte schon seit 30 Minuten.",
-  "Der Akku ist gleich leer.",
-  "Hast du das Ladegerät gesehen?",
-  "Wir schauen heute Abend einen Film.",
-  "Pizza oder Pasta? Was möchtest du?",
-  "Der Sommer war dieses Jahr sehr heiß.",
-  "Im Winter schneit es oft in den Bergen.",
-  "Ich fahre gerne mit dem Fahrrad zur Arbeit.",
-  "Die U-Bahn war heute wieder sehr voll.",
-  "Kannst du mir bitte das Salz geben?",
-  "Danke für deine Hilfe!",
-  "Entschuldigung, wie komme ich zum Bahnhof?",
-  "Guten Morgen, haben Sie gut geschlafen?",
-  "Ich wünsche dir ein schönes Wochenende.",
-  "Alles Gute zum Geburtstag!",
-  "Herzlichen Glückwunsch zur bestandenen Prüfung.",
-  "Das hast du sehr gut gemacht.",
-  "Ich bin stolz auf dich.",
-  "Lass uns bald mal wieder treffen.",
-  "Bis bald!",
-  "Auf Wiedersehen!",
-  "Es war mir eine Freude.",
-  "Die Sonne geht im Osten auf.",
-  "Wasser kocht bei 100 Grad Celsius.",
-  "Eins plus eins ist zwei.",
-  "Das Alphabet hat 26 Buchstaben.",
-  "Ein Jahr hat 365 Tage, manchmal auch 366.",
-  "Februar ist der kürzeste Monat.",
-  "Der Rhein ist ein langer Fluss.",
-  "Die Alpen sind ein hohes Gebirge.",
-  "Fußball ist in Deutschland sehr beliebt.",
-  "Die WM findet alle vier Jahre statt.",
-  "Wer wird Millionär?",
-  "Tatort läuft sonntags um 20.15 Uhr.",
-  "Obwohl es regnete, gingen wir spazieren.",
-  "Der Arzt sagte, ich solle mich eine Woche schonen.",
-  "Wenn du Zeit hast, ruf mich bitte an!",
-  "Die Konferenz wurde auf den 12. November verschoben.",
-  "Laut Wetterbericht wird es morgen bis zu 28 Grad warm.",
-  "Erst wenn du die Prüfung bestanden hast, kannst du weitermachen.",
-  "Die Firma hat im letzten Quartal 15 Prozent mehr Umsatz gemacht.",
-  "Ich habe vergessen, die Rechnung bis zum 5. des Monats zu bezahlen.",
-  "Der Vertrag läuft noch bis Ende 2025.",
-  "Bitte füllen Sie das Formular vollständig und leserlich aus.",
-  "Ohne deine Unterstützung hätte ich das nie geschafft.",
-  "Die Zugverbindung wurde wegen Bauarbeiten unterbrochen.",
-  "Wir empfehlen, die Bewerbung bis spätestens 30. September einzureichen.",
-  "Die Geschäftszeiten sind von Montag bis Freitag, 8.00–17.00 Uhr.",
-  "Falls du Fragen hast, stehe ich dir gerne zur Verfügung.",
-  "Die Miete ist ab dem 1. nächsten Monats fällig.",
-  "Trotz der vielen Arbeit hat er immer Zeit für seine Familie.",
-  "Die Veranstaltung beginnt pünktlich um 19.00 Uhr; Einlass ab 18.30 Uhr.",
-  "Guten Tag!, sagte der Portier und öffnete die Tür.",
-  "Die Adresse lautet: Musterstrasse 42, 10115 Berlin.",
-  "Bitte antworte bis spätestens Freitag, 17.00 Uhr (MEZ).",
-  "Er hat 3 Äpfel, 2 Birnen und 1 Kilo Kartoffeln gekauft.",
-  "Der Zug hatte 45 Minuten Verspätung - eine Entschuldigung gab es nicht.",
-  "In Abs. 3 Abs. 2 steht: Die Frist beträgt 14 Tage.",
-  "E-Mail: info-at-beispiel.de; Tel.: 030 123456.",
-  "Die Durchschnittstemperatur lag bei -2 Grad; nachts sogar bei -8 Grad.",
-  "Wer nicht fragt, bleibt dumm. - So lautet ein bekanntes Sprichwort.",
-  "Kosten: 99,00 Euro (inkl. 19 % MwSt.) zzgl. Versand.",
-  "Die Studie zeigt: 78 % der Befragten sind zufrieden.",
-  "Öffnungszeiten: Mo-Fr 9-18 Uhr, Sa 9-13 Uhr.",
-  "Er sagte: Ich komme morgen. - Sie antwortete: Gut, bis dann!",
-  "Die Strecke (ca. 120 km) kann in etwa 1,5 Stunden bewältigt werden.",
-  "Bitte beachten Sie: Der Eingang befindet sich auf der Rückseite (Nr. 5).",
-  "Von 10.000 Bewerbern wurden nur 50 eingeladen.",
-  "Der Vertrag gilt ab dem 1.1.2025; Kündigung mit 3 Monaten Frist.",
-  "Alles hat ein Ende, nur die Wurst hat zwei.",
-  "Die Geschwindigkeit betrug 130 km/h - also genau Tempolimit.",
-  "Er hat 2x ja und 1x nein geantwortet.",
-  "Lieferzeit: 3-5 Werktage (ausgenommen Feiertage).",
-  "Die Quote lag bei 42,7 %; im Vorjahr waren es 38,1 %.",
-  "Übung macht den Meister. - Das gilt auch beim Tippen."
-];
-
-const PROFI_SENTENCES = [
-  "Preise: 19,99 € inkl. MwSt.",
-  "Kontakt: info@example.com oder admin@web.de",
-  "Skonto: 2 % bei Zahlung binnen 7 Tagen.",
-  "Login: User_123 & Pass#wort!",
-  "Gesetz: § 433 BGB regelt den Kaufvertrag.",
-  "Temperatur: Heute sind es 23 °C.",
-  "Rechnung: (10 + 5) * 2 = 30.",
-  "Rabatt-Code: #SALE2024",
-  "Datei: C:\\Windows\\System32\\drivers",
-  "Webseite: https://www.google.de",
-  "Er rief: Achtung, fertig, los!",
-  "Die Straße ist nass.",
-  "Grüße aus Berlin, deine Susi.",
-  "Spaß muss sein!",
-  "Das Maß ist voll.",
-  "Fußball-WM 2026: Wer ist dabei?",
-  "100 % Motivation ist nötig.",
-  "Bitte überweisen Sie 45,50 €.",
-  "Tel: +49 (0) 30 / 123 45 67",
-  "Öffnungszeiten: Mo–Fr 9:00–18:00 Uhr.",
-  "Währungskurs: 1 € = 1,10 $.",
-  "Programmierer nutzen oft { } und [ ].",
-  "HTML nutzt <tags> und </tags>.",
-  "Bitte nicht stören!",
-  "Der § 1 DSGVO ist wichtig.",
-  "Kosten: 50 € zzgl. 3,50 € Versand.",
-  "Email: max_mustermann@provider.net",
-  "Mathe: 50 % von 200 ist 100.",
-  "Ort: 52° 31' N, 13° 24' O",
-  "Status: Online (grün) / Offline (rot)",
-  
-  // --- NEU: MEHR VARIATION ---
-  "Die Gleichung lautet: f(x) = x^2 + 2x - 5.",
-  "Importante Info: Bitte *nicht* löschen!",
-  "C:\\Program Files\\Tippsy\\bin\\run.exe",
-  "Der Hashtag #TippsyGoesViral trendet.",
-  "User @WebDev_2024 hat gepostet:",
-  "while (i < 10) { console.log(i); i++; }",
-  "Preisänderung: Alter Preis 99 € -> Neuer Preis 79 €!",
-  "Die Tastenkombination ist Strg + Alt + Entf.",
-  "Achtung: Baustelle auf der A1 [KM 120-130].",
-  "Gemäß § 823 Abs. 1 BGB haften Sie für Schäden.",
-  "Versandkostenfrei ab 29,00 € Bestellwert.",
-  "1 Gigabyte (GB) = 1.024 Megabyte (MB).",
-  "Sonderzeichen-Mix: & % $ § @ €",
-  "Frage: Bist du bereit? (Ja/Nein)",
-  "Ergebnis: 12 + 4 * (10 - 2) = 44.",
-  "Login failed: Error #404 (Not Found).",
-  "Die Domain www.beispiel.de ist vergeben.",
-  "30% Rabatt auf alles! *Ausgenommen Tiernahrung.",
-  "Einkaufsliste: Milch, Brot, Eier & Käse.",
-  "Gedankenstrich: Das war knapp - wirklich knapp.",
-  "Klammern können (verschachtelt [sein]).",
-  "Menge: A und B = {x | x in A und x in B}",
-  "Die Temperatur fiel auf -5,5 Grad Celsius.",
-  "Route: Berlin -> München -> Wien.",
-  "Ich habe dich lieb <3",
-  "Smiley: :-) oder ;-) oder :-P",
-  "Der Pfad ist /usr/local/bin/node.",
-  "Bitte drücken Sie die Taste <ENTER>.",
-  "Abonniere meinen Kanal & like das Video!",
-  "Die Mehrwertsteuer (MwSt.) beträgt 19 %.",
-  "Das ist 'fett' gedruckt und das _kursiv_.",
-  "Passwort-Sicherheit: Nutze Sonderzeichen wie !?#*",
-  "Der Kursverlust beträgt -2,5 %.",
-  "Die E-Mail ging an support@firma.co.uk.",
-  "Am 24.12. ist Weihnachten.",
-  "Er sagte: Ich liebe Musik. & Kunst.",
-  "Die IP-Adresse ist 192.168.0.1.",
-  "Rechnung Nr. 2024/001 über 150,00 €.",
-  "Zutaten: Wasser, Zucker, Säuerungsmittel (E330).",
-  "Die Lösung ist x = (-b + Wurzel(b^2 - 4ac)) / 2a.",
-  "Wir treffen uns um 20:15 Uhr.",
-  "System: Windows 11 (Pro Version).",
-  "Tags: #Urlaub #Sonne #Strand",
-  "Wahrheitstabelle: 1 AND 0 = 0.",
-  "Bitte überweisen an IBAN: DE12 3456 7890...",
-  "Die maximale Größe ist <= 5 MB.",
-  "Verhältnis 16:9 ist Standard bei TV.",
-  "Er wohnt in der Goethestraße 13a.",
-  "Kopie an: chef@büro.de; team@büro.de",
-  "Der Download läuft... 99% fertig.",
-  "Warnung: Löschen? [J]a / [N]ein",
-  "Die Datei config_final_v2.json fehlt.",
-  "Mathe: 50 % von 200 ist 100.",
-  "Ort: 52° 31' N, 13° 24' O",
-  "Status: Online (grün) / Offline (rot)"
-];
-
-const CODER_SENTENCES = [
-  // --- VARIABLES & TYPES ---
-  "const x = 10; let y = 20;",
-  "var name: string = 'Tippsy';",
-  "let isActive: boolean = true;",
-  "const PI = 3.14159;",
-  "let count = 0;",
-  "const emptyList = [];",
-  "let user = { id: 1, name: 'Bob' };",
-  "const isNull = (value === null);",
-  "let summary = 'Total: ' + total;",
-
-  // --- LOGIC & LOOPS ---
-  "if (x > y) { return true; }",
-  "else { return false; }",
-  "for (let i = 0; i < 10; i++)",
-  "while (true) { break; }",
-  "switch (key) { case 'A': break; }",
-  "return (a + b) * c;",
-  "if (user && user.isLoggedIn)",
-  "const isValid = input.length > 5;",
-  "x += 1; y -= 1;",
-  "if (err) throw new Error(err);",
-
-  // --- FUNCTIONS ---
-  "function init() { start(); }",
-  "const add = (a, b) => a + b;",
-  "function render(props) { return null; }",
-  "const map = arr.map(x => x * 2);",
-  "list.forEach(item => console.log(item));",
-  "const filtered = data.filter(d => d.ok);",
-  "setTimeout(() => done(), 1000);",
-  "export default class Main {}",
-
-  // --- DOM & API ---
-  "document.getElementById('app');",
-  "window.addEventListener('load', init);",
-  "fetch('/api/data').then(r => r.json());",
-  "console.log('Debug:', value);",
-  "alert('Hello World!');",
-  "localStorage.setItem('key', 'value');",
-  "const btn = document.querySelector('.btn');",
-
-  // --- OBSCURE / SYMBOLS ---
-  "const regex = /^[a-z]+$/;",
-  "let hex = 0xFF00FF;",
-  "const binary = 0b101010;",
-  "x <<= 1; // Bitwise shift",
-  "a || b; a && b; !c;",
-  "user?.address?.street;",
-  "const tuple = [1, 'text'];",
-  "import { useState } from 'react';",
-  "package main; import 'fmt';",
-  "public static void main(String[] args)",
-
-  // --- HTML / XML ---
-  "<div>Hello World</div>",
-  "<a href='https://google.com'>Link</a>",
-  "<img src='logo.png' alt='Logo' />",
-  "<br /> <hr /> <!-- Comment -->",
-  "class='btn btn-primary'",
-  "style='color: red; margin: 10px;'",
-
-  // --- PYTHON ---
-  "print('Hello ' + name)",
-  "def add(a, b): return a + b",
-  "if __name__ == '__main__':",
-  "list = [x for x in range(10)]",
-  "import numpy as np",
-
-  // --- C# / JAVA ---
-  "Console.WriteLine('Hello');",
-  "System.out.println('Java');",
-  "public class User { public int Id; }",
-  "List<string> names = new List<string>();",
-  "int[] numbers = { 1, 2, 3 };",
-  "using System.Linq;",
-  "throw new Exception('Error');",
-  "String.join(', ', list);",
-  "var query = from c in db select c;",
-
-  // --- SQL (New) ---
-  "SELECT * FROM users;",
-  "DROP TABLE IF EXISTS test;",
-  "INSERT INTO log (msg) VALUES ('Hi');",
-  "SELECT count(*) FROM data GROUP BY id;",
-  "UPDATE settings SET active = 1;",
-
-  // --- CSS (New) ---
-  "display: flex; flex-direction: row;",
-  "margin: 0 auto; padding: 20px;",
-  "color: rgba(255, 0, 0, 0.5);",
-  "@media (max-width: 768px) { }",
-  "font-family: 'Roboto', sans-serif;",
-  
-  // --- JSON / OBJECTS ---
-  "{ 'key': 'value', 'id': 123 }",
-  "JSON.stringify({ a: 1, b: 2 });",
-  "data: { labels: [], datasets: [] }",
-
-  // --- TERMINAL / SHELL ---
-  "npm install react react-dom",
-  "git commit -m 'Fix bug'",
-  "ls -la /var/www/html",
-  "docker-compose up -d",
-  "python3 script.py --verbose"
-];
-
 /**
  * Generates typing content focused on real words and sentences when possible,
  * or word-like / sentence-like pseudo content when the stage has few letters.
@@ -644,13 +337,14 @@ export function generateWordSentenceLevel(stage: Stage): string {
   const isMeisterklasse = stage.id >= 11;
   const isProfi = stage.id === 12;
   const isCoder = stage.id === 13;
+  const isMixed = stage.id === 14 || stage.id === 15;
 
   const poolAll = stage.chars.filter((c) => c !== ' ' && c.length === 1);
   const allWords = [...COMMON_WORDS_DB, ...EXTRA_WORDS];
   const possibleWords = allWords.filter((w) => canTypeWord(w, allChars));
   let possibleSentences = SENTENCES_DB.filter((s) => canTypeWord(s, allChars));
   
-  if (isMeisterklasse && usePunctuation && !isProfi && !isCoder) {
+  if (isMeisterklasse && usePunctuation && !isProfi && !isCoder && !isMixed) {
     const extra = MEISTERKLASSE_SENTENCES.filter((s) => canTypeWord(s, allChars));
     possibleSentences = [...possibleSentences, ...extra];
   } else if (isProfi) {
@@ -661,10 +355,14 @@ export function generateWordSentenceLevel(stage: Stage): string {
     // Stage 13: Coder Mode - Prioritize code snippets
     const extra = CODER_SENTENCES.filter((s) => canTypeWord(s, allChars));
     possibleSentences = [...extra]; // Ideally mostly code
+  } else if (isMixed) {
+    // Stage 14 & 15: EVERYTHING
+    const extra = [...MEISTERKLASSE_SENTENCES, ...PROFI_SENTENCES, ...CODER_SENTENCES];
+    possibleSentences = [...extra, ...possibleSentences];
   }
 
-  const sentenceCount = (isMeisterklasse || isProfi || isCoder)
-    ? 6 + Math.floor(Math.random() * 5)   // 6–10 Sätze für Meister/Profi/Coder
+  const sentenceCount = (isMeisterklasse || isProfi || isCoder || isMixed)
+    ? 6 + Math.floor(Math.random() * 5)   // 6–10 Sätze für Meister/Profi/Coder/Mixed
     : 3 + Math.floor(Math.random() * 3);   // 3–5 Sätze sonst
   const result: string[] = [];
 

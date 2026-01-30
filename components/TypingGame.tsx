@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Stage, GameStats, GameMode, ErrorCountByChar } from '../types';
 import { KEYBOARD_LAYOUT, FINGER_NAMES_DE, FINGER_COLORS } from '../constants';
 import VirtualKeyboard from './VirtualKeyboard';
-import { RotateCcw, Home, Crown, Zap, BookOpen } from 'lucide-react';
+import { RotateCcw, Home, Crown, Zap, BookOpen, Infinity } from 'lucide-react';
+import { getRandomChunk } from '../services/endlessContent';
 
 interface TypingGameProps {
   stage: Stage;
@@ -17,7 +18,7 @@ interface TypingGameProps {
 const FALLBACK_CONTENT = 'fff jjj fff jjj';
 
 const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: contentProp, onFinish, onBack, onRetry, gameMode = 'STANDARD' }) => {
-  const content = (typeof contentProp === 'string' && contentProp.trim().length > 0) ? contentProp : FALLBACK_CONTENT;
+  const [content, setContent] = useState((typeof contentProp === 'string' && contentProp.trim().length > 0) ? contentProp : FALLBACK_CONTENT);
   const [inputIndex, setInputIndex] = useState(0);
   const [mistakes, setMistakes] = useState(0);
   const [startTime, setStartTime] = useState<number | null>(null);
@@ -28,7 +29,21 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
   
   const [wpm, setWpm] = useState(0);
 
+  // Total chars typed in this endless session (since we slice content, inputIndex isn't the total anymore)
+  const [totalCharsTyped, setTotalCharsTyped] = useState(0);
+
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Reset content when prop changes (new level)
+  useEffect(() => {
+    if (contentProp) {
+        setContent(contentProp);
+        setInputIndex(0);
+        setMistakes(0);
+        setStartTime(null);
+        setTotalCharsTyped(0);
+    }
+  }, [contentProp]);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -41,24 +56,52 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
     if (!startTime) return;
     const now = Date.now();
     const minutes = (now - startTime) / 60000;
-    const words = inputIndex / 5;
+    // For endless mode, we track totalCharsTyped. For normal, inputIndex is sufficient.
+    const chars = stage.id === 15 ? totalCharsTyped + inputIndex : inputIndex; 
+    const words = chars / 5;
     const currentWpm = Math.round(words / minutes) || 0;
     setWpm(currentWpm);
-  }, [inputIndex, startTime]);
+  }, [inputIndex, startTime, totalCharsTyped, stage.id]);
 
   useEffect(() => {
     const timer = setInterval(calculateStats, 1000);
     return () => clearInterval(timer);
   }, [calculateStats]);
 
+  const finishGame = useCallback(() => {
+    const endTime = Date.now();
+    const timeElapsed = (endTime - (startTime || endTime)) / 1000;
+    const finalTotalChars = stage.id === 15 ? totalCharsTyped + inputIndex : content.length;
+    
+    // Avoid division by zero
+    const wpmCalc = timeElapsed > 0 ? (finalTotalChars / 5) / (timeElapsed / 60) : 0;
+    const finalWpm = Math.round(wpmCalc);
+    
+    const accuracy = Math.round(((finalTotalChars - mistakes) / finalTotalChars) * 100);
+    
+    onFinish({
+      wpm: finalWpm,
+      accuracy: Math.max(0, accuracy),
+      errors: mistakes,
+      totalChars: finalTotalChars,
+      timeElapsed,
+      errorCountByChar: Object.keys(errorCountByChar).length > 0 ? errorCountByChar : undefined
+    });
+  }, [content.length, inputIndex, startTime, mistakes, errorCountByChar, onFinish, stage.id, totalCharsTyped]);
+
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape') {
       e.preventDefault();
-      onBack();
+      if (stage.id === 15) {
+        // Endless Mode: Escape finishes the game
+        finishGame();
+      } else {
+        onBack();
+      }
       return;
     }
 
-    const keyForPress = (e.key === 'Minus' ? '-' : e.key === 'Comma' ? ',' : e.key === 'Period' ? '.' : e.key);
+    const keyForPress = (e.key === 'Minus' ? '-' : e.key === 'Comma' ? ',' : e.key === 'Period' ? '.' : e.key === 'Enter' ? '\n' : e.key);
     setPressedKeys(prev => {
       const newSet = new Set(prev);
       newSet.add(e.key);
@@ -68,6 +111,7 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
 
     if (['Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'Tab'].includes(e.key)) return;
     if (e.key === ' ') e.preventDefault();
+    if (e.key === 'Enter') e.preventDefault(); // Prevent standard enter behavior
 
     if (startTime === null) {
       setStartTime(Date.now());
@@ -76,25 +120,39 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
     const targetChar = content[inputIndex];
     // Normalize key: some keyboards/browsers send "Minus"/"Comma"/"Period" instead of the character
     const key = (e.key === 'Minus' ? '-' : e.key === 'Comma' ? ',' : e.key === 'Period' ? '.' : e.key === 'Enter' ? '\n' : e.key);
+    
     if (key === targetChar) {
       const nextIndex = inputIndex + 1;
-      setInputIndex(nextIndex);
       
-      if (nextIndex === content.length) {
-        const endTime = Date.now();
-        const timeElapsed = (endTime - (startTime || endTime)) / 1000;
-        const finalWpm = Math.round((content.length / 5) / (timeElapsed / 60));
-        const accuracy = Math.round(((content.length - mistakes) / content.length) * 100);
-        
-        onFinish({
-          wpm: finalWpm,
-          accuracy: Math.max(0, accuracy),
-          errors: mistakes,
-          totalChars: content.length,
-          timeElapsed,
-          errorCountByChar: Object.keys(errorCountByChar).length > 0 ? errorCountByChar : undefined
-        });
+      // --- ENDLESS MODE LOGIC ---
+      if (stage.id === 15) {
+        // 1. Append content if needed
+        if (content.length - nextIndex < 50) {
+            const chunk = getRandomChunk();
+            // Add a proper separator (newline for code/mixed, space otherwise)
+            const separator = (stage.id === 13 || stage.id === 14) ? '\n\n' : ' '; 
+            const newContent = content + separator + chunk;
+            setContent(newContent);
+        }
+
+        // 2. Cleanup old content if too long (Memory Management)
+        // Keep a buffer of ~100 chars behind cursor
+        if (nextIndex > 200) {
+            const cutAmount = 100;
+            setTotalCharsTyped(prev => prev + cutAmount);
+            setContent(prev => prev.slice(cutAmount));
+            setInputIndex(nextIndex - cutAmount);
+        } else {
+            setInputIndex(nextIndex);
+        }
+      } else {
+        // Standard Mode
+        setInputIndex(nextIndex);
+        if (nextIndex === content.length) {
+            finishGame();
+        }
       }
+      
     } else {
       setMistakes(m => m + 1);
       setErrorCountByChar(prev => {
@@ -105,7 +163,7 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
       setErrorShake(true);
       setTimeout(() => setErrorShake(false), 300);
     }
-  }, [content, inputIndex, mistakes, onFinish, startTime, onBack, errorCountByChar]);
+  }, [content, inputIndex, mistakes, finishGame, startTime, onBack, errorCountByChar, stage.id]);
 
   const handleKeyUp = useCallback((e: KeyboardEvent) => {
     const normalized = (k: string) => (k === 'Minus' ? '-' : k === 'Comma' ? ',' : k === 'Period' ? '.' : k === 'Enter' ? '\n' : k);
@@ -178,12 +236,13 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
           <div>
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
               {stage.name}
-              {isMasterLevel && !isPractice && !isWordsSentences && <Crown className="w-5 h-5 text-yellow-400 fill-yellow-400 animate-pulse" />}
+              {isMasterLevel && !isPractice && !isWordsSentences && stage.id !== 15 && <Crown className="w-5 h-5 text-yellow-400 fill-yellow-400 animate-pulse" />}
               {isPractice && <Zap className="w-5 h-5 text-purple-400 fill-purple-400" />}
               {isWordsSentences && <BookOpen className="w-5 h-5 text-teal-400 fill-teal-400" />}
+              {stage.id === 15 && <Infinity className="w-5 h-5 text-violet-400" />}
             </h2>
-            <p className={`text-xs ${isMasterLevel && !isPractice && !isWordsSentences ? 'text-yellow-200' : isWordsSentences ? 'text-teal-200' : isPractice ? 'text-purple-200' : 'text-slate-400'}`}>
-              Level {stage.id} - {isWordsSentences ? 'Wort & Satz' : isPractice ? 'Üben' : isMasterLevel ? 'Meisterprüfung' : `Übung ${subLevelId}/5`}
+            <p className={`text-xs ${isMasterLevel && !isPractice && !isWordsSentences && stage.id !== 15 ? 'text-yellow-200' : isWordsSentences ? 'text-teal-200' : isPractice ? 'text-purple-200' : stage.id === 15 ? 'text-violet-200' : 'text-slate-400'}`}>
+              Level {stage.id} - {stage.id === 15 ? 'Unendlich' : isWordsSentences ? 'Wort & Satz' : isPractice ? 'Üben' : isMasterLevel ? 'Meisterprüfung' : `Übung ${subLevelId}/5`}
             </p>
           </div>
         </div>
@@ -199,7 +258,11 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
           </div>
           <div className="text-center">
             <p className="text-xs text-slate-400 uppercase tracking-wider">Fortschritt</p>
-            <p className="text-2xl font-mono font-bold text-blue-400">{Math.round((inputIndex / content.length) * 100)}%</p>
+            {stage.id === 15 ? (
+              <p className="text-2xl font-mono font-bold text-violet-400 flex justify-center items-center"><Infinity size={32} /></p>
+            ) : (
+              <p className="text-2xl font-mono font-bold text-blue-400">{Math.round((inputIndex / content.length) * 100)}%</p>
+            )}
           </div>
         </div>
 

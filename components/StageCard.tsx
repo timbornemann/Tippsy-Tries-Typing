@@ -178,7 +178,7 @@ const StageCard: React.FC<StageCardProps> = ({
       </div>
 
       {/* PROGRESS BAR */}
-      {!isLocked && (
+      {!isLocked && stage.id !== 15 && (
         <div className="mb-10 relative">
           <div className="flex justify-between text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
             <span>Fortschritt</span>
@@ -196,89 +196,122 @@ const StageCard: React.FC<StageCardProps> = ({
       {/* PATH / LEVEL MAP */}
       <div className="relative min-h-[180px] flex items-center justify-center">
         
-        {/* TIPPSY WALKER - Only on Current Stage */}
-        {!isLocked && isCurrent && (
-            <div 
-              className="absolute z-30 w-12 h-12 pointer-events-none transition-all duration-[2000ms] ease-in-out"
-              style={{ 
-                  left: `${tippsyPos}%`, 
-                  top: `${getVerticalPos(tippsyPos)}px`,
-                  transform: 'translate(-50%, -100%)' // Pivot at bottom/feet
-              }}
-            >
-                <div className={isWalking ? 'animate-bounce' : ''}>
-                   <TippsyAvatar mood={isWalking ? 'excited' : 'happy'} className="w-full h-full drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)]" />
-                </div>
-            </div>
-        )}
-
-        {/* SVG Connecting Line (Dotted Path) */}
-        {!isLocked && (
-           <svg className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-30" viewBox="0 0 400 180" preserveAspectRatio="none">
-             <path 
-               d="M 50,90 C 100,90 100,130 150,130 C 200,130 200,50 250,50 C 300,50 300,90 350,90" 
-               fill="none" 
-               stroke={isLocked ? "#334155" : "currentColor"} 
-               strokeWidth="4" 
-               strokeDasharray="8 8"
-               className={c.pathText}
-             />
-           </svg>
-        )}
-
-        <div className="relative z-10 w-full flex justify-between px-4 sm:px-12 items-center">
-          {[1, 2, 3, 4, 5].map((subLevelId) => {
-             const isMaster = subLevelId === 5;
-             let status: 'locked' | 'active' | 'completed' = 'locked';
-             
-             if (isCompleted) status = 'completed';
-             else if (isCurrent) {
-               if (subLevelId < progress.unlockedSubLevelId) status = 'completed';
-               else if (subLevelId === progress.unlockedSubLevelId) status = 'active';
-             }
-
-             // Vertical positioning to match the curve vaguely
-             let translateY = 'translate-y-0';
-             if (subLevelId === 2) translateY = 'translate-y-8'; // Down
-             if (subLevelId === 3) translateY = '-translate-y-8'; // Up
-             if (subLevelId === 4) translateY = 'translate-y-0'; 
-
-             return (
-               <button
-                 key={subLevelId}
-                 disabled={status === 'locked'}
-                 onClick={() => onStartLevel(stage, subLevelId)}
-                 className={`
-                   relative group/btn flex flex-col items-center justify-center transition-all duration-300 ${translateY}
-                 `}
-               >
-                 <div className={`
-                   w-14 h-14 rounded-full flex items-center justify-center border-4 shadow-xl transition-all duration-300 relative z-10
-                   ${status === 'locked' 
-                     ? 'bg-slate-800 border-slate-700 text-slate-600 scale-90' 
-                     : status === 'completed'
-                       ? 'bg-slate-800 border-emerald-500 text-emerald-400 scale-100 hover:scale-110'
-                       : `${c.nodeActive} border-white text-white scale-110 hover:scale-125 shadow-[0_0_30px_rgba(255,255,255,0.3)]`
+        {/* ENDLESS MODE: Single Big Button */}
+        {stage.id === 15 ? (
+          <div className="w-full flex justify-center py-8">
+             <button
+                disabled={isLocked}
+                onClick={() => onStartLevel(stage, 1)}
+                className={`
+                  relative group flex flex-col items-center justify-center transition-all duration-500
+                `}
+              >
+                <div className={`
+                   w-32 h-32 rounded-full flex items-center justify-center border-4 shadow-2xl transition-all duration-500 relative z-10
+                   ${isLocked
+                     ? 'bg-slate-800 border-slate-700 text-slate-600'
+                     : 'bg-gradient-to-br from-violet-600 to-indigo-600 border-violet-400 text-white shadow-[0_0_50px_rgba(139,92,246,0.4)] hover:scale-110 hover:shadow-[0_0_70px_rgba(139,92,246,0.6)]'
                    }
-                   ${isMaster && status !== 'locked' ? 'w-16 h-16' : ''}
-                 `}>
-                    {status === 'locked' && <Lock size={16} />}
-                    {status === 'completed' && <Star fill="currentColor" size={20} />}
-                    {status === 'active' && !isMaster && <span className="font-bold text-lg">{subLevelId}</span>}
-                    {status === 'active' && isMaster && <Crown fill="currentColor" size={24} />}
-                 </div>
-                 
-                 {/* Tooltip / Label */}
-                 <div className={`
-                   absolute -bottom-8 px-2 py-1 rounded bg-slate-900 border border-slate-700 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap opacity-0 group-hover/btn:opacity-100 transition-opacity pointer-events-none z-20
-                   ${status === 'active' ? 'text-white border-white/30' : 'text-slate-500'}
-                 `}>
-                   {isMaster ? 'Meister' : `Level ${subLevelId}`}
-                 </div>
-               </button>
-             );
-          })}
-        </div>
+                `}>
+                   {isLocked ? (
+                     <Lock size={32} />
+                   ) : (
+                     <div className="flex flex-col items-center animate-pulse-slow">
+                        <span className="text-4xl">∞</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest mt-1">Start</span>
+                     </div>
+                   )}
+                </div>
+             </button>
+          </div>
+        ) : (
+          /* STANDARD: 5-Step Path */
+          <>
+            {/* TIPPSY WALKER - Only on Current Stage */}
+            {!isLocked && isCurrent && (
+                <div 
+                  className="absolute z-30 w-12 h-12 pointer-events-none transition-all duration-[2000ms] ease-in-out"
+                  style={{ 
+                      left: `${tippsyPos}%`, 
+                      top: `${getVerticalPos(tippsyPos)}px`,
+                      transform: 'translate(-50%, -100%)' // Pivot at bottom/feet
+                  }}
+                >
+                    <div className={isWalking ? 'animate-bounce' : ''}>
+                      <TippsyAvatar mood={isWalking ? 'excited' : 'happy'} className="w-full h-full drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)]" />
+                    </div>
+                </div>
+            )}
+
+            {/* SVG Connecting Line (Dotted Path) */}
+            {!isLocked && (
+              <svg className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-30" viewBox="0 0 400 180" preserveAspectRatio="none">
+                <path 
+                  d="M 50,90 C 100,90 100,130 150,130 C 200,130 200,50 250,50 C 300,50 300,90 350,90" 
+                  fill="none" 
+                  stroke={isLocked ? "#334155" : "currentColor"} 
+                  strokeWidth="4" 
+                  strokeDasharray="8 8"
+                  className={c.pathText}
+                />
+              </svg>
+            )}
+
+            <div className="relative z-10 w-full flex justify-between px-4 sm:px-12 items-center">
+              {[1, 2, 3, 4, 5].map((subLevelId) => {
+                const isMaster = subLevelId === 5;
+                let status: 'locked' | 'active' | 'completed' = 'locked';
+                
+                if (isCompleted) status = 'completed';
+                else if (isCurrent) {
+                  if (subLevelId < progress.unlockedSubLevelId) status = 'completed';
+                  else if (subLevelId === progress.unlockedSubLevelId) status = 'active';
+                }
+
+                // Vertical positioning to match the curve vaguely
+                let translateY = 'translate-y-0';
+                if (subLevelId === 2) translateY = 'translate-y-8'; // Down
+                if (subLevelId === 3) translateY = '-translate-y-8'; // Up
+                if (subLevelId === 4) translateY = 'translate-y-0'; 
+
+                return (
+                  <button
+                    key={subLevelId}
+                    disabled={status === 'locked'}
+                    onClick={() => onStartLevel(stage, subLevelId)}
+                    className={`
+                      relative group/btn flex flex-col items-center justify-center transition-all duration-300 ${translateY}
+                    `}
+                  >
+                    <div className={`
+                      w-14 h-14 rounded-full flex items-center justify-center border-4 shadow-xl transition-all duration-300 relative z-10
+                      ${status === 'locked' 
+                        ? 'bg-slate-800 border-slate-700 text-slate-600 scale-90' 
+                        : status === 'completed'
+                          ? 'bg-slate-800 border-emerald-500 text-emerald-400 scale-100 hover:scale-110'
+                          : `${c.nodeActive} border-white text-white scale-110 hover:scale-125 shadow-[0_0_30px_rgba(255,255,255,0.3)]`
+                      }
+                      ${isMaster && status !== 'locked' ? 'w-16 h-16' : ''}
+                    `}>
+                        {status === 'locked' && <Lock size={16} />}
+                        {status === 'completed' && <Star fill="currentColor" size={20} />}
+                        {status === 'active' && !isMaster && <span className="font-bold text-lg">{subLevelId}</span>}
+                        {status === 'active' && isMaster && <Crown fill="currentColor" size={24} />}
+                    </div>
+                    
+                    {/* Tooltip / Label */}
+                    <div className={`
+                      absolute -bottom-8 px-2 py-1 rounded bg-slate-900 border border-slate-700 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap opacity-0 group-hover/btn:opacity-100 transition-opacity pointer-events-none z-20
+                      ${status === 'active' ? 'text-white border-white/30' : 'text-slate-500'}
+                    `}>
+                      {isMaster ? 'Meister' : `Level ${subLevelId}`}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        )}
       </div>
 
       {/* PRACTICE BUTTONS */}
