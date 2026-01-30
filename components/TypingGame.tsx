@@ -79,13 +79,15 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
     const endTime = Date.now();
     const timeElapsed = (endTime - (startTime || endTime)) / 1000;
     const finalTotalChars = stage.id === 15 ? totalCharsTyped + inputIndex : content.length;
-    
-    // Avoid division by zero
-    const wpmCalc = timeElapsed > 0 ? (finalTotalChars / 5) / (timeElapsed / 60) : 0;
-    const finalWpm = Math.round(wpmCalc);
-    
-    const accuracy = Math.round(((finalTotalChars - mistakes) / finalTotalChars) * 100);
-    
+
+    let finalWpm = 0;
+    let accuracy = 0;
+    if (finalTotalChars > 0) {
+      const wpmCalc = timeElapsed > 0 ? (finalTotalChars / 5) / (timeElapsed / 60) : 0;
+      finalWpm = Math.round(wpmCalc);
+      accuracy = Math.round(((finalTotalChars - mistakes) / finalTotalChars) * 100);
+    }
+
     onFinish({
       wpm: finalWpm,
       accuracy: Math.max(0, accuracy),

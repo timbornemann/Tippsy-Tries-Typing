@@ -219,7 +219,16 @@ export const useGameEngine = () => {
 
   const handleFinish = (gameStats: GameStats) => {
     playLevelComplete();
-    setLastStats(gameStats);
+    // Normalize stats so progress/UI stay stable (e.g. when totalChars is 0 or values are invalid)
+    const stats: GameStats = {
+      wpm: Number.isFinite(gameStats.wpm) && gameStats.wpm >= 0 ? gameStats.wpm : 0,
+      accuracy: Number.isFinite(gameStats.accuracy) && gameStats.accuracy >= 0 ? Math.min(100, gameStats.accuracy) : 0,
+      errors: Number.isFinite(gameStats.errors) && gameStats.errors >= 0 ? gameStats.errors : 0,
+      totalChars: Number.isFinite(gameStats.totalChars) && gameStats.totalChars >= 0 ? gameStats.totalChars : 0,
+      timeElapsed: Number.isFinite(gameStats.timeElapsed) && gameStats.timeElapsed >= 0 ? gameStats.timeElapsed : 0,
+      errorCountByChar: gameStats.errorCountByChar
+    };
+    setLastStats(stats);
     const key = currentStage ? progressKey(currentStage.id, currentSubLevel) : '';
     setPreviousLevelStats(progress.lastSessionByKey?.[key] ?? null);
     setGameState(GameState.FINISHED);
@@ -228,18 +237,18 @@ export const useGameEngine = () => {
       const p = prev;
       const s = p.stats;
       const newGamesPlayed = s.gamesPlayed + 1;
-      const newAvgWpm = ((s.averageWpm * s.gamesPlayed) + gameStats.wpm) / newGamesPlayed;
-      const newAvgAcc = ((s.averageAccuracy * s.gamesPlayed) + gameStats.accuracy) / newGamesPlayed;
+      const newAvgWpm = ((s.averageWpm * s.gamesPlayed) + stats.wpm) / newGamesPlayed;
+      const newAvgAcc = ((s.averageAccuracy * s.gamesPlayed) + stats.accuracy) / newGamesPlayed;
 
       const { unlockedStageId, unlockedSubLevelId } = computeUnlock(p, gameMode, currentStage, currentSubLevel);
 
       const key = currentStage ? progressKey(currentStage.id, currentSubLevel) : '';
-      const lastByKey = { ...(p.lastSessionByKey ?? {}), [key]: gameStats };
+      const lastByKey = { ...(p.lastSessionByKey ?? {}), [key]: stats };
       const today = new Date().toISOString().slice(0, 10);
       const sessionRecord: SessionRecord = {
         date: today,
-        wpm: gameStats.wpm,
-        accuracy: gameStats.accuracy,
+        wpm: stats.wpm,
+        accuracy: stats.accuracy,
         stageId: currentStage?.id,
         subLevelId: currentSubLevel
       };
@@ -250,15 +259,15 @@ export const useGameEngine = () => {
         const existing = perBest[key] ?? {};
         perBest[key] = {
           ...existing,
-          last: gameStats,
-          bestWpm: Math.max(existing.bestWpm ?? 0, gameStats.wpm),
-          bestAccuracy: Math.max(existing.bestAccuracy ?? 0, gameStats.accuracy)
+          last: stats,
+          bestWpm: Math.max(existing.bestWpm ?? 0, stats.wpm),
+          bestAccuracy: Math.max(existing.bestAccuracy ?? 0, stats.accuracy)
         };
       }
 
       const mergedErrors: Record<string, number> = { ...(p.errorCountByChar ?? {}) };
-      if (gameStats.errorCountByChar) {
-        for (const [char, count] of Object.entries(gameStats.errorCountByChar)) {
+      if (stats.errorCountByChar) {
+        for (const [char, count] of Object.entries(stats.errorCountByChar)) {
           mergedErrors[char] = (mergedErrors[char] ?? 0) + count;
         }
       }
@@ -268,10 +277,10 @@ export const useGameEngine = () => {
         unlockedStageId,
         unlockedSubLevelId,
         stats: {
-          totalCharsTyped: s.totalCharsTyped + gameStats.totalChars,
-          totalTimePlayed: s.totalTimePlayed + gameStats.timeElapsed,
+          totalCharsTyped: s.totalCharsTyped + stats.totalChars,
+          totalTimePlayed: s.totalTimePlayed + stats.timeElapsed,
           gamesPlayed: newGamesPlayed,
-          highestWpm: Math.max(s.highestWpm, gameStats.wpm),
+          highestWpm: Math.max(s.highestWpm, stats.wpm),
           averageWpm: newAvgWpm,
           averageAccuracy: newAvgAcc
         },
