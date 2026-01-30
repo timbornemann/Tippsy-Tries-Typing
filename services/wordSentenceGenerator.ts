@@ -520,7 +520,65 @@ const PROFI_SENTENCES = [
   "Der Download läuft... 99% fertig.",
   "Warnung: Löschen? [J]a / [N]ein",
   "Die Datei config_final_v2.json fehlt.",
-  "Satz des Pythagoras: a^2 + b^2 = c^2"
+  "Mathe: 50 % von 200 ist 100.",
+  "Ort: 52° 31' N, 13° 24' O",
+  "Status: Online (grün) / Offline (rot)"
+];
+
+const CODER_SENTENCES = [
+  // --- VARIABLES & TYPES ---
+  "const x = 10; let y = 20;",
+  "var name: string = 'Tippsy';",
+  "let isActive: boolean = true;",
+  "const PI = 3.14159;",
+  "let count = 0;",
+  "const emptyList = [];",
+  "let user = { id: 1, name: 'Bob' };",
+  "const isNull = (value === null);",
+  "let summary = 'Total: ' + total;",
+
+  // --- LOGIC & LOOPS ---
+  "if (x > y) { return true; }",
+  "else { return false; }",
+  "for (let i = 0; i < 10; i++)",
+  "while (true) { break; }",
+  "switch (key) { case 'A': break; }",
+  "return (a + b) * c;",
+  "if (user && user.isLoggedIn)",
+  "const isValid = input.length > 5;",
+  "x += 1; y -= 1;",
+  "if (err) throw new Error(err);",
+
+  // --- FUNCTIONS ---
+  "function init() { start(); }",
+  "const add = (a, b) => a + b;",
+  "function render(props) { return null; }",
+  "const map = arr.map(x => x * 2);",
+  "list.forEach(item => console.log(item));",
+  "const filtered = data.filter(d => d.ok);",
+  "setTimeout(() => done(), 1000);",
+  "export default class Main {}",
+
+  // --- DOM & API ---
+  "document.getElementById('app');",
+  "window.addEventListener('load', init);",
+  "fetch('/api/data').then(r => r.json());",
+  "console.log('Debug:', value);",
+  "alert('Hello World!');",
+  "localStorage.setItem('key', 'value');",
+  "const btn = document.querySelector('.btn');",
+
+  // --- OBSCURE / SYMBOLS ---
+  "const regex = /^[a-z]+$/;",
+  "let hex = 0xFF00FF;",
+  "const binary = 0b101010;",
+  "x <<= 1; // Bitwise shift",
+  "a || b; a && b; !c;",
+  "user?.address?.street;",
+  "const tuple = [1, 'text'];",
+  "import { useState } from 'react';",
+  "package main; import 'fmt';",
+  "public static void main(String[] args)"
 ];
 
 /**
@@ -533,23 +591,28 @@ export function generateWordSentenceLevel(stage: Stage): string {
   const usePunctuation = stage.id >= 10;
   const isMeisterklasse = stage.id >= 11;
   const isProfi = stage.id === 12;
+  const isCoder = stage.id === 13;
 
   const poolAll = stage.chars.filter((c) => c !== ' ' && c.length === 1);
   const allWords = [...COMMON_WORDS_DB, ...EXTRA_WORDS];
   const possibleWords = allWords.filter((w) => canTypeWord(w, allChars));
   let possibleSentences = SENTENCES_DB.filter((s) => canTypeWord(s, allChars));
   
-  if (isMeisterklasse && usePunctuation && !isProfi) {
+  if (isMeisterklasse && usePunctuation && !isProfi && !isCoder) {
     const extra = MEISTERKLASSE_SENTENCES.filter((s) => canTypeWord(s, allChars));
     possibleSentences = [...possibleSentences, ...extra];
   } else if (isProfi) {
     // In Profi stage, prioritize sentences with special chars
     const extra = PROFI_SENTENCES.filter((s) => canTypeWord(s, allChars));
     possibleSentences = [...extra, ...MEISTERKLASSE_SENTENCES, ...possibleSentences];
+  } else if (isCoder) {
+    // Stage 13: Coder Mode - Prioritize code snippets
+    const extra = CODER_SENTENCES.filter((s) => canTypeWord(s, allChars));
+    possibleSentences = [...extra]; // Ideally mostly code
   }
 
-  const sentenceCount = (isMeisterklasse || isProfi)
-    ? 6 + Math.floor(Math.random() * 5)   // 6–10 Sätze für Meister/Profi
+  const sentenceCount = (isMeisterklasse || isProfi || isCoder)
+    ? 6 + Math.floor(Math.random() * 5)   // 6–10 Sätze für Meister/Profi/Coder
     : 3 + Math.floor(Math.random() * 3);   // 3–5 Sätze sonst
   const result: string[] = [];
 

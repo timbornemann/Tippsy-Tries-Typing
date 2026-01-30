@@ -178,12 +178,44 @@ const PROFI_TEXTS: string[] = [
   "Groß- und Kleinschreibung nicht vergessen! DIE KATZE SCHLÄFT auf dem Sofa. der hund bellt im garten. ACHTUNG: Hier gilt Rechts-Vor-Links!"
 ];
 
+// Coder Mode (Stage 13): Echter Code (JS/TS/Python Style)
+const CODER_TEXTS: string[] = [
+  // --- BASICS & VARIABLES ---
+  "const pi = 3.14159;\nlet radius = 10;\nlet area = pi * radius * radius;\nconsole.log('Area:', area);\nif (area > 100) {\n  console.log('Large Circle');\n} else {\n  console.log('Small Circle');\n}",
+  "var name = 'Max';\nvar age = 25;\nvar isStudent = true;\nif (isStudent) {\n  console.log(name + ' is a student.');\n} else {\n  console.log(name + ' works.');\n}",
+  
+  // --- FUNCTIONS & LOGIC ---
+  "function add(a, b) {\n  return a + b;\n}\nconst result = add(5, 7);\nconsole.log(result); // Output: 12\n\nfunction multiply(x, y) {\n  return x * y;\n}",
+  "const greet = (name) => {\n  return 'Hello, ' + name + '!';\n};\nconsole.log(greet('World'));\nconst square = x => x * x;\nconsole.log(square(4));",
+  "function isEven(n) {\n  return n % 2 === 0;\n}\nfor (let i = 0; i < 10; i++) {\n  if (isEven(i)) {\n    console.log(i + ' is even');\n  }\n}",
+
+  // --- ARRAYS & OBJECTS ---
+  "const users = ['Alice', 'Bob', 'Charlie'];\nusers.forEach(user => {\n  console.log('User: ' + user);\n});\nconst found = users.find(u => u === 'Bob');",
+  "const config = {\n  host: 'localhost',\n  port: 8080,\n  debug: true\n};\nif (config.debug) {\n  console.log('Server running on port ' + config.port);\n}",
+  "const numbers = [1, 2, 3, 4, 5];\nconst doubled = numbers.map(n => n * 2);\nconst filtered = numbers.filter(n => n > 2);\nconsole.log(doubled);",
+
+  // --- CLASSES & OOP ---
+  "class Animal {\n  constructor(name) {\n    this.name = name;\n  }\n  speak() {\n    console.log(this.name + ' makes a noise.');\n  }\n}\nconst dog = new Animal('Rex');\ndog.speak();",
+  "class Rectangle {\n  constructor(w, h) {\n    this.width = w;\n    this.height = h;\n  }\n  getArea() {\n    return this.width * this.height;\n  }\n}\nconst rect = new Rectangle(10, 5);",
+
+  // --- ASYNC & PROMISES ---
+  "async function fetchData(url) {\n  try {\n    const response = await fetch(url);\n    const data = await response.json();\n    return data;\n  } catch (error) {\n    console.error('Error:', error);\n  }\n}",
+  "const promise = new Promise((resolve, reject) => {\n  setTimeout(() => {\n    resolve('Success!');\n  }, 1000);\n});\npromise.then(res => console.log(res));",
+
+  // --- PYTHON STYLE (For variety) ---
+  "def fibonacci(n):\n  if n <= 1:\n    return n\n  else:\n    return fibonacci(n-1) + fibonacci(n-2)\nprint(fibonacci(10)) # Recursive function",
+  "users = {'name': 'John', 'age': 30}\nfor key, value in users.items():\n  print(f'{key}: {value}')\nif users['age'] > 18:\n  print('Adult')"
+];
+
 // Generates the content based on pedagogical levels
 export const generatePatternLevel = (stage: Stage, subLevelId: number): string => {
-  // Meisterklasse (Stage 11) & Profi (Stage 12)
-  if (stage.id === 11 || stage.id === 12) {
-    // Stage 12 uses PROFI_TEXTS, Stage 11 uses MEISTERKLASSE_TEXTS
-    const texts = stage.id === 12 ? PROFI_TEXTS : MEISTERKLASSE_TEXTS;
+  // Meisterklasse (Stage 11), Profi (Stage 12), Coder (Stage 13)
+  if (stage.id >= 11) {
+    let texts: string[] = [];
+    if (stage.id === 13) texts = CODER_TEXTS;
+    else if (stage.id === 12) texts = PROFI_TEXTS;
+    else texts = MEISTERKLASSE_TEXTS;
+
     const count = texts.length;
     
     // Pick specific paragraphs to ensure coherence

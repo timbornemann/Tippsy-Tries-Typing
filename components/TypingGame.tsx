@@ -75,7 +75,7 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
 
     const targetChar = content[inputIndex];
     // Normalize key: some keyboards/browsers send "Minus"/"Comma"/"Period" instead of the character
-    const key = (e.key === 'Minus' ? '-' : e.key === 'Comma' ? ',' : e.key === 'Period' ? '.' : e.key);
+    const key = (e.key === 'Minus' ? '-' : e.key === 'Comma' ? ',' : e.key === 'Period' ? '.' : e.key === 'Enter' ? '\n' : e.key);
     if (key === targetChar) {
       const nextIndex = inputIndex + 1;
       setInputIndex(nextIndex);
@@ -108,7 +108,7 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
   }, [content, inputIndex, mistakes, onFinish, startTime, onBack, errorCountByChar]);
 
   const handleKeyUp = useCallback((e: KeyboardEvent) => {
-    const normalized = (k: string) => (k === 'Minus' ? '-' : k === 'Comma' ? ',' : k === 'Period' ? '.' : k);
+    const normalized = (k: string) => (k === 'Minus' ? '-' : k === 'Comma' ? ',' : k === 'Period' ? '.' : k === 'Enter' ? '\n' : k);
     setPressedKeys(prev => {
       const newSet = new Set(prev);
       newSet.delete(e.key);
@@ -149,9 +149,16 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
         if (char === ' ' && k.key === ' ') {
             return { finger: k.finger, color: FINGER_COLORS[k.finger] };
         }
+        // Handle Newline -> Enter key (assumed to be mapped if present in layout, distinct from standard chars)
+         if (char === '\n' && k.key === 'Enter') { // You might need to add Enter to KEYBOARD_LAYOUT or handle it specially
+            return { finger: 'r5', color: FINGER_COLORS['r5'] }; // Right pinky for Enter
+         }
       }
     }
     // Default fallback (e.g. for punctuation not on layout yet)
+    // For Enter/Newline specifically
+    if (char === '\n') return { finger: 'r5', color: FINGER_COLORS['r5'] };
+    
     return null;
   };
 
@@ -245,6 +252,8 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
                >
                  {char === ' ' ? (
                    <span className="opacity-30 text-2xl">␣</span>
+                 ) : char === '\n' ? (
+                   <span className="opacity-50 text-2xl">↵</span>
                  ) : (
                    char
                  )}
