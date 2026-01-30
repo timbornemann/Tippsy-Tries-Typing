@@ -4,6 +4,7 @@ import { getStages } from '../constants';
 import { generatePatternLevel } from '../services/patternGenerator';
 import { generateWordSentenceLevel } from '../services/wordSentenceGenerator';
 import { useSettings } from '../contexts/SettingsContext';
+import { useSound } from './useSound';
 
 const SESSION_HISTORY_MAX = 30;
 
@@ -34,6 +35,7 @@ function computeUnlock(
 
 export const useGameEngine = () => {
   const { language, keyboardLayout } = useSettings();
+  const { playLevelComplete } = useSound();
   const stages = useMemo(() => getStages(language, keyboardLayout), [language, keyboardLayout]);
 
   const [gameState, setGameState] = useState<GameState>(() => {
@@ -216,6 +218,7 @@ export const useGameEngine = () => {
   };
 
   const handleFinish = (gameStats: GameStats) => {
+    playLevelComplete();
     setLastStats(gameStats);
     const key = currentStage ? progressKey(currentStage.id, currentSubLevel) : '';
     setPreviousLevelStats(progress.lastSessionByKey?.[key] ?? null);

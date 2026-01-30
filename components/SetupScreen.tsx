@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSettings } from '../contexts/SettingsContext';
 import { useI18n } from '../hooks/useI18n';
+import { useSound } from '../hooks/useSound';
 import { Keyboard, ArrowRight } from 'lucide-react';
 interface SetupScreenProps {
   onComplete: () => void;
@@ -9,6 +10,7 @@ interface SetupScreenProps {
 const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
   const { t } = useI18n();
   const { language, keyboardLayout, setLanguage, setKeyboardLayout } = useSettings();
+  const { playMenuClick } = useSound();
 
   return (
     <div className="min-h-screen bg-[#0a0f1c] text-white flex flex-col items-center justify-center relative overflow-hidden p-6">
@@ -74,7 +76,7 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
         </div>
 
         <button
-          onClick={onComplete}
+          onClick={() => { playMenuClick(); onComplete(); }}
           className="px-10 py-4 bg-white text-slate-900 font-bold text-lg rounded-full shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:shadow-[0_0_50px_rgba(255,255,255,0.4)] hover:scale-105 transition-all flex items-center gap-3"
         >
           {t('setup.continue')} <ArrowRight className="w-5 h-5" />

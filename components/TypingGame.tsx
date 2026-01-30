@@ -6,6 +6,7 @@ import { RotateCcw, Home, Crown, Zap, BookOpen, Infinity } from 'lucide-react';
 import { getRandomChunk } from '../services/endlessContent';
 import { useSettings } from '../contexts/SettingsContext';
 import { useI18n } from '../hooks/useI18n';
+import { useSound } from '../hooks/useSound';
 
 interface TypingGameProps {
   stage: Stage;
@@ -22,6 +23,7 @@ const FALLBACK_CONTENT = 'fff jjj fff jjj';
 const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: contentProp, onFinish, onBack, onRetry, gameMode = 'STANDARD' }) => {
   const { keyboardLayout } = useSettings();
   const { t, language } = useI18n();
+  const { playTyping, playError } = useSound();
   const keyboardLayoutConfig = KEYBOARD_LAYOUTS[keyboardLayout];
   const [content, setContent] = useState((typeof contentProp === 'string' && contentProp.trim().length > 0) ? contentProp : FALLBACK_CONTENT);
   const [inputIndex, setInputIndex] = useState(0);
@@ -127,6 +129,7 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
     const key = (e.key === 'Minus' ? '-' : e.key === 'Comma' ? ',' : e.key === 'Period' ? '.' : e.key === 'Enter' ? '\n' : e.key);
     
     if (key === targetChar) {
+      playTyping();
       const nextIndex = inputIndex + 1;
       
       // --- ENDLESS MODE LOGIC ---
@@ -159,6 +162,7 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
       }
       
     } else {
+      playError();
       setMistakes(m => m + 1);
       setErrorCountByChar(prev => {
         const next = { ...prev };
@@ -168,7 +172,7 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
       setErrorShake(true);
       setTimeout(() => setErrorShake(false), 300);
     }
-  }, [content, inputIndex, mistakes, finishGame, startTime, onBack, errorCountByChar, stage.id]);
+  }, [content, inputIndex, mistakes, finishGame, startTime, onBack, errorCountByChar, stage.id, playTyping, playError]);
 
   const handleKeyUp = useCallback((e: KeyboardEvent) => {
     const normalized = (k: string) => (k === 'Minus' ? '-' : k === 'Comma' ? ',' : k === 'Period' ? '.' : k === 'Enter' ? '\n' : k);

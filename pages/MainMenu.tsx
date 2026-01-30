@@ -5,6 +5,7 @@ import Mascot from '../components/Mascot';
 import StageCard from '../components/StageCard';
 import OnboardingModal from '../components/OnboardingModal';
 import { useI18n } from '../hooks/useI18n';
+import { useSound } from '../hooks/useSound';
 
 const ONBOARDING_KEY = 'tippsy_onboarding_seen';
 const STORAGE_HINT_KEY = 'tippsy_storage_hint_seen';
@@ -39,6 +40,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
   onOpenSettings
 }) => {
   const { t, language } = useI18n();
+  const { playMenuClick } = useSound();
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showStorageHint, setShowStorageHint] = useState(false);
 
@@ -63,10 +65,12 @@ const MainMenu: React.FC<MainMenuProps> = ({
       // STAGE NAVIGATION (Vertical)
       if (key === 'arrowdown' || key === 's') {
         e.preventDefault();
+        playMenuClick();
         setFocusedStageId(prev => Math.min(prev + 1, stages.length));
         setFocusedSubLevelId(1); // Reset sub-level focus when changing stage
       } else if (key === 'arrowup' || key === 'w') {
         e.preventDefault();
+        playMenuClick();
         setFocusedStageId(prev => Math.max(prev - 1, 1));
         setFocusedSubLevelId(1);
       } 
@@ -74,6 +78,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
       // LEVEL NAVIGATION (Horizontal)
       else if (key === 'arrowright' || key === 'd') {
         e.preventDefault();
+        playMenuClick();
         // Check if next level is unlocked for current focused stage
         // Use STAGES data if needed, but logic is uniform: max 5 levels usually.
         // If Stage 15 (Endless), only 1 level.
@@ -94,6 +99,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
         });
       } else if (key === 'arrowleft' || key === 'a') {
         e.preventDefault();
+        playMenuClick();
         setFocusedSubLevelId(prev => Math.max(prev - 1, 1));
       }
 
@@ -109,6 +115,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
             // Sublevel unlock check (double verification)
             if (focusedStageId === progress.unlockedStageId && focusedSubLevelId > progress.unlockedSubLevelId) return;
 
+            playMenuClick();
             onStartLevel(stage, focusedSubLevelId);
         }
       }
@@ -116,7 +123,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [focusedStageId, focusedSubLevelId, progress, showOnboarding, onStartLevel, stages]);
+  }, [focusedStageId, focusedSubLevelId, progress, showOnboarding, onStartLevel, stages, playMenuClick]);
 
   // Auto-scroll to Focused Stage
   useEffect(() => {
@@ -170,7 +177,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
       <header className="py-6 px-6 text-center sticky top-0 z-50 bg-[#0a0f1c]/80 backdrop-blur-xl border-b border-slate-800/60 shadow-lg flex justify-between items-center">
         
         <div 
-          onClick={onStartTutorial}
+          onClick={() => { playMenuClick(); onStartTutorial(); }}
           className="inline-flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity group"
           title={t('menu.openTutorialTitle')}
         >
@@ -187,7 +194,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
 
         <div className="flex items-center gap-2">
           <button
-            onClick={onOpenSettings}
+            onClick={() => { playMenuClick(); onOpenSettings(); }}
             className="group flex items-center gap-2 px-3 py-2 rounded-full bg-slate-800/50 hover:bg-slate-800 text-slate-300 hover:text-white transition-all border border-slate-700/50"
             title={t('menu.settings')}
             aria-label={t('menu.settings')}
@@ -196,7 +203,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
           </button>
           <button 
             data-testid="open-stats"
-            onClick={onOpenStats}
+            onClick={() => { playMenuClick(); onOpenStats(); }}
             className="group flex items-center gap-3 px-4 py-2 rounded-full bg-slate-800/50 hover:bg-slate-800 text-slate-300 hover:text-white transition-all border border-slate-700/50"
             title={t('menu.statsTitle')}
           >
@@ -238,9 +245,9 @@ const MainMenu: React.FC<MainMenuProps> = ({
               stage={stage}
               progress={progress}
               sessionStartProgress={sessionStartProgress}
-              onStartLevel={onStartLevel}
-              onStartPractice={onStartPractice}
-              onStartWordSentencePractice={onStartWordSentencePractice}
+              onStartLevel={(s, l) => { playMenuClick(); onStartLevel(s, l); }}
+              onStartPractice={(s) => { playMenuClick(); onStartPractice(s); }}
+              onStartWordSentencePractice={(s) => { playMenuClick(); onStartWordSentencePractice(s); }}
               isStageFocused={focusedStageId === stage.id}
               focusedSubLevelId={focusedStageId === stage.id ? focusedSubLevelId : null}
             />

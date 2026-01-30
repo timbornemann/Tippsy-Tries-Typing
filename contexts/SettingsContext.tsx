@@ -3,6 +3,7 @@ import { KeyboardLayout, Language } from '../types';
 
 const LANGUAGE_STORAGE_KEY = 'tippsy_language';
 const KEYBOARD_STORAGE_KEY = 'tippsy_keyboard_layout';
+const SOUND_STORAGE_KEY = 'tippsy_sound_enabled';
 
 const getStoredValue = (key: string) => {
   try {
@@ -24,11 +25,20 @@ const getInitialKeyboardLayout = (language: Language): KeyboardLayout => {
   return language === 'de' ? 'qwertz' : 'qwerty';
 };
 
+const getInitialSoundEnabled = (): boolean => {
+  const stored = getStoredValue(SOUND_STORAGE_KEY);
+  if (stored === '0' || stored === 'false') return false;
+  if (stored === '1' || stored === 'true') return true;
+  return true;
+};
+
 interface SettingsContextValue {
   language: Language;
   keyboardLayout: KeyboardLayout;
+  soundEnabled: boolean;
   setLanguage: (language: Language) => void;
   setKeyboardLayout: (layout: KeyboardLayout) => void;
+  setSoundEnabled: (enabled: boolean) => void;
 }
 
 const SettingsContext = createContext<SettingsContextValue | undefined>(undefined);
@@ -36,6 +46,7 @@ const SettingsContext = createContext<SettingsContextValue | undefined>(undefine
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguage] = useState<Language>(() => getInitialLanguage());
   const [keyboardLayout, setKeyboardLayout] = useState<KeyboardLayout>(() => getInitialKeyboardLayout(getInitialLanguage()));
+  const [soundEnabled, setSoundEnabled] = useState<boolean>(() => getInitialSoundEnabled());
 
   useEffect(() => {
     try {
@@ -56,7 +67,15 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, [keyboardLayout]);
 
-  const value = useMemo(() => ({ language, keyboardLayout, setLanguage, setKeyboardLayout }), [language, keyboardLayout]);
+  useEffect(() => {
+    try {
+      localStorage.setItem(SOUND_STORAGE_KEY, soundEnabled ? '1' : '0');
+    } catch {
+      // ignore
+    }
+  }, [soundEnabled]);
+
+  const value = useMemo(() => ({ language, keyboardLayout, soundEnabled, setLanguage, setKeyboardLayout, setSoundEnabled }), [language, keyboardLayout, soundEnabled]);
 
   return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
 };

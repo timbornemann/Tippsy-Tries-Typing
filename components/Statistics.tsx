@@ -2,6 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 import { UserProgress, Stage } from '../types';
 import { Home, Trophy, Clock, Keyboard, Activity, Target, AlertCircle, TrendingUp } from 'lucide-react';
 import { useI18n } from '../hooks/useI18n';
+import { useSound } from '../hooks/useSound';
 
 interface StatisticsProps {
   stages: Stage[];
@@ -49,12 +50,14 @@ const StatCard = ({
 
 const Statistics: React.FC<StatisticsProps> = ({ stages, progress, onBack }) => {
   const { t, language } = useI18n();
+  const { playMenuClick } = useSound();
   const stats = progress.stats;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault();
+        playMenuClick();
         onBack();
       }
     };
@@ -100,7 +103,7 @@ const Statistics: React.FC<StatisticsProps> = ({ stages, progress, onBack }) => 
   return (
     <div className="flex-1 container mx-auto px-4 py-8 max-w-5xl flex flex-col h-full">
       <div className="flex items-center gap-4 mb-10">
-        <button onClick={onBack} className="p-3 hover:bg-slate-800 rounded-full transition-colors group" title={t('statistics.back')}>
+        <button onClick={() => { playMenuClick(); onBack(); }} className="p-3 hover:bg-slate-800 rounded-full transition-colors group" title={t('statistics.back')}>
           <Home size={24} className="text-slate-400 group-hover:text-white" />
         </button>
         <h1 className="text-3xl font-bold text-white">{t('statistics.title')}</h1>

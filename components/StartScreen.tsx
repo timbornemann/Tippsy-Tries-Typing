@@ -5,6 +5,7 @@ import { Keyboard, MousePointerClick, CheckCircle2, ArrowRight, Play } from 'luc
 import VirtualKeyboard from './VirtualKeyboard';
 import { useI18n } from '../hooks/useI18n';
 import { useSettings } from '../contexts/SettingsContext';
+import { useSound } from '../hooks/useSound';
 
 interface StartScreenProps {
   onComplete: () => void;
@@ -13,6 +14,7 @@ interface StartScreenProps {
 const StartScreen: React.FC<StartScreenProps> = ({ onComplete }) => {
   const { t } = useI18n();
   const { keyboardLayout } = useSettings();
+  const { playMenuClick } = useSound();
   const layout = KEYBOARD_LAYOUTS[keyboardLayout];
   const [step, setStep] = useState(0); // 0: Intro, 1: Hands, 2: Colors, 3: Practice, 4: Finish
   const [typedInput, setTypedInput] = useState('');
@@ -54,7 +56,7 @@ const StartScreen: React.FC<StartScreenProps> = ({ onComplete }) => {
             if (homeRowCompleted) setStep(2);
         }
         else if (step === 2) setStep(3);
-        else if (step === 4) onComplete();
+        else if (step === 4) { playMenuClick(); onComplete(); }
       }
     };
 
@@ -72,7 +74,7 @@ const StartScreen: React.FC<StartScreenProps> = ({ onComplete }) => {
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);
     };
-  }, [step, onComplete, homeRowCompleted, HOME_ROW_KEYS]);
+  }, [step, onComplete, homeRowCompleted, HOME_ROW_KEYS, playMenuClick]);
 
   useEffect(() => {
     if (step === 3) {
@@ -174,7 +176,7 @@ const StartScreen: React.FC<StartScreenProps> = ({ onComplete }) => {
               ))}
             </p>
             <button
-              onClick={() => setStep(1)}
+              onClick={() => { playMenuClick(); setStep(1); }}
               className="px-10 py-5 bg-white text-slate-900 font-bold text-lg rounded-full shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:shadow-[0_0_50px_rgba(255,255,255,0.4)] hover:scale-105 transition-all flex items-center gap-3 mx-auto"
             >
               {t('start.intro.button')} <ArrowRight className="w-5 h-5" />
@@ -317,7 +319,7 @@ const StartScreen: React.FC<StartScreenProps> = ({ onComplete }) => {
             </p>
 
             <button
-              onClick={onComplete}
+              onClick={() => { playMenuClick(); onComplete(); }}
               className="px-12 py-5 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-bold text-xl rounded-2xl shadow-xl shadow-emerald-500/20 hover:scale-105 transition-all flex items-center gap-3 mx-auto"
             >
               {t('start.finish.button')} <Play className="w-6 h-6 fill-current" />
