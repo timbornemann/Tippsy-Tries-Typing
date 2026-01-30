@@ -7,8 +7,11 @@ import { Bot, Trophy, BarChart3, Star, RotateCcw, Sparkles, Type, Clock } from '
 import { useGameEngine } from './hooks/useGameEngine';
 import MainMenu from './pages/MainMenu';
 import { STAGE_COLOR_CLASSES } from './constants';
+import { useI18n } from './hooks/useI18n';
+import Settings from './pages/Settings';
 
 const App: React.FC = () => {
+  const { t, language } = useI18n();
   const {
     gameState,
     setGameState,
@@ -31,7 +34,8 @@ const App: React.FC = () => {
     handleNextLevel,
     handleCompleteTutorial,
     handleEnterTutorial,
-    debugPassCurrentLevel
+    debugPassCurrentLevel,
+    stages
   } = useGameEngine();
 
   // Debug: Tastenkombi zum sofortigen Bestehen des aktuellen Levels (auch aus dem Menü)
@@ -52,12 +56,12 @@ const App: React.FC = () => {
     if (!lastStats || !previousLevelStats) return null;
     const wpmDiff = lastStats.wpm - previousLevelStats.wpm;
     const accDiff = lastStats.accuracy - previousLevelStats.accuracy;
-    if (wpmDiff > 0 && accDiff >= 0) return 'Du warst schneller als beim letzten Mal – super!';
-    if (wpmDiff > 0) return 'Deine Geschwindigkeit steigt! Beim nächsten Mal noch mehr auf Genauigkeit achten.';
-    if (accDiff > 0) return 'Bessere Genauigkeit als letztes Mal – sehr gut!';
-    if (lastStats.accuracy === 100) return '100 % Genauigkeit – meisterhaft!';
+    if (wpmDiff > 0 && accDiff >= 0) return t('app.finishedTippsy.fasterAccurate');
+    if (wpmDiff > 0) return t('app.finishedTippsy.faster');
+    if (accDiff > 0) return t('app.finishedTippsy.accurate');
+    if (lastStats.accuracy === 100) return t('app.finishedTippsy.perfect');
     return null;
-  }, [lastStats, previousLevelStats]);
+  }, [lastStats, previousLevelStats, t]);
 
   useEffect(() => {
     if (gameState !== GameState.FINISHED || !currentStage || !lastStats) return;
@@ -95,6 +99,7 @@ const App: React.FC = () => {
         {/* MENU STATE (Learning Path) */}
         {gameState === GameState.MENU && (
           <MainMenu
+            stages={stages}
             progress={progress}
             sessionStartProgress={sessionStartProgress}
             gameState={gameState}
@@ -105,12 +110,17 @@ const App: React.FC = () => {
             onStartWordSentencePractice={startWordSentencePractice}
             onOpenStats={() => setGameState(GameState.STATISTICS)}
             onStartTutorial={handleEnterTutorial}
+            onOpenSettings={() => setGameState(GameState.SETTINGS)}
           />
         )}
 
         {/* STATISTICS STATE */}
         {gameState === GameState.STATISTICS && (
-          <Statistics progress={progress} onBack={handleBackToMenu} />
+          <Statistics stages={stages} progress={progress} onBack={handleBackToMenu} />
+        )}
+
+        {gameState === GameState.SETTINGS && (
+          <Settings onBack={handleBackToMenu} />
         )}
 
         {/* LOADING STATE */}
@@ -121,10 +131,20 @@ const App: React.FC = () => {
                <Bot className="w-20 h-20 text-emerald-400 relative z-10 animate-bounce" />
              </div>
              <h2 className="text-3xl font-bold text-white mb-2">
-               {gameMode === 'PRACTICE' ? 'Erstelle Mega-Level...' : gameMode === 'WORDS_SENTENCES' ? 'Erstelle Wörter & Sätze…' : currentSubLevel === 5 ? 'Meisterprüfung!' : 'Lektion wird geladen'}
+               {gameMode === 'PRACTICE'
+                 ? t('app.loading.practiceTitle')
+                 : gameMode === 'WORDS_SENTENCES'
+                   ? t('app.loading.wordTitle')
+                   : currentSubLevel === 5
+                     ? t('app.loading.masterTitle')
+                     : t('app.loading.defaultTitle')}
              </h2>
              <p className="text-slate-400 text-lg">
-               {gameMode === 'PRACTICE' ? 'Mische Wörter und Übungen für dich.' : gameMode === 'WORDS_SENTENCES' ? 'Echte Wörter und Sätze zum Tippen.' : 'Mach deine Finger bereit!'}
+               {gameMode === 'PRACTICE'
+                 ? t('app.loading.practiceBody')
+                 : gameMode === 'WORDS_SENTENCES'
+                   ? t('app.loading.wordBody')
+                   : t('app.loading.defaultBody')}
              </p>
           </div>
         )}
@@ -156,10 +176,20 @@ const App: React.FC = () => {
                     <Sparkles className="w-8 h-8 text-yellow-200 absolute -top-2 -right-2 animate-pulse" />
                  </div>
                  <h2 className="text-4xl font-bold text-white mb-2">
-                   {gameMode === 'PRACTICE' ? 'Training beendet!' : gameMode === 'WORDS_SENTENCES' ? 'Wörter & Sätze beendet!' : currentSubLevel === 5 ? 'Meisterhaft!' : 'Gut gemacht!'}
+                   {gameMode === 'PRACTICE'
+                     ? t('app.finished.titlePractice')
+                     : gameMode === 'WORDS_SENTENCES'
+                       ? t('app.finished.titleWords')
+                       : currentSubLevel === 5
+                         ? t('app.finished.titleMaster')
+                         : t('app.finished.titleDefault')}
                  </h2>
                  <p className="text-slate-400 text-lg">
-                   {currentStage.name} • {gameMode === 'PRACTICE' ? 'Freies Üben' : gameMode === 'WORDS_SENTENCES' ? 'Wort & Satz' : (currentSubLevel === 5 ? 'Meisterprüfung' : `Übung ${currentSubLevel}`)}
+                   {currentStage.name} • {gameMode === 'PRACTICE'
+                     ? t('app.finished.modePractice')
+                     : gameMode === 'WORDS_SENTENCES'
+                       ? t('app.finished.modeWords')
+                       : (currentSubLevel === 5 ? t('app.finished.modeMaster') : t('app.finished.modeExercise', { subLevel: currentSubLevel }))}
                  </p>
                </div>
 
@@ -178,61 +208,66 @@ const App: React.FC = () => {
                  const charsPerSec = lastStats.timeElapsed > 0
                    ? (lastStats.totalChars / lastStats.timeElapsed).toFixed(1)
                    : '0';
+                 const locale = language === 'de' ? 'de-DE' : 'en-US';
                  return (
                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-10">
                      <div className="bg-slate-800/50 p-5 rounded-2xl text-center border border-slate-700/50">
                        <BarChart3 className="w-6 h-6 text-blue-400 mx-auto mb-2" />
                        <div className="text-3xl font-bold text-white font-mono">{lastStats.wpm}</div>
-                       <div className="text-xs text-slate-400 uppercase tracking-wider font-bold">WPM</div>
+                       <div className="text-xs text-slate-400 uppercase tracking-wider font-bold">{t('app.finished.stats.wpm')}</div>
                      </div>
                      <div className="bg-slate-800/50 p-5 rounded-2xl text-center border border-slate-700/50">
                        <Star className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
                        <div className="text-3xl font-bold text-white font-mono">{lastStats.accuracy}%</div>
-                       <div className="text-xs text-slate-400 uppercase tracking-wider font-bold">Genauigkeit</div>
+                       <div className="text-xs text-slate-400 uppercase tracking-wider font-bold">{t('app.finished.stats.accuracy')}</div>
                      </div>
                      <div className="bg-slate-800/50 p-5 rounded-2xl text-center border border-slate-700/50">
                        <div className={`text-3xl font-bold font-mono mt-8 ${lastStats.errors === 0 ? 'text-emerald-400' : 'text-white'}`}>{lastStats.errors}</div>
-                       <div className="text-xs text-slate-400 uppercase tracking-wider font-bold">Fehler</div>
+                       <div className="text-xs text-slate-400 uppercase tracking-wider font-bold">{t('app.finished.stats.errors')}</div>
                      </div>
                      <div className="bg-slate-800/50 p-5 rounded-2xl text-center border border-slate-700/50">
                        <Clock className="w-6 h-6 text-slate-400 mx-auto mb-2" />
                        <div className="text-3xl font-bold text-white font-mono">{timeStr}</div>
-                       <div className="text-xs text-slate-400 uppercase tracking-wider font-bold">Zeit</div>
+                       <div className="text-xs text-slate-400 uppercase tracking-wider font-bold">{t('app.finished.stats.time')}</div>
                      </div>
                      <div className="bg-slate-800/50 p-5 rounded-2xl text-center border border-slate-700/50">
                        <Type className="w-6 h-6 text-cyan-400 mx-auto mb-2" />
-                       <div className="text-3xl font-bold text-white font-mono">{lastStats.totalChars.toLocaleString('de-DE')}</div>
-                       <div className="text-xs text-slate-400 uppercase tracking-wider font-bold">Zeichen getippt</div>
+                       <div className="text-3xl font-bold text-white font-mono">{lastStats.totalChars.toLocaleString(locale)}</div>
+                       <div className="text-xs text-slate-400 uppercase tracking-wider font-bold">{t('app.finished.stats.charsTyped')}</div>
                      </div>
                      <div className="bg-slate-800/50 p-5 rounded-2xl text-center border border-slate-700/50">
                        <div className="text-3xl font-bold text-white font-mono mt-8">{charsPerSec}</div>
-                       <div className="text-xs text-slate-400 uppercase tracking-wider font-bold">Zeichen/Sek.</div>
+                       <div className="text-xs text-slate-400 uppercase tracking-wider font-bold">{t('app.finished.stats.charsPerSec')}</div>
                      </div>
                    </div>
                  );
                })()}
-               
+
                {/* 4. Buttons (Enter = Weiter) */}
-               <p className="text-slate-500 text-xs text-center mb-4">Enter = Weiter, Esc = Menü</p>
+               <p className="text-slate-500 text-xs text-center mb-4">{t('app.finished.shortcuts')}</p>
                <div className="flex flex-col sm:flex-row gap-4 justify-center">
                  <button 
                    onClick={handleBackToMenu}
                    className="px-8 py-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold transition-all border border-slate-700"
                  >
-                   Menü
+                   {t('app.finished.buttons.menu')}
                  </button>
                  <button 
                    onClick={handleRetry}
                    className="px-8 py-4 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-bold transition-all flex items-center justify-center gap-2 border border-slate-600"
                  >
                    <RotateCcw className="w-5 h-5" />
-                   {gameMode === 'PRACTICE' || gameMode === 'WORDS_SENTENCES' ? 'Neue Übung' : 'Wiederholen'}
+                   {gameMode === 'PRACTICE' || gameMode === 'WORDS_SENTENCES'
+                     ? t('app.finished.buttons.retryPractice')
+                     : t('app.finished.buttons.retryStandard')}
                  </button>
                  <button 
                    onClick={handleNextLevel}
                    className="px-8 py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-bold shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 transform hover:scale-105"
                  >
-                   {gameMode === 'PRACTICE' || gameMode === 'WORDS_SENTENCES' ? 'Noch eine' : 'Weiter'}
+                   {gameMode === 'PRACTICE' || gameMode === 'WORDS_SENTENCES'
+                     ? t('app.finished.buttons.nextPractice')
+                     : t('app.finished.buttons.nextStandard')}
                  </button>
                </div>
             </div>

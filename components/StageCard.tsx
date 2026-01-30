@@ -3,6 +3,7 @@ import { Stage, UserProgress } from '../types';
 import { STAGE_COLOR_CLASSES } from '../constants';
 import { Check, Lock, Star, Crown, Zap, BookOpen } from 'lucide-react';
 import TippsyAvatar from './TippsyAvatar';
+import { useI18n } from '../hooks/useI18n';
 
 interface StageCardProps {
   stage: Stage;
@@ -25,6 +26,7 @@ const StageCard: React.FC<StageCardProps> = ({
   isStageFocused = false,
   focusedSubLevelId = null
 }) => {
+  const { t } = useI18n();
   const isLocked = stage.id > progress.unlockedStageId;
   const isCompleted = stage.id < progress.unlockedStageId;
   const isCurrent = stage.id === progress.unlockedStageId;
@@ -140,7 +142,7 @@ const StageCard: React.FC<StageCardProps> = ({
         {/* New Keys Preview Pill */}
         {!isLocked && (
           <div className="hidden sm:flex flex-col items-end">
-            <span className={`text-[10px] font-bold uppercase tracking-widest mb-2 ${c.labelText}`}>Neue Tasten</span>
+            <span className={`text-[10px] font-bold uppercase tracking-widest mb-2 ${c.labelText}`}>{t('stageCard.newKeys')}</span>
             <div className="flex gap-1">
               {stage.newChars.slice(0, 4).map((char, i) => (
                 <div key={i} className={`
@@ -162,7 +164,7 @@ const StageCard: React.FC<StageCardProps> = ({
       {!isLocked && stage.id !== 15 && (
         <div className="mb-10 relative">
           <div className="flex justify-between text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
-            <span>Fortschritt</span>
+            <span>{t('stageCard.progress')}</span>
             <span>{Math.round(completionPercent)}%</span>
           </div>
           <div className="h-3 w-full bg-slate-800 rounded-full overflow-hidden border border-slate-800/50">
@@ -201,7 +203,7 @@ const StageCard: React.FC<StageCardProps> = ({
                    ) : (
                      <div className="flex flex-col items-center animate-pulse-slow">
                         <span className="text-4xl">∞</span>
-                        <span className="text-[10px] font-bold uppercase tracking-widest mt-1">Start</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest mt-1">{t('stageCard.start')}</span>
                      </div>
                    )}
                 </div>
@@ -292,7 +294,7 @@ const StageCard: React.FC<StageCardProps> = ({
                       ${status === 'active' ? 'text-white border-white/30' : 'text-slate-500'}
                       ${isItemFocused ? 'opacity-100' : ''}
                     `}>
-                      {isMaster ? 'Meister' : `Level ${subLevelId}`}
+                      {isMaster ? t('stageCard.master') : t('stageCard.level', { level: subLevelId })}
                     </div>
                   </button>
                 );
@@ -317,7 +319,7 @@ const StageCard: React.FC<StageCardProps> = ({
             <div className={`p-1.5 rounded-lg ${c.practiceIconBg} transition-colors`}>
               <Zap className={`w-5 h-5 ${c.practiceIconText}`} />
             </div>
-            <span>Endlos-Üben (Mega-Level)</span>
+            <span>{t('stageCard.endlessPractice')}</span>
           </button>
           <button
             onClick={() => onStartWordSentencePractice(stage)}
@@ -331,7 +333,7 @@ const StageCard: React.FC<StageCardProps> = ({
             <div className={`p-1.5 rounded-lg ${c.practiceIconBg} transition-colors`}>
               <BookOpen className={`w-5 h-5 ${c.practiceIconText}`} />
             </div>
-            <span>Wort & Satz</span>
+            <span>{t('stageCard.wordSentence')}</span>
           </button>
         </div>
       )}

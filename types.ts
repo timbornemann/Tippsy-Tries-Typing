@@ -10,6 +10,10 @@ export enum Finger {
   RightPinky = 'R_Pinky',
 }
 
+export type Language = 'de' | 'en';
+
+export type KeyboardLayout = 'qwertz' | 'qwerty';
+
 export interface KeyConfig {
   key: string;
   display: string;
@@ -94,6 +98,7 @@ export enum GameState {
   PLAYING = 'PLAYING',
   FINISHED = 'FINISHED',
   STATISTICS = 'STATISTICS',
+  SETTINGS = 'SETTINGS',
 }
 
 export type GameMode = 'STANDARD' | 'PRACTICE' | 'WORDS_SENTENCES';

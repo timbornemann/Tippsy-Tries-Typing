@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Stage, GameStats, GameMode, ErrorCountByChar } from '../types';
-import { KEYBOARD_LAYOUT, FINGER_NAMES_DE, FINGER_COLORS } from '../constants';
+import { KEYBOARD_LAYOUTS, FINGER_NAMES, FINGER_COLORS } from '../constants';
 import VirtualKeyboard from './VirtualKeyboard';
 import { RotateCcw, Home, Crown, Zap, BookOpen, Infinity } from 'lucide-react';
 import { getRandomChunk } from '../services/endlessContent';
+import { useSettings } from '../contexts/SettingsContext';
+import { useI18n } from '../hooks/useI18n';
 
 interface TypingGameProps {
   stage: Stage;
@@ -18,6 +20,9 @@ interface TypingGameProps {
 const FALLBACK_CONTENT = 'fff jjj fff jjj';
 
 const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: contentProp, onFinish, onBack, onRetry, gameMode = 'STANDARD' }) => {
+  const { keyboardLayout } = useSettings();
+  const { t, language } = useI18n();
+  const keyboardLayoutConfig = KEYBOARD_LAYOUTS[keyboardLayout];
   const [content, setContent] = useState((typeof contentProp === 'string' && contentProp.trim().length > 0) ? contentProp : FALLBACK_CONTENT);
   const [inputIndex, setInputIndex] = useState(0);
   const [mistakes, setMistakes] = useState(0);
@@ -128,7 +133,7 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
       if (stage.id === 15) {
         // 1. Append content if needed
         if (content.length - nextIndex < 50) {
-            const chunk = getRandomChunk();
+            const chunk = getRandomChunk(language);
             // Add a proper separator (newline for code/mixed, space otherwise)
             const separator = (stage.id === 13 || stage.id === 14) ? '\n\n' : ' '; 
             const newContent = content + separator + chunk;
@@ -199,7 +204,7 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
     const char = content[inputIndex];
     
     // Find char in layout
-    for (const row of KEYBOARD_LAYOUT) {
+    for (const row of keyboardLayoutConfig) {
       for (const k of row) {
         if (k.key.toLowerCase() === char.toLowerCase()) {
           return { finger: k.finger, color: FINGER_COLORS[k.finger] };
@@ -233,9 +238,9 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
           <button
             onClick={() => (stage.id === 15 ? finishGame() : onBack())}
             className="p-2 hover:bg-slate-700 rounded-full transition-colors"
-            title={stage.id === 15 ? 'Beenden & Statistik anzeigen' : 'Zurück zum Menü'}
+            title={stage.id === 15 ? t('typing.finishStats') : t('typing.backToMenu')}
           >
-            <Home size={20} className="text-slate-400 hover:text-white" />
+              <Home size={20} className="text-slate-400 hover:text-white" />
           </button>
           <div>
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
@@ -246,22 +251,22 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
               {stage.id === 15 && <Infinity className="w-5 h-5 text-violet-400" />}
             </h2>
             <p className={`text-xs ${isMasterLevel && !isPractice && !isWordsSentences && stage.id !== 15 ? 'text-yellow-200' : isWordsSentences ? 'text-teal-200' : isPractice ? 'text-purple-200' : stage.id === 15 ? 'text-violet-200' : 'text-slate-400'}`}>
-              Level {stage.id} - {stage.id === 15 ? 'Unendlich' : isWordsSentences ? 'Wort & Satz' : isPractice ? 'Üben' : isMasterLevel ? 'Meisterprüfung' : `Übung ${subLevelId}/5`}
+              {t('typing.levelLabel', { stageId: stage.id, mode: stage.id === 15 ? t('typing.endless') : isWordsSentences ? t('typing.wordSentence') : isPractice ? t('typing.practice') : isMasterLevel ? t('typing.masterTest') : t('typing.exercise', { subLevel: subLevelId }) })}
             </p>
           </div>
         </div>
         
         <div className="flex gap-8">
           <div className="text-center">
-            <p className="text-xs text-slate-400 uppercase tracking-wider">WPM</p>
+            <p className="text-xs text-slate-400 uppercase tracking-wider">{t('typing.wpm')}</p>
             <p className="text-2xl font-mono font-bold text-emerald-400">{wpm}</p>
           </div>
           <div className="text-center">
-            <p className="text-xs text-slate-400 uppercase tracking-wider">Fehler</p>
+            <p className="text-xs text-slate-400 uppercase tracking-wider">{t('typing.errors')}</p>
             <p className={`text-2xl font-mono font-bold ${mistakes > 0 ? 'text-rose-400' : 'text-slate-200'}`}>{mistakes}</p>
           </div>
           <div className="text-center">
-            <p className="text-xs text-slate-400 uppercase tracking-wider">Fortschritt</p>
+            <p className="text-xs text-slate-400 uppercase tracking-wider">{t('typing.progress')}</p>
             {stage.id === 15 ? (
               <p className="text-2xl font-mono font-bold text-violet-400 flex justify-center items-center"><Infinity size={32} /></p>
             ) : (
@@ -270,7 +275,7 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
           </div>
         </div>
 
-        <button onClick={onRetry} className="p-2 hover:bg-slate-700 rounded-full transition-colors" title="Neustart">
+        <button onClick={onRetry} className="p-2 hover:bg-slate-700 rounded-full transition-colors" title={t('typing.restart')}>
           <RotateCcw size={20} className="text-slate-400 hover:text-white" />
         </button>
       </div>
@@ -335,9 +340,9 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
       <div className="flex items-center justify-center gap-3 mb-4 h-8">
         {fingerInfo && (
           <>
-            <span className="text-slate-400 text-sm uppercase tracking-widest">Benutze:</span>
+            <span className="text-slate-400 text-sm uppercase tracking-widest">{t('typing.useFinger')}</span>
             <span className={`px-3 py-1 rounded-full text-xs font-bold text-white shadow-lg ${fingerInfo.color}`}>
-              {FINGER_NAMES_DE[fingerInfo.finger]}
+              {FINGER_NAMES[language][fingerInfo.finger]}
             </span>
           </>
         )}
@@ -361,10 +366,10 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
 
       <div className="mt-8 text-slate-500 text-sm text-center max-w-lg">
         {isMasterLevel && !isPractice && !isWordsSentences
-          ? "Zeig was du kannst! Keine Fehler erlaubt, volle Konzentration."
+          ? t('typing.instructionsMaster')
           : isWordsSentences
-            ? "Tippe die Wörter und Sätze. Achte auf die farbige Hervorhebung!"
-            : "Tippe die angezeigten Zeichen. Achte auf die farbige Hervorhebung!"}
+            ? t('typing.instructionsWords')
+            : t('typing.instructionsDefault')}
       </div>
     </div>
   );

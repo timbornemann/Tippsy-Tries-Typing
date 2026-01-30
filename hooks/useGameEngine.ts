@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { GameState, Stage, GameStats, UserProgress, GameMode, SessionRecord } from '../types';
-import { STAGES } from '../constants';
+import { getStages } from '../constants';
 import { generatePatternLevel } from '../services/patternGenerator';
 import { generateWordSentenceLevel } from '../services/wordSentenceGenerator';
+import { useSettings } from '../contexts/SettingsContext';
 
 const SESSION_HISTORY_MAX = 30;
 
@@ -32,6 +33,8 @@ function computeUnlock(
 }
 
 export const useGameEngine = () => {
+  const { language, keyboardLayout } = useSettings();
+  const stages = useMemo(() => getStages(language, keyboardLayout), [language, keyboardLayout]);
 
   const [gameState, setGameState] = useState<GameState>(() => {
     if (typeof window !== 'undefined') {
@@ -108,7 +111,7 @@ export const useGameEngine = () => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
     if (params.get('finished') === '1') {
-      setCurrentStage(STAGES[0]);
+      setCurrentStage(stages[0]);
       setCurrentSubLevel(1);
       setGameMode('STANDARD');
       setLastStats({
@@ -120,14 +123,14 @@ export const useGameEngine = () => {
       });
       setGameState(GameState.FINISHED);
     } else if (params.get('loading') === '1') {
-      setCurrentStage(STAGES[0]);
+      setCurrentStage(stages[0]);
       setCurrentSubLevel(1);
       setGameMode('STANDARD');
       setGameState(GameState.LOADING);
     } else if (params.get('play') === '1') {
-      startLevel(STAGES[0], 1);
+      startLevel(stages[0], 1);
     }
-  }, []);
+  }, [stages]);
 
   useEffect(() => {
     localStorage.setItem('tippsy_progress', JSON.stringify(progress));
@@ -160,7 +163,7 @@ export const useGameEngine = () => {
     // Artificial delay for smooth UX transition even though generation is instant
     await new Promise(r => setTimeout(r, 800));
     
-    let content = generatePatternLevel(stage, subLevelId);
+    let content = generatePatternLevel(stage, subLevelId, language);
     if (typeof content !== 'string' || !content.trim()) {
       content = 'fff jjj fff jjj fff jjj';
     }
@@ -183,7 +186,7 @@ export const useGameEngine = () => {
     await new Promise(r => setTimeout(r, 600));
 
     // Use Case 0 (Mega Level) instead of AI
-    let content = generatePatternLevel(stage, 0);
+    let content = generatePatternLevel(stage, 0, language);
     if (typeof content !== 'string' || !content.trim()) {
       content = 'fff jjj fff jjj fff jjj';
     }
@@ -204,7 +207,7 @@ export const useGameEngine = () => {
 
     await new Promise((r) => setTimeout(r, 600));
 
-    let content = generateWordSentenceLevel(stage);
+    let content = generateWordSentenceLevel(stage, language);
     if (typeof content !== 'string' || !content.trim()) {
       content = 'fff jjj fff jjj fff jjj';
     }
@@ -328,7 +331,7 @@ export const useGameEngine = () => {
       startLevel(currentStage, currentSubLevel + 1);
     } else {
       // Find next stage
-      const nextStage = STAGES.find(s => s.id === currentStage.id + 1);
+      const nextStage = stages.find(s => s.id === currentStage.id + 1);
       if (nextStage) {
         startLevel(nextStage, 1);
       } else {
@@ -345,7 +348,7 @@ export const useGameEngine = () => {
       if (unlockedSubLevelId < 5) {
         return { ...prev, unlockedSubLevelId: unlockedSubLevelId + 1 };
       }
-      const nextStage = STAGES.find(s => s.id === unlockedStageId + 1);
+      const nextStage = stages.find(s => s.id === unlockedStageId + 1);
       if (nextStage) {
         return { ...prev, unlockedStageId: nextStage.id, unlockedSubLevelId: 1 };
       }
@@ -375,6 +378,7 @@ export const useGameEngine = () => {
     handleNextLevel,
     handleCompleteTutorial,
     handleEnterTutorial,
-    debugPassCurrentLevel
+    debugPassCurrentLevel,
+    stages
   };
 };

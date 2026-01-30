@@ -1,6 +1,7 @@
 import React from 'react';
-import { KEYBOARD_LAYOUT, FINGER_COLORS } from '../constants';
+import { KEYBOARD_LAYOUTS, FINGER_COLORS } from '../constants';
 import { Finger, KeyConfig } from '../types';
+import { useSettings } from '../contexts/SettingsContext';
 
 interface VirtualKeyboardProps {
   activeKey: string;
@@ -8,6 +9,8 @@ interface VirtualKeyboardProps {
 }
 
 const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({ activeKey, pressedKeys }) => {
+  const { keyboardLayout } = useSettings();
+  const layout = KEYBOARD_LAYOUTS[keyboardLayout];
   
   const getKeyStyles = (keyConfig: KeyConfig) => {
     // Normalize activeKey for comparison (Target Key)
@@ -47,7 +50,7 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({ activeKey, pressedKey
 
   return (
     <div className="flex flex-col gap-2 p-6 bg-slate-900/50 rounded-xl shadow-2xl border border-slate-800 select-none max-w-4xl mx-auto mt-8 backdrop-blur-sm">
-      {KEYBOARD_LAYOUT.map((row, rowIndex) => (
+      {layout.map((row, rowIndex) => (
         <div key={rowIndex} className="flex gap-2 justify-center">
           {row.map((keyConfig, keyIndex) => (
             <div

@@ -2,21 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { GameState, UserProgress } from '../types';
 import { Sparkles } from 'lucide-react';
 import TippsyAvatar from './TippsyAvatar';
+import { useI18n } from '../hooks/useI18n';
 
 const Mascot = ({ progress, gameState }: { progress: UserProgress, gameState: GameState }) => {
+  const { t } = useI18n();
   const [message, setMessage] = useState("");
 
   useEffect(() => {
     if (gameState === GameState.MENU) {
       if (progress.unlockedStageId === 1 && progress.unlockedSubLevelId === 1) {
-        setMessage("Hallo! Ich bin Tippsy. Lass uns gemeinsam tippen lernen!");
+        setMessage(t('mascot.messages.start'));
       } else if (progress.unlockedStageId > 5) {
-        setMessage("Wow, du bist schon richtig weit! Deine Finger fliegen ja nur so.");
+        setMessage(t('mascot.messages.advanced'));
       } else {
-        setMessage("Schön, dass du wieder da bist! Bereit für die nächste Lektion?");
+        setMessage(t('mascot.messages.default'));
       }
     }
-  }, [gameState, progress]);
+  }, [gameState, progress, t]);
 
   return (
     <div className="flex items-center gap-4 bg-slate-800/60 backdrop-blur-md p-4 rounded-[2rem] border border-slate-700/50 shadow-xl mb-8 max-w-xl mx-auto transform hover:scale-[1.02] transition-transform duration-300">
@@ -29,7 +31,7 @@ const Mascot = ({ progress, gameState }: { progress: UserProgress, gameState: Ga
         </div>
       </div>
       <div className="flex-1 pl-2">
-        <p className="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-0.5">Dein Lernbegleiter</p>
+        <p className="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-0.5">{t('mascot.label')}</p>
         <p className="text-slate-200 font-medium leading-tight">{message}</p>
       </div>
     </div>
