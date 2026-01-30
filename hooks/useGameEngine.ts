@@ -33,12 +33,21 @@ export const useGameEngine = () => {
   const [gameContent, setGameContent] = useState<string>('');
   const [lastStats, setLastStats] = useState<GameStats | null>(null);
 
+  // Track progress at the start of a session to enable "walking" animation on return
+  const [sessionStartProgress, setSessionStartProgress] = useState<UserProgress | null>(null);
+
   useEffect(() => {
     localStorage.setItem('tippmeister_progress', JSON.stringify(progress));
   }, [progress]);
 
   // Start a standard level (1-5) using the Pattern Generator
   const startLevel = async (stage: Stage, subLevelId: number) => {
+    // If we are starting from the Menu, this is the start of a "Session" (or chain)
+    // We capture the progress state here so we can animate from this point when we return.
+    if (gameState === GameState.MENU) {
+        setSessionStartProgress({ ...progress });
+    }
+
     setCurrentStage(stage);
     setCurrentSubLevel(subLevelId);
     setGameMode('STANDARD');
@@ -54,6 +63,10 @@ export const useGameEngine = () => {
 
   // Start Practice Mode using the Pattern Generator (Case 0)
   const startPractice = async (stage: Stage) => {
+    if (gameState === GameState.MENU) {
+        setSessionStartProgress({ ...progress });
+    }
+
     setCurrentStage(stage);
     setCurrentSubLevel(0); // 0 indicates practice/no specific level
     setGameMode('PRACTICE');
@@ -102,6 +115,22 @@ export const useGameEngine = () => {
   const handleBackToMenu = () => {
     setGameState(GameState.MENU);
     setCurrentStage(null);
+
+    // Note: We do NOT reset sessionStartProgress here immediately. 
+    // We want the UI to read it, animate, and THEN maybe reset it?
+    // Actually, if we reset it here, MainMenu won't see the "diff".
+    // Strategy: MainMenu will use sessionStartProgress vs progress.
+    // If they differ, it animates.
+    // We can clear sessionStartProgress purely when starting a new "chain" or just leave it. 
+    // Actually, better: if we return to menu, we might wan to reset it AFTER delay.
+    // For now, let's keep it simplest: It updates when you start a level if null. 
+    // But if we just finished a level, progress > sessionStartProgress.
+    // So animation happens.
+    // Ideally we reset it when the animation is "consumed".
+    // Extended to 4s to ensure StageCard animation (approx 3s) completes fully.
+    setTimeout(() => {
+        setSessionStartProgress(null);
+    }, 4000);
   };
 
   const handleRetry = () => {
@@ -141,6 +170,7 @@ export const useGameEngine = () => {
     gameState,
     setGameState,
     progress,
+    sessionStartProgress, // Export this
     currentStage,
     currentSubLevel,
     gameMode,

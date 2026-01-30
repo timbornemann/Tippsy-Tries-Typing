@@ -7,6 +7,7 @@ import StageCard from '../components/StageCard';
 
 interface MainMenuProps {
   progress: UserProgress;
+  sessionStartProgress: UserProgress | null;
   gameState: GameState;
   onStartLevel: (s: Stage, l: number) => void;
   onStartPractice: (s: Stage) => void;
@@ -15,6 +16,7 @@ interface MainMenuProps {
 
 const MainMenu: React.FC<MainMenuProps> = ({ 
   progress, 
+  sessionStartProgress,
   gameState, 
   onStartLevel, 
   onStartPractice,
@@ -61,6 +63,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
               key={stage.id} 
               stage={stage} 
               progress={progress} 
+              sessionStartProgress={sessionStartProgress}
               onStartLevel={onStartLevel}
               onStartPractice={onStartPractice}
             />

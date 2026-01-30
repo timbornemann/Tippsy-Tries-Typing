@@ -11,6 +11,7 @@ const App: React.FC = () => {
     gameState,
     setGameState,
     progress,
+    sessionStartProgress,
     currentStage,
     currentSubLevel,
     gameMode,
@@ -40,6 +41,7 @@ const App: React.FC = () => {
         {gameState === GameState.MENU && (
           <MainMenu 
             progress={progress}
+            sessionStartProgress={sessionStartProgress}
             gameState={gameState}
             onStartLevel={startLevel}
             onStartPractice={startPractice}

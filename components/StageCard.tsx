@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Stage, UserProgress } from '../types';
 import { Check, Lock, Star, Crown, Zap } from 'lucide-react';
+import TippsyAvatar from './TippsyAvatar';
 
 interface StageCardProps {
   stage: Stage;
   progress: UserProgress;
+  sessionStartProgress: UserProgress | null;
   onStartLevel: (s: Stage, l: number) => void;
   onStartPractice: (s: Stage) => void;
 }
@@ -12,6 +14,7 @@ interface StageCardProps {
 const StageCard: React.FC<StageCardProps> = ({ 
   stage, 
   progress, 
+  sessionStartProgress,
   onStartLevel, 
   onStartPractice 
 }) => {
@@ -23,10 +26,96 @@ const StageCard: React.FC<StageCardProps> = ({
   let completionPercent = 0;
   if (isCompleted) completionPercent = 100;
   else if (isCurrent) {
-    // 5 Levels total. If unlockedSubLevelId is 3, we finished 2. (2/5 = 40%)
-    // But if we unlocked 3, it means we are ABOUT to do 3.
     completionPercent = ((progress.unlockedSubLevelId - 1) / 5) * 100;
   }
+
+  // --- WALKING ANIMATION LOGIC ---
+  // We determine the visual position (percentage from left) based on subLevelId
+  // The path roughly goes: 1(10%) -> 2(30%) -> 3(50%) -> 4(70%) -> 5(90%)
+  const getPositionForSubLevel = (subLevel: number) => {
+    // These values must align with the visual node positions in the map loop below
+    switch(subLevel) {
+      case 1: return 15;
+      case 2: return 32;
+      case 3: return 50;
+      case 4: return 67;
+      case 5: return 85;
+      default: return 15;
+    }
+  };
+
+  // Initialize position directly to the target OR start position to prevent "jumping"
+  const [tippsyPos, setTippsyPos] = useState(() => {
+      // 1. Priority: If we have a valid animation start point for THIS stage, start there.
+      if (isCurrent && sessionStartProgress && sessionStartProgress.unlockedStageId === stage.id) {
+          return getPositionForSubLevel(sessionStartProgress.unlockedSubLevelId);
+      }
+      // 2. Fallback: Start at current progress position
+      if (isCurrent) return getPositionForSubLevel(progress.unlockedSubLevelId);
+      
+      return 15; // Default
+  });
+  
+  const [isWalking, setIsWalking] = useState(false);
+
+  useEffect(() => {
+    if (!isCurrent) return;
+
+    const targetPos = getPositionForSubLevel(progress.unlockedSubLevelId);
+    
+    // Check if we need to animate from a previous session state
+    if (sessionStartProgress && sessionStartProgress.unlockedStageId === stage.id) {
+       const startPos = getPositionForSubLevel(sessionStartProgress.unlockedSubLevelId);
+       
+       // Only animate if there is an actual difference
+       if (startPos !== targetPos) {
+           // We moved! Set to START position first (without animation ideally, but React batches)
+           // actually, if we want to animate PRECISELY from start to target:
+           // We should set it to startPos immediately.
+           setTippsyPos(startPos);
+           setIsWalking(true);
+           
+           // Trigger walk after a visible delay so user sees start position first
+           const timer = setTimeout(() => {
+               setTippsyPos(targetPos);
+           }, 800); 
+
+           const stopTimer = setTimeout(() => {
+               setIsWalking(false);
+           }, 2900);
+
+           return () => { clearTimeout(timer); clearTimeout(stopTimer); };
+       } else {
+           // We didn't move effectively (maybe retried same level), ensure we are at target
+           setTippsyPos(targetPos);
+           setIsWalking(false);
+       }
+    } else {
+        // No session history or different stage -> Just snap to target
+        setTippsyPos(targetPos);
+        setIsWalking(false);
+    }
+
+  }, [isCurrent, progress, sessionStartProgress, stage.id]);
+
+
+  // Helper for Vertical Position of Tippsy (to follow the curve)
+  // Curve equation: M 50,90 C 100,90 ...
+  // We approximate Y based on X. 
+  // 1: 90 (center)
+  // 2: 90 + 30 (down) -> 120 (Visual check: translate-y-8 is 32px. 90+32 = 122)
+  // 3: 90 - 30 (up) -> 60
+  // 4: 90 (center)
+  // 5: 90
+  const getVerticalPos = (xPercent: number) => {
+      // Rough approximation
+      if (xPercent < 23) return 90; // Node 1
+      if (xPercent < 41) return 122; // Node 2 (Down)
+      if (xPercent < 58) return 58;  // Node 3 (Up)
+      if (xPercent < 76) return 90;  // Node 4
+      return 90; // Node 5
+  };
+
 
   return (
     <div className={`
@@ -103,6 +192,22 @@ const StageCard: React.FC<StageCardProps> = ({
       {/* PATH / LEVEL MAP */}
       <div className="relative min-h-[180px] flex items-center justify-center">
         
+        {/* TIPPSY WALKER - Only on Current Stage */}
+        {!isLocked && isCurrent && (
+            <div 
+              className="absolute z-30 w-12 h-12 pointer-events-none transition-all duration-[2000ms] ease-in-out"
+              style={{ 
+                  left: `${tippsyPos}%`, 
+                  top: `${getVerticalPos(tippsyPos)}px`,
+                  transform: 'translate(-50%, -100%)' // Pivot at bottom/feet
+              }}
+            >
+                <div className={isWalking ? 'animate-bounce' : ''}>
+                   <TippsyAvatar mood={isWalking ? 'excited' : 'happy'} className="w-full h-full drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)]" />
+                </div>
+            </div>
+        )}
+
         {/* SVG Connecting Line (Dotted Path) */}
         {!isLocked && (
            <svg className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-30" viewBox="0 0 400 180" preserveAspectRatio="none">
