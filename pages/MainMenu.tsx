@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { GameState, UserProgress, Stage } from '../types';
-import { STAGES } from '../constants';
-import { Keyboard, User, X, Info } from 'lucide-react';
+import { Keyboard, User, X, Info, Settings as SettingsIcon } from 'lucide-react';
 import Mascot from '../components/Mascot';
 import StageCard from '../components/StageCard';
 import OnboardingModal from '../components/OnboardingModal';
+import { useI18n } from '../hooks/useI18n';
 
 const ONBOARDING_KEY = 'tippsy_onboarding_seen';
 const STORAGE_HINT_KEY = 'tippsy_storage_hint_seen';
 
 interface MainMenuProps {
+  stages: Stage[];
   progress: UserProgress;
   sessionStartProgress: UserProgress | null;
   gameState: GameState;
@@ -20,9 +21,11 @@ interface MainMenuProps {
   onStartWordSentencePractice: (s: Stage) => void;
   onOpenStats: () => void;
   onStartTutorial: () => void;
+  onOpenSettings: () => void;
 }
 
 const MainMenu: React.FC<MainMenuProps> = ({
+  stages,
   progress,
   sessionStartProgress,
   gameState,
@@ -32,8 +35,10 @@ const MainMenu: React.FC<MainMenuProps> = ({
   onStartPractice,
   onStartWordSentencePractice,
   onOpenStats,
-  onStartTutorial
+  onStartTutorial,
+  onOpenSettings
 }) => {
+  const { t, language } = useI18n();
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showStorageHint, setShowStorageHint] = useState(false);
 
@@ -58,7 +63,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
       // STAGE NAVIGATION (Vertical)
       if (key === 'arrowdown' || key === 's') {
         e.preventDefault();
-        setFocusedStageId(prev => Math.min(prev + 1, STAGES.length));
+        setFocusedStageId(prev => Math.min(prev + 1, stages.length));
         setFocusedSubLevelId(1); // Reset sub-level focus when changing stage
       } else if (key === 'arrowup' || key === 'w') {
         e.preventDefault();
@@ -95,7 +100,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
       // ENTER ACTION
       else if (key === 'enter') {
         e.preventDefault();
-        const stage = STAGES.find(s => s.id === focusedStageId);
+        const stage = stages.find(s => s.id === focusedStageId);
         if (stage) {
             // Check if actually unlocked
             // Stage unlock check
@@ -111,7 +116,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [focusedStageId, focusedSubLevelId, progress, showOnboarding, onStartLevel]);
+  }, [focusedStageId, focusedSubLevelId, progress, showOnboarding, onStartLevel, stages]);
 
   // Auto-scroll to Focused Stage
   useEffect(() => {
@@ -167,7 +172,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
         <div 
           onClick={onStartTutorial}
           className="inline-flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity group"
-          title="Start-Bildschirm & Tutorial öffnen"
+          title={t('menu.openTutorialTitle')}
         >
           <div className="bg-gradient-to-tr from-emerald-500 to-blue-500 p-2 rounded-xl shadow-lg group-hover:scale-110 transition-transform">
               <Keyboard className="w-6 h-6 text-white" />
@@ -176,24 +181,34 @@ const MainMenu: React.FC<MainMenuProps> = ({
             <h1 className="text-xl font-extrabold tracking-tight text-white">
               Tippsy
             </h1>
-            <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">Lern-Abenteuer</p>
+            <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">{t('menu.adventure')}</p>
           </div>
         </div>
 
-        <button 
-          data-testid="open-stats"
-          onClick={onOpenStats}
-          className="group flex items-center gap-3 px-4 py-2 rounded-full bg-slate-800/50 hover:bg-slate-800 text-slate-300 hover:text-white transition-all border border-slate-700/50"
-          title="Statistik ansehen"
-        >
-          <div className="text-right hidden sm:block">
-            <p className="text-[10px] uppercase text-slate-500 font-bold">Dein Profil</p>
-            <p className="text-xs font-mono font-bold">{progress.stats.totalCharsTyped.toLocaleString()} Zeichen</p>
-          </div>
-          <div className="p-2 bg-slate-700 rounded-full group-hover:bg-slate-600 transition-colors">
-            <User size={20} />
-          </div>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onOpenSettings}
+            className="group flex items-center gap-2 px-3 py-2 rounded-full bg-slate-800/50 hover:bg-slate-800 text-slate-300 hover:text-white transition-all border border-slate-700/50"
+            title={t('menu.settings')}
+            aria-label={t('menu.settings')}
+          >
+            <SettingsIcon size={18} />
+          </button>
+          <button 
+            data-testid="open-stats"
+            onClick={onOpenStats}
+            className="group flex items-center gap-3 px-4 py-2 rounded-full bg-slate-800/50 hover:bg-slate-800 text-slate-300 hover:text-white transition-all border border-slate-700/50"
+            title={t('menu.statsTitle')}
+          >
+            <div className="text-right hidden sm:block">
+              <p className="text-[10px] uppercase text-slate-500 font-bold">{t('menu.profileLabel')}</p>
+              <p className="text-xs font-mono font-bold">{progress.stats.totalCharsTyped.toLocaleString(language === 'de' ? 'de-DE' : 'en-US')} {t('menu.characters')}</p>
+            </div>
+            <div className="p-2 bg-slate-700 rounded-full group-hover:bg-slate-600 transition-colors">
+              <User size={20} />
+            </div>
+          </button>
+        </div>
       </header>
 
       <div className="flex-1 container mx-auto px-4 py-12 max-w-2xl">
@@ -206,9 +221,9 @@ const MainMenu: React.FC<MainMenuProps> = ({
           <div className="mb-6 p-3 rounded-xl bg-slate-800/80 border border-slate-700 flex items-center gap-3">
             <Info size={20} className="text-slate-400 shrink-0" />
             <p className="text-slate-400 text-sm flex-1">
-              Dein Fortschritt wird nur auf diesem Gerät gespeichert.
+              {t('menu.storageHint')}
             </p>
-            <button onClick={dismissStorageHint} className="p-1 rounded hover:bg-slate-700 text-slate-500 hover:text-white shrink-0" aria-label="Schließen">
+            <button onClick={dismissStorageHint} className="p-1 rounded hover:bg-slate-700 text-slate-500 hover:text-white shrink-0" aria-label={t('menu.close')}>
               <X size={16} />
             </button>
           </div>
@@ -217,7 +232,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
         <Mascot progress={progress} gameState={gameState} />
 
         <div className="flex flex-col gap-16 pb-32">
-          {STAGES.map((stage) => (
+          {stages.map((stage) => (
             <StageCard
               key={stage.id}
               stage={stage}
@@ -234,7 +249,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
         
         {/* End of Content Message */}
         <div className="text-center pb-12">
-            <p className="text-slate-500 text-sm">Mehr Lektionen folgen bald!</p>
+            <p className="text-slate-500 text-sm">{t('menu.moreLessons')}</p>
         </div>
       </div>
     </>

@@ -1,16 +1,16 @@
-import { 
-  MEISTERKLASSE_TEXTS, 
-  PROFI_TEXTS, 
-  CODER_TEXTS 
+import {
+  MEISTERKLASSE_TEXTS,
+  PROFI_TEXTS,
+  CODER_TEXTS
 } from './patternGenerator';
-import { 
-  MEISTERKLASSE_SENTENCES, 
-  PROFI_SENTENCES, 
-  CODER_SENTENCES,
-  SENTENCES_DB,
+import {
+  MEISTERKLASSE_SENTENCES_BY_LANGUAGE,
+  PROFI_SENTENCES_BY_LANGUAGE,
+  CODER_SENTENCES_BY_LANGUAGE,
+  SENTENCES_DB_BY_LANGUAGE,
   generateWordSentenceLevel
 } from './wordSentenceGenerator';
-import { Stage } from '../types';
+import { Stage, Language } from '../types';
 
 /**
  * Service to mix all available content types for Endless Mode (Stage 15).
@@ -20,7 +20,7 @@ import { Stage } from '../types';
  * 3. Generated Random Sentences (from default word list)
  */
 
-export const getRandomChunk = (): string => {
+export const getRandomChunk = (language: Language): string => {
   // Strategy:
   // 40% Chance: Text Paragraph (Long content)
   // 40% Chance: Sentence Array Item (Medium content, single sentence/line)
@@ -30,7 +30,7 @@ export const getRandomChunk = (): string => {
 
   if (rand < 0.4) {
     // 1. Text Paragraphs
-    const allTexts = [...MEISTERKLASSE_TEXTS, ...PROFI_TEXTS, ...CODER_TEXTS];
+    const allTexts = [...MEISTERKLASSE_TEXTS[language], ...PROFI_TEXTS[language], ...CODER_TEXTS[language]];
     const text = allTexts[Math.floor(Math.random() * allTexts.length)];
     // Return a slightly modified version to avoid exact repetition if possible,
     // or just return as is.
@@ -40,10 +40,10 @@ export const getRandomChunk = (): string => {
     // 2. Sentence Arrays
     // We mix all sentence sources
     const allSentences = [
-      ...MEISTERKLASSE_SENTENCES,
-      ...PROFI_SENTENCES,
-      ...CODER_SENTENCES,
-      ...SENTENCES_DB
+      ...MEISTERKLASSE_SENTENCES_BY_LANGUAGE[language],
+      ...PROFI_SENTENCES_BY_LANGUAGE[language],
+      ...CODER_SENTENCES_BY_LANGUAGE[language],
+      ...SENTENCES_DB_BY_LANGUAGE[language]
     ];
     // Return a "block" of 2-3 sentences to make it a worthy chunk
     const count = 2 + Math.floor(Math.random() * 2);
@@ -74,8 +74,8 @@ export const getRandomChunk = (): string => {
       ],
       color: "gray"
     };
-    
+
     // Generate a short "level" which is effectively a paragraph of random words
-    return generateWordSentenceLevel(mockStage);
+    return generateWordSentenceLevel(mockStage, language);
   }
 };

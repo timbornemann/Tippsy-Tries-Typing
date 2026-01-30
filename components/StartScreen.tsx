@@ -1,23 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { Finger } from '../types';
-import { FINGER_COLORS, KEYBOARD_LAYOUT } from '../constants';
+import { FINGER_COLORS, KEYBOARD_LAYOUTS } from '../constants';
 import { Keyboard, MousePointerClick, CheckCircle2, ArrowRight, Play } from 'lucide-react';
 import VirtualKeyboard from './VirtualKeyboard';
+import { useI18n } from '../hooks/useI18n';
+import { useSettings } from '../contexts/SettingsContext';
 
 interface StartScreenProps {
   onComplete: () => void;
 }
 
 const StartScreen: React.FC<StartScreenProps> = ({ onComplete }) => {
+  const { t } = useI18n();
+  const { keyboardLayout } = useSettings();
+  const layout = KEYBOARD_LAYOUTS[keyboardLayout];
   const [step, setStep] = useState(0); // 0: Intro, 1: Hands, 2: Colors, 3: Practice, 4: Finish
   const [typedInput, setTypedInput] = useState('');
   const [practiceError, setPracticeError] = useState(false);
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
 
   const practiceTarget = "fjfj";
+  const practiceText = t('start.practice.description', { pattern: practiceTarget });
+  const [practiceStart, practiceEnd = ''] = practiceText.split(practiceTarget);
 
   // Home Row Keys for Step 1 Check
-  const HOME_ROW_KEYS = ['a', 's', 'd', 'f', 'j', 'k', 'l', 'ö'];
+  const HOME_ROW_KEYS = keyboardLayout === 'qwerty'
+    ? ['a', 's', 'd', 'f', 'j', 'k', 'l', ';']
+    : ['a', 's', 'd', 'f', 'j', 'k', 'l', 'ö'];
   const [homeRowCompleted, setHomeRowCompleted] = useState(false);
 
   // Global Key Listener
@@ -27,7 +36,7 @@ const StartScreen: React.FC<StartScreenProps> = ({ onComplete }) => {
       setPressedKeys(prev => {
         const next = new Set(prev);
         next.add(key);
-        
+
         // Check for Home Row Completion immediately on press
         if (step === 1 && !homeRowCompleted) {
             const allPressed = HOME_ROW_KEYS.every(k => next.has(k));
@@ -63,7 +72,7 @@ const StartScreen: React.FC<StartScreenProps> = ({ onComplete }) => {
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);
     };
-  }, [step, onComplete, homeRowCompleted]); // Added homeRowCompleted dep
+  }, [step, onComplete, homeRowCompleted, HOME_ROW_KEYS]);
 
   useEffect(() => {
     if (step === 3) {
@@ -75,7 +84,7 @@ const StartScreen: React.FC<StartScreenProps> = ({ onComplete }) => {
   const handlePracticeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setTypedInput(val);
-    
+
     if (val === practiceTarget) {
       setTimeout(() => setStep(4), 500);
     } else if (!practiceTarget.startsWith(val)) {
@@ -89,7 +98,7 @@ const StartScreen: React.FC<StartScreenProps> = ({ onComplete }) => {
   const isFingerActive = (finger: Finger) => {
     return Array.from(pressedKeys).some((k: string) => {
       // Find key config
-      const flat = KEYBOARD_LAYOUT.flat();
+      const flat = layout.flat();
       const cfg = flat.find(c => c.key.toLowerCase() === k.toLowerCase());
       return cfg?.finger === finger;
     });
@@ -98,8 +107,8 @@ const StartScreen: React.FC<StartScreenProps> = ({ onComplete }) => {
   const FingerVisual = ({ finger, name, targetKey }: { finger: Finger; name: string; targetKey?: string }) => {
     // If we have a target key (Step 1), only show active if THAT key is pressed
     // Otherwise use generic finger active check
-    const active = targetKey 
-        ? pressedKeys.has(targetKey.toLowerCase()) 
+    const active = targetKey
+        ? pressedKeys.has(targetKey.toLowerCase())
         : isFingerActive(finger);
 
     // Also force active if we are done with home row check (so they stay green)
@@ -107,12 +116,12 @@ const StartScreen: React.FC<StartScreenProps> = ({ onComplete }) => {
 
     return (
       <div className="flex flex-col items-center gap-2 group relative">
-        <div className={`w-12 h-24 rounded-full border-4 transition-all duration-100 
-          ${visualActive ? 'scale-110 border-white shadow-[0_0_20px_currentColor]' : 'border-slate-700'} 
+        <div className={`w-12 h-24 rounded-full border-4 transition-all duration-100
+          ${visualActive ? 'scale-110 border-white shadow-[0_0_20px_currentColor]' : 'border-slate-700'}
           ${FINGER_COLORS[finger]} flex items-center justify-center`}>
            {visualActive && <div className="w-full h-full bg-white/30 rounded-full animate-pulse"></div>}
         </div>
-        <span className={`text-xs font-medium whitespace-nowrap transition-all duration-300 absolute -bottom-8 px-2 py-1 rounded border z-10 
+        <span className={`text-xs font-medium whitespace-nowrap transition-all duration-300 absolute -bottom-8 px-2 py-1 rounded border z-10
           ${visualActive ? 'opacity-100 bg-white text-slate-900 border-white scale-110' : 'opacity-0 group-hover:opacity-100 bg-slate-800 text-slate-400 border-slate-700'}`}>
           {name}
         </span>
@@ -120,17 +129,16 @@ const StartScreen: React.FC<StartScreenProps> = ({ onComplete }) => {
     );
   };
 
-
   const ColorCard = ({ finger, name, desc }: { finger: Finger; name: string; desc: string }) => {
     const active = isFingerActive(finger);
     const colorClass = FINGER_COLORS[finger];
-    
+
     return (
       <div className={`bg-slate-800/50 p-6 rounded-2xl border transition-all duration-100 flex flex-col items-center cursor-default
         ${active ? 'border-white scale-105 shadow-[0_0_30px_rgba(255,255,255,0.1)] bg-slate-800' : `${colorClass.replace('bg-', 'border-')}/30`}`}>
-        
+
         <div className={`w-12 h-12 rounded-full ${colorClass} mb-3 shadow-[0_0_15px_currentColor] transition-transform duration-100 ${active ? 'scale-125 ring-4 ring-white/20' : ''}`}></div>
-        
+
         <span className={`font-bold transition-colors ${active ? 'text-white' : 'text-slate-200'}`}>{name}</span>
         <span className="text-xs text-slate-500 mt-1">{desc}</span>
       </div>
@@ -139,7 +147,7 @@ const StartScreen: React.FC<StartScreenProps> = ({ onComplete }) => {
 
   return (
     <div className="min-h-screen bg-[#0a0f1c] text-white flex flex-col items-center justify-center relative overflow-hidden p-6">
-      
+
       {/* Background Ambience */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-emerald-900/20 rounded-full blur-[100px] animate-pulse"></div>
@@ -147,7 +155,7 @@ const StartScreen: React.FC<StartScreenProps> = ({ onComplete }) => {
       </div>
 
       <div className="relative z-10 max-w-5xl w-full flex flex-col items-center">
-        
+
         {/* STEP 0: INTRO */}
         {step === 0 && (
           <div className="text-center animate-in fade-in slide-in-from-bottom-8 duration-700">
@@ -155,35 +163,37 @@ const StartScreen: React.FC<StartScreenProps> = ({ onComplete }) => {
               <Keyboard className="w-12 h-12 text-white" />
             </div>
             <h1 className="text-6xl font-extrabold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
-              Willkommen bei Tippsy
+              {t('start.intro.title')}
             </h1>
             <p className="text-xl text-slate-400 max-w-2xl mx-auto mb-12 leading-relaxed">
-              Lerne das 10-Finger-System spielerisch und interaktiv. <br/>
-              Keine Langeweile, nur Fortschritt.
+              {t('start.intro.description').split('\n').map((line, index) => (
+                <React.Fragment key={index}>
+                  {line}
+                  {index === 0 && <br />}
+                </React.Fragment>
+              ))}
             </p>
-            <button 
+            <button
               onClick={() => setStep(1)}
               className="px-10 py-5 bg-white text-slate-900 font-bold text-lg rounded-full shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:shadow-[0_0_50px_rgba(255,255,255,0.4)] hover:scale-105 transition-all flex items-center gap-3 mx-auto"
             >
-              Los geht's <ArrowRight className="w-5 h-5" />
+              {t('start.intro.button')} <ArrowRight className="w-5 h-5" />
             </button>
-            <p className="mt-6 text-slate-600 text-sm">Drücke <span className="font-mono bg-slate-800 px-2 py-0.5 rounded text-slate-400">Enter</span> zum Starten</p>
+            <p className="mt-6 text-slate-600 text-sm">{t('start.intro.enterHint')} <span className="font-mono bg-slate-800 px-2 py-0.5 rounded text-slate-400">Enter</span></p>
           </div>
         )}
 
         {/* STEP 1: FINGERS & POSITION */}
         {step === 1 && (
           <div className="text-center animate-in fade-in slide-in-from-right-8 duration-500 w-full">
-            <h2 className="text-3xl font-bold mb-4">Deine Hände sind das Werkzeug</h2>
-            <p className="text-slate-400 mb-2 text-lg">
-              Lege deine Hände entspannt auf die Tastatur.
-            </p>
+            <h2 className="text-3xl font-bold mb-4">{t('start.hands.title')}</h2>
+            <p className="text-slate-400 mb-2 text-lg">{t('start.hands.description')}</p>
             <p className={`${homeRowCompleted ? 'text-emerald-400 font-bold' : 'text-slate-500'} text-sm mb-12 transition-colors`}>
-               {homeRowCompleted 
-                 ? "Perfekt! Alle Finger liegen richtig." 
-                 : "Drücke alle 8 Grundstellungs-Tasten gleichzeitig, um fortzufahren."}
+               {homeRowCompleted
+                 ? t('start.hands.complete')
+                 : t('start.hands.incomplete')}
             </p>
-            
+
             <div className="flex justify-center gap-16 mb-16 relative">
               {/* Left Hand */}
               <div className="flex gap-2 items-end rotate-[-5deg]">
@@ -193,34 +203,34 @@ const StartScreen: React.FC<StartScreenProps> = ({ onComplete }) => {
                  <FingerVisual finger={Finger.LeftIndex} name="F" targetKey="f" />
                  <div className="w-12 h-16 rounded-full border-4 border-slate-700 bg-slate-500/50 rotate-12 translate-y-4"></div> {/* Thumb */}
               </div>
-              
+
               {/* Right Hand */}
               <div className="flex gap-2 items-end rotate-[5deg]">
                  <div className="w-12 h-16 rounded-full border-4 border-slate-700 bg-slate-500/50 -rotate-12 translate-y-4"></div> {/* Thumb */}
                  <FingerVisual finger={Finger.RightIndex} name="J" targetKey="j" />
                  <FingerVisual finger={Finger.RightMiddle} name="K" targetKey="k" />
                  <FingerVisual finger={Finger.RightRing} name="L" targetKey="l" />
-                 <FingerVisual finger={Finger.RightPinky} name="Ö" targetKey="ö" />
+                 <FingerVisual finger={Finger.RightPinky} name={keyboardLayout === 'qwerty' ? ';' : 'Ö'} targetKey={keyboardLayout === 'qwerty' ? ';' : 'ö'} />
               </div>
             </div>
 
             <p className="text-emerald-400 font-medium mb-8 bg-emerald-950/30 inline-block px-4 py-2 rounded-lg border border-emerald-500/20">
-              Spüre die kleinen Erhebungen auf den Tasten <strong>F</strong> und <strong>J</strong>.
+              {t('start.hands.bumps')}
             </p>
 
             <div className="transition-opacity duration-300">
-              <button 
+              <button
                 onClick={() => setStep(2)}
                 disabled={!homeRowCompleted}
                 className={`px-8 py-3 font-bold rounded-xl border transition-colors flex items-center gap-2 mx-auto
-                  ${homeRowCompleted 
-                    ? 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.3)] animate-bounce' 
+                  ${homeRowCompleted
+                    ? 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.3)] animate-bounce'
                     : 'bg-slate-800 text-slate-500 border-slate-700 cursor-not-allowed opacity-50'}`}
               >
-                {homeRowCompleted ? 'Weiter geht\'s' : 'Alle 8 Tasten drücken'} <ArrowRight className="w-4 h-4" />
+                {homeRowCompleted ? t('start.hands.continue') : t('start.hands.pressAll')} <ArrowRight className="w-4 h-4" />
               </button>
               {homeRowCompleted && (
-                 <p className="mt-4 text-slate-600 text-xs animate-pulse">Drücke <span className="font-mono bg-slate-800 px-1.5 py-0.5 rounded text-slate-500">Enter</span></p>
+                 <p className="mt-4 text-slate-600 text-xs animate-pulse">{t('start.hands.enterHint')} <span className="font-mono bg-slate-800 px-1.5 py-0.5 rounded text-slate-500">Enter</span></p>
               )}
             </div>
           </div>
@@ -229,46 +239,39 @@ const StartScreen: React.FC<StartScreenProps> = ({ onComplete }) => {
         {/* STEP 2: COLORS */}
         {step === 2 && (
           <div className="text-center animate-in fade-in slide-in-from-right-8 duration-500 w-full">
-            <h2 className="text-3xl font-bold mb-6">Folge den Farben</h2>
-            <p className="text-slate-400 mb-2 text-lg max-w-xl mx-auto">
-              Jeder Finger hat seine eigene Farbe. Drücke eine Taste, um ihre Farbe zu sehen.
-            </p>
+            <h2 className="text-3xl font-bold mb-6">{t('start.colors.title')}</h2>
+            <p className="text-slate-400 mb-2 text-lg max-w-xl mx-auto">{t('start.colors.description')}</p>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto mb-12 mt-12">
-               <ColorCard finger={Finger.LeftPinky} name="Pinky" desc="Außenbereich" />
-               <ColorCard finger={Finger.LeftRing} name="Ringfinger" desc="Sekundär" />
-               <ColorCard finger={Finger.LeftMiddle} name="Mittelfinger" desc="Zentrum" />
-               <ColorCard finger={Finger.LeftIndex} name="Zeigefinger" desc="Hauptarbeit" />
-               
-               {/* Right Hand Mirror for symetry visual logic if needed, or stick to distinct fingers */}
-               {/* Or maybe just use types like 'Thumb' */}
-               
+               <ColorCard finger={Finger.LeftPinky} name={t('start.colors.cards.pinky')} desc={t('start.colors.cards.outer')} />
+               <ColorCard finger={Finger.LeftRing} name={t('start.colors.cards.ring')} desc={t('start.colors.cards.secondary')} />
+               <ColorCard finger={Finger.LeftMiddle} name={t('start.colors.cards.middle')} desc={t('start.colors.cards.center')} />
+               <ColorCard finger={Finger.LeftIndex} name={t('start.colors.cards.index')} desc={t('start.colors.cards.main')} />
             </div>
-             
-             {/* Additional Thumbs/Right hand could be shown, but keeping it simple for now as requested. 
-                 Wait, user wants interactive feedback on "small color symbols". 
-                 The ColorCard above covers Left hand mostly based on my previous code. 
-                 Let's add Right hand or Thumbs row or ensure mapping covers it.
-                 Actually let's just show representative groups.
-             */}
 
-            <button 
+            <button
               onClick={() => setStep(3)}
               className="px-8 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl border border-slate-700 transition-colors flex items-center gap-2 mx-auto"
             >
-              Ausprobieren <MousePointerClick className="w-4 h-4" />
+              {t('start.colors.tryButton')} <MousePointerClick className="w-4 h-4" />
             </button>
-             <p className="mt-4 text-slate-600 text-xs">Drücke <span className="font-mono bg-slate-800 px-1.5 py-0.5 rounded text-slate-500">Enter</span></p>
+             <p className="mt-4 text-slate-600 text-xs">{t('start.colors.enterHint')} <span className="font-mono bg-slate-800 px-1.5 py-0.5 rounded text-slate-500">Enter</span></p>
           </div>
         )}
 
         {/* STEP 3: PRACTICE */}
         {step === 3 && (
           <div className="text-center animate-in fade-in slide-in-from-right-8 duration-500 w-full">
-            <h2 className="text-3xl font-bold mb-4">Ein erster Test</h2>
+            <h2 className="text-3xl font-bold mb-4">{t('start.practice.title')}</h2>
             <p className="text-slate-400 mb-8 text-lg">
-              Lege deine Zeigefinger auf <strong>F</strong> und <strong>J</strong>.<br/>
-              Tippe: <span className="font-mono bg-slate-800 px-2 py-1 rounded text-white ml-2">fjfj</span>
+              {practiceStart.split('\n').map((line, index) => (
+                <React.Fragment key={index}>
+                  {line}
+                  {index === 0 && <br />}
+                </React.Fragment>
+              ))}
+              <span className="font-mono bg-slate-800 px-2 py-1 rounded text-white ml-2">{practiceTarget}</span>
+              {practiceEnd}
             </p>
 
             <div className="relative max-w-md mx-auto mb-8">
@@ -284,9 +287,9 @@ const StartScreen: React.FC<StartScreenProps> = ({ onComplete }) => {
                   {typedInput.length > 0 && !practiceError && <CheckCircle2 className="text-emerald-500 w-8 h-8" />}
                </div>
             </div>
-            
+
             {practiceError && (
-               <p className="text-red-400 animate-pulse mb-8 font-bold">Ups! Versuche es nochmal: F J F J</p>
+               <p className="text-red-400 animate-pulse mb-8 font-bold">{t('start.practice.error')}</p>
             )}
 
             {/* Virtual Keyboard */}
@@ -303,19 +306,23 @@ const StartScreen: React.FC<StartScreenProps> = ({ onComplete }) => {
             <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-500 mb-8 shadow-2xl shadow-emerald-500/40">
               <CheckCircle2 className="w-10 h-10 text-emerald-950" />
             </div>
-            <h2 className="text-4xl font-bold mb-4 text-white">Perfekt!</h2>
+            <h2 className="text-4xl font-bold mb-4 text-white">{t('start.finish.title')}</h2>
             <p className="text-slate-400 mb-12 text-lg max-w-md mx-auto">
-              Du bist bereit für deine erste Lektion. <br/>
-              Beginne langsam und achte auf Genauigkeit.
+              {t('start.finish.description').split('\n').map((line, index) => (
+                <React.Fragment key={index}>
+                  {line}
+                  {index === 0 && <br />}
+                </React.Fragment>
+              ))}
             </p>
 
-            <button 
+            <button
               onClick={onComplete}
               className="px-12 py-5 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-bold text-xl rounded-2xl shadow-xl shadow-emerald-500/20 hover:scale-105 transition-all flex items-center gap-3 mx-auto"
             >
-              Ab ins Training <Play className="w-6 h-6 fill-current" />
+              {t('start.finish.button')} <Play className="w-6 h-6 fill-current" />
             </button>
-             <p className="mt-6 text-slate-600 text-sm">Drücke <span className="font-mono bg-slate-800 px-2 py-0.5 rounded text-slate-400">Enter</span></p>
+             <p className="mt-6 text-slate-600 text-sm">{t('start.finish.enterHint')} <span className="font-mono bg-slate-800 px-2 py-0.5 rounded text-slate-400">Enter</span></p>
           </div>
         )}
 
@@ -324,8 +331,8 @@ const StartScreen: React.FC<StartScreenProps> = ({ onComplete }) => {
       {/* Progress Dots */}
       <div className="fixed bottom-12 left-1/2 -translate-x-1/2 flex gap-3 z-20">
         {[0, 1, 2, 3, 4].map((s) => (
-          <div 
-            key={s} 
+          <div
+            key={s}
             className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${step === s ? 'bg-white scale-125' : 'bg-slate-700'}`}
           />
         ))}

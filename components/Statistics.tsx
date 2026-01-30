@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo } from 'react';
-import { UserProgress, GlobalStats } from '../types';
-import { STAGES } from '../constants';
+import { UserProgress, Stage } from '../types';
 import { Home, Trophy, Clock, Keyboard, Activity, Target, AlertCircle, TrendingUp } from 'lucide-react';
+import { useI18n } from '../hooks/useI18n';
 
 interface StatisticsProps {
+  stages: Stage[];
   progress: UserProgress;
   onBack: () => void;
 }
@@ -46,7 +47,8 @@ const StatCard = ({
   );
 };
 
-const Statistics: React.FC<StatisticsProps> = ({ progress, onBack }) => {
+const Statistics: React.FC<StatisticsProps> = ({ stages, progress, onBack }) => {
+  const { t, language } = useI18n();
   const stats = progress.stats;
 
   useEffect(() => {
@@ -82,7 +84,7 @@ const Statistics: React.FC<StatisticsProps> = ({ progress, onBack }) => {
 
   const perStageBest = progress.perStageBest ?? {};
   const perStageList = useMemo(() => {
-    return STAGES.map(stage => {
+    return stages.map(stage => {
       let bestWpm = 0;
       let bestAccuracy = 0;
       for (let sub = 0; sub <= 5; sub++) {
@@ -93,25 +95,25 @@ const Statistics: React.FC<StatisticsProps> = ({ progress, onBack }) => {
       }
       return { stage, bestWpm: bestWpm || undefined, bestAccuracy: bestAccuracy || undefined };
     }).filter(({ bestWpm, bestAccuracy }) => bestWpm > 0 || bestAccuracy > 0);
-  }, [perStageBest]);
+  }, [perStageBest, stages]);
 
   return (
     <div className="flex-1 container mx-auto px-4 py-8 max-w-5xl flex flex-col h-full">
       <div className="flex items-center gap-4 mb-10">
-        <button onClick={onBack} className="p-3 hover:bg-slate-800 rounded-full transition-colors group" title="Zurück (Esc)">
+        <button onClick={onBack} className="p-3 hover:bg-slate-800 rounded-full transition-colors group" title={t('statistics.back')}>
           <Home size={24} className="text-slate-400 group-hover:text-white" />
         </button>
-        <h1 className="text-3xl font-bold text-white">Deine Statistik</h1>
+        <h1 className="text-3xl font-bold text-white">{t('statistics.title')}</h1>
       </div>
-      <p className="text-slate-500 text-xs mb-6">Esc = Zurück zum Menü</p>
+      <p className="text-slate-500 text-xs mb-6">{t('statistics.escHint')}</p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <StatCard title="Getippte Zeichen" value={stats.totalCharsTyped.toLocaleString()} subtext="Jeder Anschlag zählt!" icon={Keyboard} colorKey="emerald" />
-        <StatCard title="Spielzeit" value={formatTime(stats.totalTimePlayed)} subtext="Investierte Zeit" icon={Clock} colorKey="blue" />
-        <StatCard title="Rekord WPM" value={stats.highestWpm} subtext="Deine Höchstgeschwindigkeit" icon={Trophy} colorKey="yellow" />
-        <StatCard title="Absolvierte Übungen" value={stats.gamesPlayed} subtext="Level & Übungen" icon={Target} colorKey="violet" />
-        <StatCard title="Durchschnitt WPM" value={Math.round(stats.averageWpm)} subtext="Stetige Leistung" icon={Activity} colorKey="cyan" />
-        <StatCard title="Genauigkeit Ø" value={`${Math.round(stats.averageAccuracy)}%`} subtext="Fehlerquote im Schnitt" icon={Target} colorKey="rose" />
+        <StatCard title={t('statistics.totalChars')} value={stats.totalCharsTyped.toLocaleString(language === 'de' ? 'de-DE' : 'en-US')} subtext={t('statistics.totalCharsSub')} icon={Keyboard} colorKey="emerald" />
+        <StatCard title={t('statistics.playTime')} value={formatTime(stats.totalTimePlayed)} subtext={t('statistics.playTimeSub')} icon={Clock} colorKey="blue" />
+        <StatCard title={t('statistics.recordWpm')} value={stats.highestWpm} subtext={t('statistics.recordWpmSub')} icon={Trophy} colorKey="yellow" />
+        <StatCard title={t('statistics.gamesPlayed')} value={stats.gamesPlayed} subtext={t('statistics.gamesPlayedSub')} icon={Target} colorKey="violet" />
+        <StatCard title={t('statistics.avgWpm')} value={Math.round(stats.averageWpm)} subtext={t('statistics.avgWpmSub')} icon={Activity} colorKey="cyan" />
+        <StatCard title={t('statistics.avgAccuracy')} value={`${Math.round(stats.averageAccuracy)}%`} subtext={t('statistics.avgAccuracySub')} icon={Target} colorKey="rose" />
       </div>
 
       {/* Verlauf über Zeit (WPM letzte 7 / 30) */}
@@ -119,10 +121,10 @@ const Statistics: React.FC<StatisticsProps> = ({ progress, onBack }) => {
         <section className="mt-10">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
             <TrendingUp size={22} className="text-emerald-400" />
-            Verlauf (WPM)
+            {t('statistics.trendTitle')}
           </h2>
           <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6">
-            <p className="text-slate-400 text-sm mb-4">Letzte {last7.length} Sessions (neueste rechts)</p>
+            <p className="text-slate-400 text-sm mb-4">{t('statistics.trendSub', { count: last7.length })}</p>
             <div className="flex items-end gap-2 h-24">
               {last7.map((s, i) => (
                 <div key={i} className="flex-1 flex flex-col items-center gap-1">
@@ -136,7 +138,7 @@ const Statistics: React.FC<StatisticsProps> = ({ progress, onBack }) => {
               ))}
             </div>
             {last30.length > 7 && (
-              <p className="text-slate-500 text-xs mt-3">Insgesamt {last30.length} Sessions gespeichert (max. 30).</p>
+              <p className="text-slate-500 text-xs mt-3">{t('statistics.trendSummary', { count: last30.length })}</p>
             )}
           </div>
         </section>
@@ -145,14 +147,14 @@ const Statistics: React.FC<StatisticsProps> = ({ progress, onBack }) => {
       {/* Pro-Stage-Besten */}
       {perStageList.length > 0 && (
         <section className="mt-10">
-          <h2 className="text-xl font-bold text-white mb-4">Beste Leistung pro Stage</h2>
+          <h2 className="text-xl font-bold text-white mb-4">{t('statistics.bestPerStage')}</h2>
           <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="text-slate-400 border-b border-slate-700">
-                  <th className="py-2 pr-4">Stage</th>
-                  <th className="py-2 pr-4">Beste WPM</th>
-                  <th className="py-2">Beste Genauigkeit</th>
+                  <th className="py-2 pr-4">{t('statistics.tableStage')}</th>
+                  <th className="py-2 pr-4">{t('statistics.tableBestWpm')}</th>
+                  <th className="py-2">{t('statistics.tableBestAcc')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -174,10 +176,10 @@ const Statistics: React.FC<StatisticsProps> = ({ progress, onBack }) => {
         <section className="mt-10">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
             <AlertCircle size={22} className="text-rose-400" />
-            Häufig vertippte Zeichen
+            {t('statistics.errorsTitle')}
           </h2>
           <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6">
-            <p className="text-slate-400 text-sm mb-4">Diese Zeichen hast du bisher am häufigsten falsch getippt. Übe sie gezielt in der jeweiligen Stage.</p>
+            <p className="text-slate-400 text-sm mb-4">{t('statistics.errorsHint')}</p>
             <div className="flex flex-wrap gap-3">
               {topErrorChars.map(([char, count]) => (
                 <div
@@ -189,17 +191,15 @@ const Statistics: React.FC<StatisticsProps> = ({ progress, onBack }) => {
                 </div>
               ))}
             </div>
-            <p className="text-emerald-400/90 text-sm mt-4 font-medium">Tipp: Wähle die passende Stage und klicke auf „Üben“, um gezielt zu trainieren.</p>
+            <p className="text-emerald-400/90 text-sm mt-4 font-medium">{t('statistics.errorsTip')}</p>
           </div>
         </section>
       )}
 
       <div className="mt-12 p-8 bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl border border-slate-700 text-center relative overflow-hidden">
         <div className="relative z-10">
-          <h3 className="text-2xl font-bold text-white mb-2">Bleib dran!</h3>
-          <p className="text-slate-400 max-w-xl mx-auto">
-            Regelmäßiges Üben ist der Schlüssel zum 10-Finger-System. Versuche jeden Tag 10 Minuten zu investieren, um deine Statistik zu verbessern.
-          </p>
+          <h3 className="text-2xl font-bold text-white mb-2">{t('statistics.keepGoing')}</h3>
+          <p className="text-slate-400 max-w-xl mx-auto">{t('statistics.keepGoingBody')}</p>
         </div>
       </div>
     </div>

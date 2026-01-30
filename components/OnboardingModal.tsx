@@ -1,11 +1,16 @@
 import React from 'react';
 import { Keyboard, X } from 'lucide-react';
+import { useI18n } from '../hooks/useI18n';
 
 interface OnboardingModalProps {
   onDismiss: () => void;
 }
 
 const OnboardingModal: React.FC<OnboardingModalProps> = ({ onDismiss }) => {
+  const { t } = useI18n();
+  const highlight = t('onboarding.highlight');
+  const body = t('onboarding.body', { highlight });
+  const [bodyStart, bodyEnd = ''] = body.split(highlight);
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-opacity duration-300">
       <style>{`
@@ -31,27 +36,29 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ onDismiss }) => {
             <button 
               onClick={onDismiss}
               className="p-2 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
-              aria-label="Schließen"
+              aria-label={t('onboarding.close')}
             >
               <X size={20} />
             </button>
           </div>
           
-          <h2 className="mt-5 text-2xl font-bold text-white">Willkommen!</h2>
-          <p className="text-emerald-300 text-sm font-medium uppercase tracking-wider mt-1">Dein Tipp-Abenteuer beginnt</p>
+          <h2 className="mt-5 text-2xl font-bold text-white">{t('onboarding.title')}</h2>
+          <p className="text-emerald-300 text-sm font-medium uppercase tracking-wider mt-1">{t('onboarding.subtitle')}</p>
         </div>
 
         {/* Content */}
         <div className="p-6 space-y-6">
           <div className="space-y-4">
             <p className="text-slate-300 text-base leading-relaxed">
-               Tippe einfach die <span className="text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">grün hervorgehobenen</span> Zeichen nacheinander ab.
+              {bodyStart}
+              <span className="text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">{highlight}</span>
+              {bodyEnd}
             </p>
             
             <div className="p-4 bg-slate-800/50 rounded-xl border border-slate-700/50 flex gap-3">
                <span className="text-2xl">👇</span>
                <p className="text-slate-400 text-sm pt-1">
-                  Dein aktueller Finger wird dir immer unten auf der virtuellen Tastatur angezeigt.
+                  {t('onboarding.hint')}
                </p>
             </div>
           </div>
@@ -61,7 +68,7 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ onDismiss }) => {
             onClick={onDismiss}
             className="w-full py-4 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold rounded-xl shadow-lg shadow-emerald-900/20 transition-all transform hover:scale-[1.02] active:scale-[0.98] border border-emerald-500/20"
           >
-            Verstanden, los geht's!
+            {t('onboarding.button')}
           </button>
         </div>
 

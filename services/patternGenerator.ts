@@ -1,4 +1,4 @@
-import { Stage } from '../types';
+import { Stage, Language } from '../types';
 
 // Vowels for pronounceability logic
 const VOWELS = ['a', 'e', 'i', 'o', 'u', 'ä', 'ö', 'ü'];
@@ -7,16 +7,36 @@ const VOWELS = ['a', 'e', 'i', 'o', 'u', 'ä', 'ö', 'ü'];
 const LEFT_HAND = new Set(['q', 'w', 'e', 'r', 't', 'a', 's', 'd', 'f', 'g', 'y', 'x', 'c', 'v', 'b']);
 const RIGHT_HAND = new Set(['z', 'u', 'i', 'o', 'p', 'ü', 'h', 'j', 'k', 'l', 'ö', 'ä', 'n', 'm']);
 
-// Expanded German common words/fragments
-export const COMMON_WORDS_DB = [
+// Expanded common words/fragments
+const COMMON_WORDS_DB_DE = [
   "der", "die", "das", "und", "ist", "in", "den", "von", "zu", "mit", "sich", "auf", "für",
   "nicht", "es", "dem", "an", "auch", "als", "da", "nach", "wie", "wir", "aus", "er", "sie",
-  "so", "dass", "was", "wird", "bei", "oder", "ein", "eine", "einer", "nur", "vor", "am", 
+  "so", "dass", "was", "wird", "bei", "oder", "ein", "eine", "einer", "nur", "vor", "am",
   "habe", "hat", "du", "wo", "wenn", "alle", "sind", "ich", "aber", "hier", "man", "ja", "nein",
   "danke", "bitte", "hallo", "gut", "tag", "viel", "zeit", "jahr", "neu", "alt", "klein", "groß",
   "frau", "mann", "kind", "leben", "welt", "haus", "hand", "auge", "kopf", "tür", "auto",
   "weg", "mal", "nun", "gar", "sei", "ihr", "doch", "ob", "tun", "kam", "sah", "gab", "lag"
 ];
+
+const COMMON_WORDS_DB_EN = [
+  "the", "and", "to", "of", "in", "is", "you", "that", "it", "he", "was", "for", "on",
+  "are", "as", "with", "his", "they", "i", "at", "be", "this", "have", "from", "or", "one",
+  "had", "by", "word", "but", "not", "what", "all", "were", "we", "when", "your", "can", "said",
+  "there", "use", "an", "each", "which", "she", "do", "how", "their", "if", "will", "up", "other",
+  "about", "out", "many", "then", "them", "these", "so", "some", "her", "would", "make", "like",
+  "him", "into", "time", "has", "look", "two", "more", "write", "go", "see", "number", "no",
+  "way", "could", "people", "my", "than", "first", "water", "been", "call", "who", "oil", "its",
+  "now", "find", "long", "down", "day", "did", "get", "come", "made", "may", "part"
+];
+
+export const COMMON_WORDS_DB_BY_LANGUAGE: Record<Language, string[]> = {
+  de: COMMON_WORDS_DB_DE,
+  en: COMMON_WORDS_DB_EN,
+};
+
+export const getCommonWords = (language: Language): string[] => {
+  return COMMON_WORDS_DB_BY_LANGUAGE[language] ?? COMMON_WORDS_DB_BY_LANGUAGE.en;
+};
 
 const getRandomItem = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 
@@ -28,7 +48,7 @@ export const canTypeWord = (word: string, allowedChars: Set<string>): boolean =>
 // Generates a pronounceable pseudo-word or rhythmic pattern (exported for wordSentenceGenerator)
 export const generatePseudoWord = (pool: string[], length: number): string => {
   if (pool.length === 0) return "";
-  
+
   const vowels = pool.filter(c => VOWELS.includes(c));
   const consonants = pool.filter(c => !VOWELS.includes(c) && c !== ' ');
   const lefts = pool.filter(c => LEFT_HAND.has(c));
@@ -39,13 +59,13 @@ export const generatePseudoWord = (pool: string[], length: number): string => {
     let word = "";
     // Start with random hand
     let isLeft = Math.random() > 0.5;
-    
+
     for (let i = 0; i < length; i++) {
       const currentPool = isLeft ? lefts : rights;
       // Fallback if current hand has no keys in pool (shouldn't happen if check passed, but safety first)
       const char = getRandomItem(currentPool.length > 0 ? currentPool : pool);
       word += char;
-      
+
       // Strict alternation ensures rhythm (f -> j -> d -> k)
       isLeft = !isLeft;
     }
@@ -70,20 +90,20 @@ export const generatePseudoWord = (pool: string[], length: number): string => {
     } else {
       word += getRandomItem(consonants);
       // High chance to switch to vowel, small chance to do double consonant
-      isNextVowel = Math.random() > 0.3; 
+      isNextVowel = Math.random() > 0.3;
     }
   }
   return word;
 };
 
 // Meisterklasse (Stage 11): Echte, sinnvolle Texte (Absätze)
-export const MEISTERKLASSE_TEXTS: string[] = [
+const MEISTERKLASSE_TEXTS_DE: string[] = [
   // --- ALLTAG & BUSINESS ---
   "Am Montag beginnt die Schule um 8.00 Uhr. Die Kinder freuen sich auf den Tag, da sie ihre Freunde wiedersehen. Im klassenzimmer ist es hell und freundlich, und der Lehrer hat eine spannende Geschichte vorbereitet. In der Pause essen alle ihr Butterbrot und spielen auf dem Hof.",
   "Die Rechnung beträgt 45,50 Euro inklusive Mehrwertsteuer. Bitte überweisen Sie den Betrag innerhalb von 14 Tagen auf unser Konto. Geben Sie als Verwendungszweck unbedingt Ihre Kundennummer 12345 an, damit wir die Zahlung zuordnen können. Vielen Dank für Ihren Einkauf!",
   "Das Meeting ist am 15. März um 10.00 Uhr im Konferenzraum B. Wir werden die Quartalszahlen besprechen und neue Strategien für das kommende Jahr entwickeln. Bitte bereiten Sie eine kurze Präsentation vor und bringen Sie Ihre Unterlagen mit. Es ist wichtig, dass alle pünktlich erscheinen.",
   "Öffnungszeiten: Mo-Fr 9.00-18.00 Uhr, Sa 9.00-13.00 Uhr. Ausserhalb dieser Zeiten können Sie uns eine E-Mail an kontakt-at-example.de schreiben. Wir melden uns so schnell wie möglich bei Ihnen zurück. Unser Kundenservice freut sich auf Ihre Nachricht.",
-  
+
   // --- WISSEN & TECHNIK ---
   "Im Jahr 1969 betrat der erste Mensch den Mond. Neil Armstrong sprach die berühmten Worte, die in die Geschichte eingingen: Ein kleiner Schritt für einen Menschen, aber ein grosser Sprung für die Menschheit. Dieses Ereignis zeigte der Welt, was durch Technik, Mut und Zusammenarbeit möglich ist.",
   "Die Digitalisierung verändert unsere Arbeitswelt rasant. Immer mehr Prozesse werden automatisiert, was neue Chancen, aber auch Herausforderungen mit sich bringt. Es ist wichtig, sich ständig weiterzubilden, um am Ball zu bleiben. Wer offen für Neues ist, wird die Zukunft aktiv mitgestalten können.",
@@ -144,8 +164,68 @@ export const MEISTERKLASSE_TEXTS: string[] = [
   "Der Zug hatte 20 Minuten Verspätung. Statt um 18.00 Uhr kam er erst um 18.20 Uhr. Auf dem Bahnsteig warteten Dutzende Menschen mit genervten Gesichtern. Ein Kind weinte, ein Mann schimpfte laut in sein Handy. Die Ansage entschuldigte sich und versprach: Nächster Zug in 10 Minuten."
 ];
 
+const MEISTERKLASSE_TEXTS_EN: string[] = [
+  "On Monday school starts at 8:00 a.m. The children look forward to the day because they can see their friends again. The classroom is bright and friendly, and the teacher has prepared an exciting story. During the break everyone eats a sandwich and plays in the yard.",
+  "The invoice totals 45.50 euros including tax. Please transfer the amount within 14 days to our account. Be sure to include your customer number 12345 as the reference so we can match the payment. Thank you for your purchase!",
+  "The meeting is on March 15 at 10:00 a.m. in conference room B. We will discuss the quarterly numbers and develop new strategies for the coming year. Please prepare a short presentation and bring your documents. It is important that everyone arrives on time.",
+  "Opening hours: Mon–Fri 9:00–18:00, Sat 9:00–13:00. Outside these hours you can email us at kontakt-at-example.de. We will get back to you as quickly as possible. Our customer service team looks forward to your message.",
+
+  "In 1969 the first human stepped onto the moon. Neil Armstrong spoke the famous words that went down in history: one small step for a man, but a giant leap for mankind. This event showed the world what is possible through technology, courage, and cooperation.",
+  "Digitalization is rapidly changing our working world. More and more processes are automated, bringing new opportunities but also challenges. It is important to keep learning in order to stay on track. Those who are open to change can actively shape the future.",
+  "Artificial intelligence, or AI, is a subfield of computer science. It deals with automating intelligent behavior and machine learning. Computers can already recognize images, translate languages, and win complex games like chess or Go.",
+  "The internet connects billions of people worldwide. Within seconds, information can be sent from one end of the world to the other. Social networks allow us to stay in touch even when we are far apart. Still, it is wise to protect your data.",
+
+  "The forest is a complex ecosystem in which plants and animals live in a delicate balance. Trees communicate through their roots and share nutrients. A walk in nature has been proven to reduce stress and is good for the soul.",
+  "Bees are essential for our environment. They pollinate blossoms and ensure that fruits and vegetables can grow. Without these hardworking insects we would have far fewer foods. That is why planting bee-friendly flowers is important.",
+  "Water is the basis of all life. Our bodies are made up largely of water, and we must drink enough every day to stay healthy. We should handle this precious resource carefully and avoid wasting it.",
+  "Climate change is one of the greatest challenges of our time. Temperatures are rising, and the weather is becoming more extreme. Everyone can make a small contribution by saving energy, driving less, or buying regional products.",
+
+  "Berlin is the capital of Germany and has around 3.7 million residents. The city is known for its history, the Brandenburg Gate, and Museum Island. Tourists from all over the world come to experience its unique atmosphere.",
+  "Travel broadens the horizon. Those who visit other countries learn about new cultures, languages, and people. You try foreign food, see impressive landscapes, and gather memories that last a lifetime. The world is like a book, and those who do not travel read only one page.",
+  "Music is a language everyone understands. Whether classical, rock, pop, or jazz—sounds can express feelings that words often cannot. Many people play an instrument or sing in a choir to make music together.",
+  "Reading books is a wonderful hobby. You dive into other worlds, experience adventures, and learn a lot about life. Whether thrilling crime novels, romantic stories, or nonfiction—there is something for every taste.",
+
+  "It was a cold winter evening in December. Snow fell softly on the rooftops, and warm lights glowed in the windows. Thomas sat in his armchair with a cup of tea and listened to the silence. It was the perfect moment to unwind.",
+  "Anna ran as fast as she could to the station. The train was to depart in three minutes, and she had to catch it. Out of breath she reached platform 3 just as the conductor was about to close the door. Made it!, she called, and jumped inside.",
+  "The small dog barked happily when he saw the ball. He ran across the meadow, grabbed the toy, and brought it back wagging his tail. Good dog!, the man praised, and threw the ball again.",
+  "Lisa had practiced for this day for a long time. Today was the big concert in the city hall. With trembling hands she stepped onto the stage, but as she played the first notes on her violin, the nervousness faded. The music filled the room and the audience listened in awe.",
+
+  "Getting enough sleep is important for health. Adults need about 7 to 8 hours per night to stay fit and productive. Those who sleep too little get sick more quickly and have trouble concentrating. A steady routine helps the body rest.",
+  "The doctor advised her to take it easy for a week and drink plenty of fluids. The flu was over, but the cough would not go away. She stayed home, read a book, and drank two liters of tea every day. After seven days she finally felt well again.",
+  "Movement in the fresh air does you good. Just 30 minutes of walking a day can improve wellbeing. Many people bike to work or take a short walk at lunchtime. Those who exercise regularly stay healthier longer.",
+
+  "Soccer is the most popular sport in Germany. Millions watch the Bundesliga every Saturday on TV or go to the stadium. The national team has already won four World Cups, most recently in 2014 in Brazil. The next European championship date is already set.",
+  "While jogging in the park, he met the same faces every morning: the older woman with the dog, the young man with headphones, the group of three women who sprinted past. He liked this quiet community that never greeted him and still felt familiar.",
+  "The swimming pool is open from 6:00 a.m. to 10:00 p.m. Early swimmers come in the morning, families with children after 10:00, and working people in the evening. Admission: 4.50 euros for adults, 2.00 euros for children.",
+
+  "The wall fell on November 9, 1989. After decades of division, people could finally travel freely between East and West. This date changed German history forever. It is still remembered every year.",
+  "Gutenberg invented movable type printing in the 15th century. As a result, books could be produced much faster and more cheaply. Knowledge spread throughout Europe, and the Reformation might have unfolded differently without the press.",
+  "Germany has 16 federal states. Each has its own capital, its own laws in some areas, and often its own dialect. Bavaria is the largest state by area, Berlin the most populous. The smallest are Bremen and Saarland.",
+
+  "The German language has many long words. Compound nouns like Donaudampfschifffahrtsgesellschaft are rare, but grammatically correct. For learners this can be confusing at first. Over time, you get used to the structure.",
+  "Politeness is important in communication. Please and thank you open doors, and a friendly tone makes many things easier. Even in emails and messages, you should avoid being too short or unfriendly. A short greeting at the start and end works wonders.",
+  "Many Germans speak English in addition to their mother tongue. In school it is taught from the fifth grade, and in travel or work you often cannot avoid it. Some also learn French, Spanish, or Latin. Languages connect people.",
+
+  "The company made 15 percent more revenue last quarter than in the previous year. Management is satisfied and plans to hire new employees. Ten positions in the IT department are to be filled starting September 1. Applications are now open.",
+  "Working from home has taken hold in many industries. Those who work from home save commute time and can often structure their day more freely. Important are a fixed workspace, clear hours, and breaks. Not everyone finds it equally easy.",
+  "Business hours are Monday to Friday, 8:00 a.m.–5:00 p.m. In urgent cases you can reach us on weekends at 0800-123456. Please have your customer number ready when you call. We look forward to your message.",
+
+  "In autumn the days grow shorter and the leaves turn colorful. Many people collect chestnuts and acorns with their children or bake the first apple cake from the garden. The harvest season is a special time of year. Soon the first frost arrives.",
+  "On New Year’s Eve at midnight many people set off fireworks. The sky lights up with colors, and you hear laughter and good wishes everywhere. Happy New Year!, people call out. January 1 is a holiday in Germany, and most people sleep in.",
+  "Migratory birds fly south in autumn and return in spring. Storks, swallows, and cranes travel thousands of kilometers. They orient themselves by Earth’s magnetic field and the stars. There are still many mysteries around this phenomenon.",
+
+  "The alarm rang at 6:30 a.m., but Markus hit snooze twice. When he finally got up, the coffee machine was broken. He drank tea, took the bus instead of his bike, and still arrived on time. Sometimes everything goes wrong—and then turns out fine.",
+  "She opened the letter and read the first lines. We are pleased to inform you... She did not need to read further. The contract was hers! She called her mother and cried with joy. Five years of applications, rejections, doubts—and now finally a yes.",
+  "The train was 20 minutes late. Instead of arriving at 6:00 p.m., it came at 6:20. Dozens of people waited on the platform with annoyed faces. A child cried, a man argued into his phone. The announcement apologized and promised: Next train in 10 minutes."
+];
+
+export const MEISTERKLASSE_TEXTS: Record<Language, string[]> = {
+  de: MEISTERKLASSE_TEXTS_DE,
+  en: MEISTERKLASSE_TEXTS_EN,
+};
+
 // Profi-Texte (Stage 12): Sonderzeichen, E-Mails, Code, Preise, Gesetze
-export const PROFI_TEXTS: string[] = [
+const PROFI_TEXTS_DE: string[] = [
   "Im Jahr 1969 betrat der erste Mensch den Mond. Neil Armstrong sprach die berühmten Worte, die in die Geschichte eingingen: Ein kleiner Schritt für einen Menschen, aber ein grosser Sprung für die Menschheit. Dieses Ereignis zeigte der Welt, was durch Technik, Mut und Zusammenarbeit möglich ist.",
   "Die Digitalisierung verändert unsere Arbeitswelt rasant. Immer mehr Prozesse werden automatisiert, was neue Chancen, aber auch Herausforderungen mit sich bringt. Es ist wichtig, sich ständig weiterzubilden, um am Ball zu bleiben. Wer offen für Neues ist, wird die Zukunft aktiv mitgestalten können.",
   "Künstliche Intelligenz, kurz KI, ist ein Teilgebiet der Informatik. Sie befasst sich mit der Automatisierung intelligenten Verhaltens und dem maschinellen Lernen. Computer können heute schon Bilder erkennen, Sprachen übersetzen und komplexe Spiele wie Schach oder Go gewinnen.",
@@ -205,38 +285,21 @@ export const PROFI_TEXTS: string[] = [
   "Der Zug hatte 20 Minuten Verspätung. Statt um 18.00 Uhr kam er erst um 18.20 Uhr. Auf dem Bahnsteig warteten Dutzende Menschen mit genervten Gesichtern. Ein Kind weinte, ein Mann schimpfte laut in sein Handy. Die Ansage entschuldigte sich und versprach: Nächster Zug in 10 Minuten."
 ];
 
+const PROFI_TEXTS_EN: string[] = [...MEISTERKLASSE_TEXTS_EN];
 
-
-
-
+export const PROFI_TEXTS: Record<Language, string[]> = {
+  de: PROFI_TEXTS_DE,
+  en: PROFI_TEXTS_EN,
+};
 
 // Coder Mode (Stage 13): Echter Code (JS/TS/Python Style)
-export const CODER_TEXTS: string[] = [
+const CODER_TEXTS_SHARED: string[] = [
   // --- BASICS & VARIABLES ---
   "const pi = 3.14159;\nlet radius = 10;\nlet area = pi * radius * radius;\nconsole.log('Area:', area);\nif (area > 100) {\n  console.log('Large Circle');\n} else {\n  console.log('Small Circle');\n}",
   "var name = 'Max';\nvar age = 25;\nvar isStudent = true;\nif (isStudent) {\n  console.log(name + ' is a student.');\n} else {\n  console.log(name + ' works.');\n}",
-  
+
   // --- FUNCTIONS & LOGIC ---
   "function add(a, b) {\n  return a + b;\n}\nconst result = add(5, 7);\nconsole.log(result); // Output: 12\n\nfunction multiply(x, y) {\n  return x * y;\n}",
-  "const greet = (name) => {\n  return 'Hello, ' + name + '!';\n};\nconsole.log(greet('World'));\nconst square = x => x * x;\nconsole.log(square(4));",
-  "function isEven(n) {\n  return n % 2 === 0;\n}\nfor (let i = 0; i < 10; i++) {\n  if (isEven(i)) {\n    console.log(i + ' is even');\n  }\n}",
-
-  // --- ARRAYS & OBJECTS ---
-  "const users = ['Alice', 'Bob', 'Charlie'];\nusers.forEach(user => {\n  console.log('User: ' + user);\n});\nconst found = users.find(u => u === 'Bob');",
-  "const config = {\n  host: 'localhost',\n  port: 8080,\n  debug: true\n};\nif (config.debug) {\n  console.log('Server running on port ' + config.port);\n}",
-  "const numbers = [1, 2, 3, 4, 5];\nconst doubled = numbers.map(n => n * 2);\nconst filtered = numbers.filter(n => n > 2);\nconsole.log(doubled);",
-
-  // --- CLASSES & OOP ---
-  "class Animal {\n  constructor(name) {\n    this.name = name;\n  }\n  speak() {\n    console.log(this.name + ' makes a noise.');\n  }\n}\nconst dog = new Animal('Rex');\ndog.speak();",
-  "class Rectangle {\n  constructor(w, h) {\n    this.width = w;\n    this.height = h;\n  }\n  getArea() {\n    return this.width * this.height;\n  }\n}\nconst rect = new Rectangle(10, 5);",
-
-  // --- ASYNC & PROMISES (JS/TS) ---
-  "async function fetchData(url) {\n  try {\n    const response = await fetch(url);\n    const data = await response.json();\n    return data;\n  } catch (error) {\n    console.error('Error:', error);\n  }\n}",
-  "const promise = new Promise((resolve, reject) => {\n  setTimeout(() => {\n    resolve('Success!');\n  }, 1000);\n});\npromise.then(res => console.log(res));",
-  "const [users, setUsers] = useState([]);\nuseEffect(() => {\n  loadUsers().then(data => setUsers(data));\n}, []);",
-  "try {\n  await db.connect();\n  console.log('Connected');\n} finally {\n  await db.close();\n}",
-
-  // --- PYTHON ---
   "def fibonacci(n):\n  if n <= 1:\n    return n\n  else:\n    return fibonacci(n-1) + fibonacci(n-2)\nprint(fibonacci(10))",
   "users = {'name': 'John', 'age': 30}\nfor key, value in users.items():\n  print(f'{key}: {value}')\nif users['age'] > 18:\n  print('Adult')",
   "import os\n\ndef list_files(path):\n  for file in os.listdir(path):\n    if file.endswith('.py'):\n      print('Found Logic: ' + file)",
@@ -266,22 +329,27 @@ export const CODER_TEXTS: string[] = [
   "CREATE TABLE products (\n  id INT PRIMARY KEY,\n  name VARCHAR(100),\n  price DECIMAL(10, 2)\n);\nINSERT INTO products VALUES (1, 'Laptop', 999.99);"
 ];
 
+export const CODER_TEXTS: Record<Language, string[]> = {
+  de: CODER_TEXTS_SHARED,
+  en: CODER_TEXTS_SHARED,
+};
+
 // Generates the content based on pedagogical levels
-export const generatePatternLevel = (stage: Stage, subLevelId: number): string => {
+export const generatePatternLevel = (stage: Stage, subLevelId: number, language: Language): string => {
   // Meisterklasse (Stage 11), Profi (Stage 12), Coder (Stage 13), Mixed (Stage 14/15)
   if (stage.id >= 11) {
     let texts: string[] = [];
-    if (stage.id === 13) texts = CODER_TEXTS;
-    else if (stage.id === 12) texts = PROFI_TEXTS;
+    if (stage.id === 13) texts = CODER_TEXTS[language];
+    else if (stage.id === 12) texts = PROFI_TEXTS[language];
     else if (stage.id === 14 || stage.id === 15) {
       // Stage 14 & 15 Mix: Combine everything!
-      texts = [...MEISTERKLASSE_TEXTS, ...PROFI_TEXTS, ...CODER_TEXTS];
+      texts = [...MEISTERKLASSE_TEXTS[language], ...PROFI_TEXTS[language], ...CODER_TEXTS[language]];
     } else {
-      texts = MEISTERKLASSE_TEXTS;
+      texts = MEISTERKLASSE_TEXTS[language];
     }
 
     const count = texts.length;
-    
+
     // Pick specific paragraphs to ensure coherence
     if (subLevelId === 0 || stage.id === 15) {
       // For Stage 15 (Endless) we start with a nice chunk too
@@ -295,23 +363,20 @@ export const generatePatternLevel = (stage: Stage, subLevelId: number): string =
   }
 
   const allChars = new Set(stage.chars);
-  // ... existing code ...
-  return generateStandardPattern(stage, subLevelId, allChars);
+  return generateStandardPattern(stage, subLevelId, allChars, language);
 };
 
-
-
 // Standard pattern generation (pseudo words)
-const generateStandardPattern = (stage: Stage, subLevelId: number, allChars: Set<string>): string => {
+const generateStandardPattern = (stage: Stage, subLevelId: number, allChars: Set<string>, language: Language): string => {
   const newChars = stage.newChars.filter(c => c !== 'Shift'); // Exclude control keys
   const useCapitalization = stage.id >= 9;
-  
+
   // Prepare pools
   const poolAll = stage.chars.filter(c => c !== ' ' && c.length === 1);
   const poolNew = newChars.length > 0 ? newChars : poolAll;
 
   // Filter real words that are possible at this stage
-  const possibleRealWords = COMMON_WORDS_DB.filter(w => canTypeWord(w, allChars));
+  const possibleRealWords = getCommonWords(language).filter(w => canTypeWord(w, allChars));
 
   let result: string[] = [];
 
@@ -324,7 +389,7 @@ const generateStandardPattern = (stage: Stage, subLevelId: number, allChars: Set
         const totalItems = 50;
         for (let i = 0; i < totalItems; i++) {
           const rand = Math.random();
-          
+
           if (possibleRealWords.length > 5 && rand > 0.4) {
              // 60% chance for real word if available
              let w = getRandomItem(possibleRealWords);
@@ -348,7 +413,7 @@ const generateStandardPattern = (stage: Stage, subLevelId: number, allChars: Set
              result.push(char + char + char);
           }
         }
-        
+
         // Add some punctuation at the end if unlocked
         if (stage.id >= 10) {
            return result.join(' ') + getRandomItem(['.', '!', '?', '.', '.']);
@@ -427,7 +492,7 @@ const generateStandardPattern = (stage: Stage, subLevelId: number, allChars: Set
         // Construct a "sentence" structure
         let sentence = [];
         const length = 15 + Math.floor(Math.random() * 5); // Number of "words"
-        
+
         for (let i = 0; i < length; i++) {
            let w = "";
            if (possibleRealWords.length > 0 && Math.random() > 0.3) {
@@ -440,10 +505,10 @@ const generateStandardPattern = (stage: Stage, subLevelId: number, allChars: Set
            if (useCapitalization && (i === 0 || Math.random() > 0.7)) {
              w = w.charAt(0).toUpperCase() + w.slice(1);
            }
-           
+
            sentence.push(w);
         }
-        
+
         // Add punctuation if Stage 10+
         if (stage.id >= 10) {
            return sentence.join(' ') + getRandomItem(['.', '!', '?']);
