@@ -76,66 +76,59 @@ export const generatePseudoWord = (pool: string[], length: number): string => {
   return word;
 };
 
-// Meisterklasse (Stage 11): Echte, sinnvolle Texte mit Satzzeichen und Zahlen
+// Meisterklasse (Stage 11): Echte, sinnvolle Texte (Absätze)
 const MEISTERKLASSE_TEXTS: string[] = [
-  "Am Montag beginnt die Schule um 8.00 Uhr. Die Kinder freuen sich auf den Tag.",
-  "Im Jahr 2024 haben wir viel vor. Reisen, lernen, Freunde treffen – das steht auf dem Plan.",
-  "Der Zug fährt um 14.30 Uhr ab. Bitte seid pünktlich am Gleis 3!",
-  "Kaffee oder Tee? Beides schmeckt gut an einem kalten Wintertag.",
-  "Die Adresse lautet: Musterstrasse 42, 12345 Berlin. Schick mir eine Nachricht!",
-  "Wir haben am 24. Dezember frei. Frohe Weihnachten an alle!",
-  "Die Temperatur sinkt auf minus 5 Grad. Zieht euch warm an.",
-  "Kosten: 9,99 Euro pro Person. Kinder unter 6 Jahren zahlen nichts.",
-  "Treffen wir uns um 18.00 Uhr? Ich warte vor dem Kino.",
-  "Das Buch hat 256 Seiten. Es ist spannend von der ersten bis zur letzten Seite.",
-  "Meine Telefonnummer ist 0176-12345678. Ruf mich morgen an!",
-  "Der Film dauert 2 Stunden. Er startet um 20.15 Uhr.",
-  "In Deutschland leben etwa 84 Millionen Menschen. Die Hauptstadt ist Berlin.",
-  "Der Supermarkt hat von 7.00 bis 22.00 Uhr geöffnet. Sonntags bleibt er zu.",
-  "Die Rechnung beträgt 45,50 Euro. Zahlen Sie bar oder mit Karte?",
-  "Das Meeting ist am 15. März um 10.00 Uhr. Alle sind eingeladen.",
-  "Ich habe 3 Geschwister: 2 Schwestern und 1 Bruder. Wir verstehen uns gut.",
-  "Der Bus kommt in 5 Minuten. Warte bitte an der Haltestelle!",
-  "Öffnungszeiten: Mo–Fr 9.00–18.00, Sa 9.00–13.00. Wir freuen uns auf Ihren Besuch.",
-  "Die Prüfung findet am 20. Juni statt. Viel Erfolg allen Teilnehmern!",
-  "Es ist 23.59 Uhr – gleich Mitternacht. Guten Rutsch ins neue Jahr!",
-  "Der Weg ist 2,5 km lang. Zu Fuss brauchst du etwa 30 Minuten.",
-  "Preis: 19,90 Euro (inkl. MwSt.). Bestellung unter www.example.de.",
-  "Das Konzert beginnt um 19.30 Uhr. Die Türen öffnen um 18.00 Uhr.",
-  "Wir haben 10 Äpfel, 3 Birnen und 1 Kilo Bananen gekauft. Das reicht für die Woche.",
-  "Der Arzt hat Termine am 12., 13. und 14. April. Wann passt dir?",
-  "Geschwindigkeit: maximal 50 km/h. Hier gilt Tempo 30 für die Sicherheit.",
-  "Die Lieferung kommt zwischen 14.00 und 18.00 Uhr. Bitte jemanden zu Hause lassen!",
-  "Kapitel 1 – Der Anfang. Es war einmal vor langer Zeit...",
-  "Die Durchschnittstemperatur im Juli liegt bei 18–22 Grad. Perfekt für Ausflüge!",
-  "Passwort: mindestens 8 Zeichen, mit Zahlen und Sonderzeichen. Bitte merken!",
-  "Von 9.00 bis 12.00 Uhr bin ich in Besprechungen. Danach bin ich erreichbar.",
-  "Die Strecke ist 120 km lang. Mit dem Auto dauert es etwa 1,5 Stunden.",
-  "Angebot gültig bis 31.12.2024. Nur solange der Vorrat reicht!",
-  "Die Kinder sind 6, 8 und 11 Jahre alt. Sie gehen in die Grundschule.",
-  "Rückruf bitte bis 17.00 Uhr unter 030-123456. Vielen Dank!",
-  "Der Roman hat 400 Seiten – ein echter Wälzer. Aber jede Seite lohnt sich.",
-  "Eintritt: 5,00 Euro für Erwachsene, 2,50 Euro für Kinder. Familien zahlen 10,00 Euro.",
+  // --- ALLTAG & BUSINESS ---
+  "Am Montag beginnt die Schule um 8.00 Uhr. Die Kinder freuen sich auf den Tag, da sie ihre Freunde wiedersehen. Im klassenzimmer ist es hell und freundlich, und der Lehrer hat eine spannende Geschichte vorbereitet. In der Pause essen alle ihr Butterbrot und spielen auf dem Hof.",
+  "Die Rechnung beträgt 45,50 Euro inklusive Mehrwertsteuer. Bitte überweisen Sie den Betrag innerhalb von 14 Tagen auf unser Konto. Geben Sie als Verwendungszweck unbedingt Ihre Kundennummer 12345 an, damit wir die Zahlung zuordnen können. Vielen Dank für Ihren Einkauf!",
+  "Das Meeting ist am 15. März um 10.00 Uhr im Konferenzraum B. Wir werden die Quartalszahlen besprechen und neue Strategien für das kommende Jahr entwickeln. Bitte bereiten Sie eine kurze Präsentation vor und bringen Sie Ihre Unterlagen mit. Es ist wichtig, dass alle pünktlich erscheinen.",
+  "Öffnungszeiten: Mo–Fr 9.00–18.00 Uhr, Sa 9.00–13.00 Uhr. Außerhalb dieser Zeiten können Sie uns eine E-Mail an kontakt@example.de schreiben. Wir melden uns so schnell wie möglich bei Ihnen zurück. Unser Kundenservice freut sich auf Ihre Nachricht.",
+  
+  // --- WISSEN & TECHNIK ---
+  "Im Jahr 1969 betrat der erste Mensch den Mond. Neil Armstrong sprach die berühmten Worte, die in die Geschichte eingingen: 'Ein kleiner Schritt für einen Menschen, aber ein großer Sprung für die Menschheit.' Dieses Ereignis zeigte der Welt, was durch Technik, Mut und Zusammenarbeit möglich ist.",
+  "Die Digitalisierung verändert unsere Arbeitswelt rasant. Immer mehr Prozesse werden automatisiert, was neue Chancen, aber auch Herausforderungen mit sich bringt. Es ist wichtig, sich ständig weiterzubilden, um am Ball zu bleiben. Wer offen für Neues ist, wird die Zukunft aktiv mitgestalten können.",
+  "Künstliche Intelligenz (KI) ist ein Teilgebiet der Informatik. Sie befasst sich mit der Automatisierung intelligenten Verhaltens und dem maschinellen Lernen. Computer können heute schon Bilder erkennen, Sprachen übersetzen und komplexe Spiele wie Schach oder Go gewinnen.",
+  "Das Internet verbindet Milliarden von Menschen weltweit. Innerhalb von Sekunden können Informationen von einem Ende der Welt zum anderen gesendet werden. Soziale Netzwerke ermöglichen es uns, in Kontakt zu bleiben, auch wenn wir weit voneinander entfernt sind. Doch man sollte auch auf seine Daten achten.",
+
+  // --- NATUR & UMWELT ---
+  "Der Wald ist ein komplexes Ökosystem, in dem Pflanzen und Tiere in einem empfindlichen Gleichgewicht leben. Bäume kommunizieren über ihre Wurzeln und teilen Nährstoffe miteinander. Ein Spaziergang im Grünen senkt nachweislich den Stresspegel und tut der Seele gut.",
+  "Bienen sind für unsere Umwelt unverzichtbar. Sie bestäuben Blüten und sorgen so dafür, dass Obst und Gemüse wachsen können. Ohne diese fleißigen Insekten hätten wir viel weniger Nahrungsmittel zur Verfügung. Deshalb ist es wichtig, bienenfreundliche Blumen zu pflanzen.",
+  "Wasser ist die Grundlage allen Lebens. Unser Körper besteht zu einem großen Teil aus Wasser, und wir müssen täglich genug trinken, um gesund zu bleiben. Wir sollten sparsam mit dieser kostbaren Ressource umgehen und sie nicht verschwenden.",
+  "Der Klimawandel ist eine der größten Herausforderungen unserer Zeit. Die Temperaturen steigen, und das Wetter wird extremer. Jeder kann einen kleinen Beitrag leisten, indem er Energie spart, weniger Auto fährt oder regionale Produkte kauft.",
+
+  // --- KULTUR & REISEN ---
+  "Berlin ist die Hauptstadt von Deutschland und hat rund 3,7 Millionen Einwohner. Die Stadt ist bekannt für ihre bewegte Geschichte, das Brandenburger Tor und die Museumsinsel. Touristen aus aller Welt kommen hierher, um die einzigartige Atmosphäre zu erleben.",
+  "Reisen erweitert den Horizont. Wer andere Länder besucht, lernt neue Kulturen, Sprachen und Menschen kennen. Man probiert fremdes Essen, sieht beeindruckende Landschaften und sammelt Erinnerungen, die ein Leben lang bleiben. Die Welt ist wie ein Buch, und wer nicht reist, liest nur eine Seite.",
+  "Musik ist eine Sprache, die jeder versteht. Egal ob Klassik, Rock, Pop oder Jazz – Klänge können Gefühle ausdrücken, die Worte oft nicht beschreiben können. Viele Menschen spielen ein Instrument oder singen im Chor, um gemeinsam mit anderen Musik zu machen.",
+  "Das Lesen von Büchern ist ein wunderbares Hobby. Man taucht in fremde Welten ein, erlebt Abenteuer und lernt viel über das Leben. Ob spannende Krimis, romantische Liebesromane oder interessante Sachbücher – für jeden Geschmack gibt es das passende Buch.",
+
+  // --- SHORT STORIES / EPISODES ---
+  "Es war ein kalter Winterabend im Dezember. Der Schnee fiel leise auf die Dächer der Stadt, und in den Fenstern leuchteten warme Lichter. Thomas saß in seinem Sessel, eine Tasse Tee in der Hand, und lauschte der Stille. Es war der perfekte Moment, um zur Ruhe zu kommen.",
+  "Anna lief so schnell sie konnte zum Bahnhof. Der Zug sollte in drei Minuten abfahren, und sie musste ihn unbedingt erreichen. Außer Atem kam sie am Gleis 3 an, gerade als der Schaffner die Tür schließen wollte. 'Noch geschafft!', rief sie erleichtert und sprang hinein.",
+  "Der kleine Hund bellte fröhlich, als er den Ball sah. Er rannte über die Wiese, schnappte sich das Spielzeug und brachte es schwanzwedelnd zu seinem Herrchen zurück. 'Braver Hund!', lobte der Mann und warf den Ball erneut weit weg.",
+  "Lisa hatte lange für diesen Tag geübt. Heute war das große Konzert in der Stadthalle. Mit zitternden Händen betrat sie die Bühne, doch als sie die ersten Töne auf ihrer Geige spielte, verflog die Aufregung. Die Musik erfüllte den Raum und das Publikum lauschte gebannt."
 ];
 
 // Generates the content based on pedagogical levels
 export const generatePatternLevel = (stage: Stage, subLevelId: number): string => {
   // Meisterklasse (Stage 11): Echte Texte, mehrere Sätze mit Satzzeichen und Zahlen
   if (stage.id === 11) {
-    const sentences = MEISTERKLASSE_TEXTS.flatMap((t) => t.split(/(?<=[.!?])\s+/).filter(Boolean));
-    const getParagraph = (minSentences: number, maxSentences: number) => {
-      const n = minSentences + Math.floor(Math.random() * (maxSentences - minSentences + 1));
-      const shuffled = [...sentences].sort(() => Math.random() - 0.5);
-      return shuffled.slice(0, n).join(' ');
-    };
+    // Pick specific paragraphs to ensure coherence (no shuffling of sentences within)
+    // subLevelId 0 = Mega Level = Mix of 2 paragraphs
+    // subLevelId 1-5 = Single paragraph of increasing complexity/length logic (simulated by random pick for now)
+    
+    const count = MEISTERKLASSE_TEXTS.length;
+    
     if (subLevelId === 0) {
-      return getParagraph(8, 12) + ' ' + getParagraph(6, 10);
+      const p1 = MEISTERKLASSE_TEXTS[Math.floor(Math.random() * count)];
+      let p2 = MEISTERKLASSE_TEXTS[Math.floor(Math.random() * count)];
+      while(p1 === p2) p2 = MEISTERKLASSE_TEXTS[Math.floor(Math.random() * count)];
+      return p1 + " " + p2;
     }
-    if (subLevelId === 1) return getParagraph(2, 3);
-    if (subLevelId === 2) return getParagraph(3, 4);
-    if (subLevelId === 3) return getParagraph(5, 6);
-    if (subLevelId === 4) return getParagraph(7, 9);
-    if (subLevelId === 5) return getParagraph(10, 14);
+
+    // For other sub-levels, pick one coherent text. 
+    // Ideally we could sort by length, but random variation is fine for "Practice".
+    return MEISTERKLASSE_TEXTS[Math.floor(Math.random() * count)];
   }
 
   const allChars = new Set(stage.chars);
