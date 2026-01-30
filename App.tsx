@@ -1,22 +1,39 @@
 import React, { useState, useEffect } from 'react';
-import { GameState, Stage, GameStats, UserProgress } from './types';
+import { GameState, Stage, GameStats, UserProgress, GameMode, GlobalStats } from './types';
 import { STAGES } from './constants';
-import { generateLevelContent } from './services/geminiService';
+import { generatePracticeContent } from './services/geminiService';
+import { generatePatternLevel } from './services/patternGenerator';
 import TypingGame from './components/TypingGame';
-import { Keyboard, Trophy, BarChart3, Star, Loader2, RotateCcw, Lock, Check, Crown } from 'lucide-react';
+import Statistics from './components/Statistics';
+import { Keyboard, Trophy, BarChart3, Star, Loader2, RotateCcw, Lock, Check, Crown, Zap, User } from 'lucide-react';
 
 const App: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>(GameState.MENU);
   
-  // Progress State
+  // Progress State with safe initialization for new stats field
   const [progress, setProgress] = useState<UserProgress>(() => {
     const saved = localStorage.getItem('tippmeister_progress');
-    return saved ? JSON.parse(saved) : { unlockedStageId: 1, unlockedSubLevelId: 1 };
+    const parsed = saved ? JSON.parse(saved) : {};
+    
+    // Ensure structure exists even for old saves
+    return {
+      unlockedStageId: parsed.unlockedStageId || 1,
+      unlockedSubLevelId: parsed.unlockedSubLevelId || 1,
+      stats: parsed.stats || {
+        totalCharsTyped: 0,
+        totalTimePlayed: 0,
+        gamesPlayed: 0,
+        highestWpm: 0,
+        averageWpm: 0,
+        averageAccuracy: 0
+      }
+    };
   });
 
   // Current Session State
   const [currentStage, setCurrentStage] = useState<Stage | null>(null);
   const [currentSubLevel, setCurrentSubLevel] = useState<number>(1);
+  const [gameMode, setGameMode] = useState<GameMode>('STANDARD');
   const [gameContent, setGameContent] = useState<string>('');
   const [lastStats, setLastStats] = useState<GameStats | null>(null);
 
@@ -24,36 +41,62 @@ const App: React.FC = () => {
     localStorage.setItem('tippmeister_progress', JSON.stringify(progress));
   }, [progress]);
 
+  // Start a standard level (1-5) using the Pattern Generator
   const startLevel = async (stage: Stage, subLevelId: number) => {
     setCurrentStage(stage);
     setCurrentSubLevel(subLevelId);
+    setGameMode('STANDARD');
     setGameState(GameState.LOADING);
-    const content = await generateLevelContent(stage, subLevelId);
+    
+    // Artificial delay for smooth UX transition even though generation is instant
+    await new Promise(r => setTimeout(r, 500));
+    
+    const content = generatePatternLevel(stage, subLevelId);
     setGameContent(content);
     setGameState(GameState.PLAYING);
   };
 
-  const handleFinish = (stats: GameStats) => {
-    setLastStats(stats);
+  // Start Practice Mode using AI
+  const startPractice = async (stage: Stage) => {
+    setCurrentStage(stage);
+    setCurrentSubLevel(0); // 0 indicates practice/no specific level
+    setGameMode('PRACTICE');
+    setGameState(GameState.LOADING);
+    
+    const content = await generatePracticeContent(stage);
+    setGameContent(content);
+    setGameState(GameState.PLAYING);
+  };
+
+  const handleFinish = (gameStats: GameStats) => {
+    setLastStats(gameStats);
     setGameState(GameState.FINISHED);
     
-    // Unlock Logic
-    if (currentStage && currentSubLevel) {
-      const isCurrentLevel = currentStage.id === progress.unlockedStageId && currentSubLevel === progress.unlockedSubLevelId;
+    // Update Global Stats
+    setProgress(prev => {
+      const p = prev;
+      const s = p.stats;
+      const newGamesPlayed = s.gamesPlayed + 1;
       
-      if (isCurrentLevel) {
-        if (currentSubLevel < 5) {
-          // Unlock next sub level
-          setProgress(p => ({ ...p, unlockedSubLevelId: p.unlockedSubLevelId + 1 }));
-        } else if (currentSubLevel === 5) {
-          // Unlock next stage, reset sub level to 1
-          setProgress(p => ({ 
-            unlockedStageId: p.unlockedStageId + 1,
-            unlockedSubLevelId: 1
-          }));
-        }
-      }
-    }
+      // Calculate new averages
+      const newAvgWpm = ((s.averageWpm * s.gamesPlayed) + gameStats.wpm) / newGamesPlayed;
+      const newAvgAcc = ((s.averageAccuracy * s.gamesPlayed) + gameStats.accuracy) / newGamesPlayed;
+
+      return {
+        ...p,
+        stats: {
+          totalCharsTyped: s.totalCharsTyped + gameStats.totalChars,
+          totalTimePlayed: s.totalTimePlayed + gameStats.timeElapsed,
+          gamesPlayed: newGamesPlayed,
+          highestWpm: Math.max(s.highestWpm, gameStats.wpm),
+          averageWpm: newAvgWpm,
+          averageAccuracy: newAvgAcc
+        },
+        // Unlock Logic (Only for standard levels)
+        unlockedSubLevelId: (gameMode === 'STANDARD' && currentStage && currentSubLevel === 5 && currentStage.id === p.unlockedStageId && currentSubLevel === p.unlockedSubLevelId) ? 1 : (gameMode === 'STANDARD' && currentStage && currentSubLevel < 5 && currentStage.id === p.unlockedStageId && currentSubLevel === p.unlockedSubLevelId) ? p.unlockedSubLevelId + 1 : p.unlockedSubLevelId,
+        unlockedStageId: (gameMode === 'STANDARD' && currentStage && currentSubLevel === 5 && currentStage.id === p.unlockedStageId && currentSubLevel === p.unlockedSubLevelId) ? p.unlockedStageId + 1 : p.unlockedStageId
+      };
+    });
   };
 
   const handleBackToMenu = () => {
@@ -62,13 +105,23 @@ const App: React.FC = () => {
   };
 
   const handleRetry = () => {
-    if (currentStage) {
-      startLevel(currentStage, currentSubLevel);
+    if (!currentStage) return;
+    
+    if (gameMode === 'PRACTICE') {
+      startPractice(currentStage); // Generates new AI text
+    } else {
+      startLevel(currentStage, currentSubLevel); // Regenerates pattern
     }
   };
 
   const handleNextLevel = () => {
     if (!currentStage) return;
+
+    // If we are in practice mode, just do another practice
+    if (gameMode === 'PRACTICE') {
+      startPractice(currentStage);
+      return;
+    }
 
     if (currentSubLevel < 5) {
       startLevel(currentStage, currentSubLevel + 1);
@@ -84,15 +137,8 @@ const App: React.FC = () => {
     }
   };
 
-  // Helper to determine color classes based on stage color name
-  const getColorClasses = (colorBase: string, type: 'bg' | 'text' | 'border' | 'ring') => {
-    // Simplified mapping for dynamic classes since Tailwind needs full class names at build time
-    // We'll trust the default color palette and common names
-    return `${type}-${colorBase}-500`;
-  };
-
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-50 selection:bg-emerald-500/30 font-sans">
+    <div className="min-h-screen bg-slate-950 text-slate-50 selection:bg-emerald-500/30 font-sans flex flex-col">
       
       {/* Background Gradient Mesh */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
@@ -104,13 +150,23 @@ const App: React.FC = () => {
         
         {/* HEADER */}
         {gameState === GameState.MENU && (
-          <header className="py-8 text-center sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800">
+          <header className="py-6 px-6 text-center sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800 shadow-lg flex justify-between items-center">
+             <div className="w-10"></div> {/* Spacer for centering */}
+             
             <div className="inline-flex items-center justify-center gap-3">
               <Keyboard className="w-8 h-8 text-emerald-400" />
               <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-emerald-400 to-blue-500 bg-clip-text text-transparent">
                 TippMeister
               </h1>
             </div>
+
+            <button 
+              onClick={() => setGameState(GameState.STATISTICS)}
+              className="p-2 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors border border-slate-700"
+              title="Statistik ansehen"
+            >
+              <User size={24} />
+            </button>
           </header>
         )}
 
@@ -131,7 +187,7 @@ const App: React.FC = () => {
                       <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-xl border shadow-lg ${isStageLocked ? 'bg-slate-800 border-slate-700 text-slate-500' : `bg-${stage.color}-500 border-${stage.color}-400 text-white`}`}>
                         {isStageCompleted ? <Check strokeWidth={4} /> : stage.id}
                       </div>
-                      <div>
+                      <div className="flex-1">
                         <h3 className={`text-xl font-bold ${isStageLocked ? 'text-slate-500' : 'text-white'}`}>{stage.name}</h3>
                         <p className="text-sm text-slate-400">{stage.description}</p>
                       </div>
@@ -184,6 +240,19 @@ const App: React.FC = () => {
                       })}
                     </div>
 
+                    {/* PRACTICE BUTTON (AI) - Only if stage is completed */}
+                    {isStageCompleted && (
+                      <div className="mt-8 pt-6 border-t border-slate-800 flex justify-center">
+                        <button
+                           onClick={() => startPractice(stage)}
+                           className={`flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-800 border border-${stage.color}-500/30 text-${stage.color}-400 font-bold hover:bg-${stage.color}-900/20 hover:border-${stage.color}-500 transition-all group`}
+                        >
+                          <Zap className="w-5 h-5 group-hover:text-yellow-400 transition-colors" />
+                          <span>Üben (KI-Modus)</span>
+                        </button>
+                      </div>
+                    )}
+
                   </div>
                 );
               })}
@@ -191,14 +260,21 @@ const App: React.FC = () => {
           </div>
         )}
 
+        {/* STATISTICS STATE */}
+        {gameState === GameState.STATISTICS && (
+          <Statistics stats={progress.stats} onBack={handleBackToMenu} />
+        )}
+
         {/* LOADING STATE */}
         {gameState === GameState.LOADING && (
           <div className="flex-1 flex flex-col items-center justify-center">
              <Loader2 className="w-16 h-16 text-emerald-500 animate-spin mb-6" />
              <h2 className="text-2xl font-bold text-white mb-2">
-               {currentSubLevel === 5 ? 'Meisterprüfung wird vorbereitet...' : 'Übung wird geladen...'}
+               {gameMode === 'PRACTICE' ? 'KI generiert Übung...' : currentSubLevel === 5 ? 'Meisterprüfung wird geladen...' : 'Übung wird geladen...'}
              </h2>
-             <p className="text-slate-400">Unsere KI bereitet den perfekten Text für dich vor.</p>
+             <p className="text-slate-400">
+               {gameMode === 'PRACTICE' ? 'Bereite einzigartigen Text vor.' : 'Bereite Tastatur vor.'}
+             </p>
           </div>
         )}
 
@@ -211,6 +287,7 @@ const App: React.FC = () => {
             onFinish={handleFinish}
             onBack={handleBackToMenu}
             onRetry={handleRetry}
+            gameMode={gameMode}
           />
         )}
 
@@ -227,10 +304,10 @@ const App: React.FC = () => {
                     <Star className="w-6 h-6 text-yellow-200 absolute top-0 right-0 animate-ping" />
                  </div>
                  <h2 className="text-4xl font-bold text-white mb-2">
-                   {currentSubLevel === 5 ? 'Stufe gemeistert!' : 'Level geschafft!'}
+                   {gameMode === 'PRACTICE' ? 'Training beendet' : currentSubLevel === 5 ? 'Stufe gemeistert!' : 'Level geschafft!'}
                  </h2>
                  <p className="text-slate-400">
-                   {currentStage.name} • {currentSubLevel === 5 ? 'Meisterprüfung' : `Übung ${currentSubLevel}`}
+                   {currentStage.name} • {gameMode === 'PRACTICE' ? 'Freies Üben' : (currentSubLevel === 5 ? 'Meisterprüfung' : `Übung ${currentSubLevel}`)}
                  </p>
                </div>
 
@@ -254,6 +331,11 @@ const App: React.FC = () => {
                    <div className="text-xs text-slate-400 uppercase tracking-wider">Zeit</div>
                  </div>
                </div>
+               
+               {/* Small summary of total progress */}
+               <div className="mb-8 text-center bg-slate-800/30 rounded-lg p-3 border border-slate-700/50">
+                  <p className="text-sm text-slate-400">Gesamt getippte Zeichen: <span className="text-emerald-400 font-mono font-bold">{progress.stats.totalCharsTyped.toLocaleString()}</span></p>
+               </div>
 
                <div className="flex flex-col sm:flex-row gap-4 justify-center">
                  <button 
@@ -267,13 +349,13 @@ const App: React.FC = () => {
                    className="px-8 py-4 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-bold transition-all flex items-center justify-center gap-2"
                  >
                    <RotateCcw className="w-5 h-5" />
-                   Wiederholen
+                   {gameMode === 'PRACTICE' ? 'Neue Übung' : 'Wiederholen'}
                  </button>
                  <button 
                    onClick={handleNextLevel}
                    className="px-8 py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-bold shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2"
                  >
-                   Weiter
+                   {gameMode === 'PRACTICE' ? 'Noch eine' : 'Weiter'}
                  </button>
                </div>
             </div>

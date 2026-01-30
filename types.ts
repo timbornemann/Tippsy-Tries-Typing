@@ -42,9 +42,19 @@ export interface GameStats {
   timeElapsed: number;
 }
 
+export interface GlobalStats {
+  totalCharsTyped: number;
+  totalTimePlayed: number; // seconds
+  gamesPlayed: number;
+  highestWpm: number;
+  averageWpm: number;
+  averageAccuracy: number;
+}
+
 export interface UserProgress {
   unlockedStageId: number;
   unlockedSubLevelId: number; // 1-5
+  stats: GlobalStats;
 }
 
 export enum GameState {
@@ -52,4 +62,7 @@ export enum GameState {
   LOADING = 'LOADING',
   PLAYING = 'PLAYING',
   FINISHED = 'FINISHED',
+  STATISTICS = 'STATISTICS',
 }
+
+export type GameMode = 'STANDARD' | 'PRACTICE';
