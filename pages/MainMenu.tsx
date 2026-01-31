@@ -243,7 +243,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
         <div className="flex-1 min-h-0 overflow-x-auto overflow-y-hidden scroll-smooth -mx-4 pl-4 pr-12">
           <div className="flex flex-row flex-nowrap gap-8 py-4">
             {stages.map((stage) => (
-              <div key={stage.id} className="w-[600px] h-[580px] shrink-0 overflow-visible flex">
+              <div key={stage.id} className="w-[680px] h-[580px] shrink-0 overflow-visible flex">
                 <StageCard
                   stage={stage}
                   progress={progress}
