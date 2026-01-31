@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { GameState, Stage, GameStats, UserProgress, GameMode, SessionRecord } from '../types';
-import { getStages } from '../constants';
+import { ENDLESS_STAGE_ID, MAX_SUB_LEVELS, getStages } from '../constants';
 import { generatePatternLevel } from '../services/patternGenerator';
 import { generateWordSentenceLevel } from '../services/wordSentenceGenerator';
 import { useSettings } from '../contexts/SettingsContext';
@@ -12,6 +12,8 @@ function progressKey(stageId: number, subLevelId: number): string {
   return `${stageId}_${subLevelId}`;
 }
 
+const maxSubLevelForStage = (stageId: number) => (stageId === ENDLESS_STAGE_ID ? 1 : MAX_SUB_LEVELS);
+
 /** Unlock logic: returns new { unlockedStageId, unlockedSubLevelId } from previous progress and current level result. */
 function computeUnlock(
   prev: UserProgress,
@@ -22,12 +24,15 @@ function computeUnlock(
   if (gameMode !== 'STANDARD' || !stage) {
     return { unlockedStageId: prev.unlockedStageId, unlockedSubLevelId: prev.unlockedSubLevelId };
   }
+  if (stage.id === ENDLESS_STAGE_ID) {
+    return { unlockedStageId: prev.unlockedStageId, unlockedSubLevelId: prev.unlockedSubLevelId };
+  }
   const isCurrentStage = stage.id === prev.unlockedStageId;
   const isCurrentSub = subLevelId === prev.unlockedSubLevelId;
   if (!isCurrentStage || !isCurrentSub) {
     return { unlockedStageId: prev.unlockedStageId, unlockedSubLevelId: prev.unlockedSubLevelId };
   }
-  if (subLevelId === 5) {
+  if (subLevelId >= maxSubLevelForStage(stage.id)) {
     return { unlockedStageId: prev.unlockedStageId + 1, unlockedSubLevelId: 1 };
   }
   return { unlockedStageId: prev.unlockedStageId, unlockedSubLevelId: prev.unlockedSubLevelId + 1 };
@@ -149,7 +154,7 @@ export const useGameEngine = () => {
     setGameState(GameState.START);
   };
 
-  // Start a standard level (1-5) using the Pattern Generator
+  // Start a standard level (1-10) using the Pattern Generator
   const startLevel = async (stage: Stage, subLevelId: number) => {
     // If we are starting from the Menu, this is the start of a "Session" (or chain)
     // We capture the progress state here so we can animate from this point when we return.
@@ -339,7 +344,12 @@ export const useGameEngine = () => {
       return;
     }
 
-    if (currentSubLevel < 5) {
+    if (currentStage.id === ENDLESS_STAGE_ID) {
+      startLevel(currentStage, 1);
+      return;
+    }
+
+    if (currentSubLevel < maxSubLevelForStage(currentStage.id)) {
       startLevel(currentStage, currentSubLevel + 1);
     } else {
       // Find next stage
@@ -357,7 +367,10 @@ export const useGameEngine = () => {
   const debugPassCurrentLevel = useCallback(() => {
     setProgress(prev => {
       const { unlockedStageId, unlockedSubLevelId } = prev;
-      if (unlockedSubLevelId < 5) {
+      if (unlockedStageId === ENDLESS_STAGE_ID) {
+        return prev;
+      }
+      if (unlockedSubLevelId < maxSubLevelForStage(unlockedStageId)) {
         return { ...prev, unlockedSubLevelId: unlockedSubLevelId + 1 };
       }
       const nextStage = stages.find(s => s.id === unlockedStageId + 1);

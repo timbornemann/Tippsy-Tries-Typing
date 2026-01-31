@@ -89,7 +89,7 @@ Tippsy is a web-based typing trainer optimized for the **German QWERTZ keyboard 
    You will be guided through the home row (F and J, all 8 home row keys). This teaches you the correct hand position.
 
 3. **Main Menu**  
-   In the **Learning Adventure**, you see all stages. The current stage is highlighted; progress and level (1–5 per stage) are displayed.  
+   In the **Learning Adventure**, you see all stages. The current stage is highlighted; progress and level (1–10 per stage) are displayed.  
    - **Start Level:** Select a stage and click the desired level (or use keyboard: arrow keys, Enter).  
    - **Free Practice** or **Words & Sentences** per stage are accessible via the respective cards.
 

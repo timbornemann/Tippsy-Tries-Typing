@@ -4,6 +4,7 @@ import { useI18n } from '../hooks/useI18n';
 import { useSound } from '../hooks/useSound';
 import { Home, Download, Upload, Trash2, Info } from 'lucide-react';
 import { UserProgress } from '../types';
+import { MAX_SUB_LEVELS } from '../constants';
 
 const PROGRESS_STORAGE_KEY = 'tippsy_progress';
 
@@ -29,7 +30,7 @@ function parseProgressJson(raw: unknown): UserProgress | null {
   const errorCountByChar = p.errorCountByChar && typeof p.errorCountByChar === 'object' ? (p.errorCountByChar as Record<string, number>) : {};
   return {
     unlockedStageId: Math.max(1, Math.floor(us)),
-    unlockedSubLevelId: Math.max(1, Math.min(5, Math.floor(ul))),
+    unlockedSubLevelId: Math.max(1, Math.min(MAX_SUB_LEVELS, Math.floor(ul))),
     stats,
     lastSessionByKey,
     sessionHistory,

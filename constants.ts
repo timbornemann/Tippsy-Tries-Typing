@@ -1,6 +1,9 @@
 import { Finger, KeyConfig, Stage, KeyboardLayout, Language } from './types';
 import { translate } from './i18n';
 
+export const MAX_SUB_LEVELS = 10;
+export const ENDLESS_STAGE_ID = 15;
+
 // Finger Color Mapping
 export const FINGER_COLORS: Record<Finger, string> = {
   [Finger.LeftPinky]: 'bg-rose-500',

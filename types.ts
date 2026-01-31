@@ -23,7 +23,7 @@ export interface KeyConfig {
 }
 
 export interface SubLevel {
-  id: number; // 1 to 5
+  id: number; // 1 to 10
   name: string;
   type: 'practice' | 'master';
   difficultyModifier: string; // Hint for AI prompt
@@ -79,7 +79,7 @@ export interface StageLevelStats {
 
 export interface UserProgress {
   unlockedStageId: number;
-  unlockedSubLevelId: number; // 1-5
+  unlockedSubLevelId: number; // 1-10
   stats: GlobalStats;
   /** Last session stats per stage+subLevel for "compared to last time" */
   lastSessionByKey?: Record<string, GameStats>;

@@ -6,6 +6,7 @@ import StageCard from '../components/StageCard';
 import OnboardingModal from '../components/OnboardingModal';
 import { useI18n } from '../hooks/useI18n';
 import { useSound } from '../hooks/useSound';
+import { ENDLESS_STAGE_ID, MAX_SUB_LEVELS } from '../constants';
 
 const ONBOARDING_KEY = 'tippsy_onboarding_seen';
 const STORAGE_HINT_KEY = 'tippsy_storage_hint_seen';
@@ -62,7 +63,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
 
       const key = e.key.toLowerCase();
 
-      const maxSubLevelForStage = (stageId: number) => (stageId === 15 ? 1 : 5);
+      const maxSubLevelForStage = (stageId: number) => (stageId === ENDLESS_STAGE_ID ? 1 : MAX_SUB_LEVELS);
       const effectiveMaxSubLevel = (stageId: number) => {
         if (stageId > progress.unlockedStageId) return 1;
         if (stageId < progress.unlockedStageId) return maxSubLevelForStage(stageId);
@@ -81,7 +82,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
         setFocusedStageId(prev => Math.max(prev - 1, 1));
         setFocusedSubLevelId(1);
       }
-      // A/D and Arrow Left/Right: first move within levels (1–5), only at last/first level jump to next/prev stage
+      // A/D and Arrow Left/Right: first move within levels (1–10), only at last/first level jump to next/prev stage
       else if (key === 'arrowright' || key === 'd') {
         e.preventDefault();
         playMenuClick();
