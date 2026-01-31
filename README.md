@@ -1,11 +1,11 @@
-# ⌨️ Tippsy – Touch Typing Trainer
+# ⌨️ Tippsy Tries Typing
 
 [🇩🇪 Deutsche Version](README.de.md)
 
 **Learn touch typing in a playful and interactive way.**  
 No boredom, just progress.
 
-Tippsy is a web-based typing trainer that supports **two keyboard layouts** (QWERTZ for German and QWERTY for US) and **two languages** (English and German). At first start you choose language and layout; you can change both anytime in Settings. With structured lessons, the learning companion Tippsy, and clear statistics, you will improve your typing speed and accuracy step by step.
+Tippsy Tries Typing is a web-based typing trainer that supports **two keyboard layouts** (QWERTZ for German and QWERTY for US) and **two languages** (English and German). At first start you choose language and layout; you can change both anytime in Settings. With structured lessons, the learning companion Tippsy, and clear statistics, you will improve your typing speed and accuracy step by step.
 
 ---
 
@@ -28,7 +28,7 @@ Tippsy is a web-based typing trainer that supports **two keyboard layouts** (QWE
 
 ---
 
-## ✨ What is Tippsy?
+## What is Tippsy Tries Typing?
 
 - **Guided Learning Path:** Over 15 stages from index fingers (F & J) to special characters and the "Endless Zone".
 - **Tippsy as a Companion:** A friendly learning companion guides you through the lessons.

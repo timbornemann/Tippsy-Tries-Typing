@@ -1,11 +1,11 @@
-# ⌨️ Tippsy – 10-Finger-Trainer
+# ⌨️ Tippsy Tries Typing
 
 [🇺🇸 English Version](README.md)
 
 **Lerne das 10-Finger-System spielerisch und interaktiv.**  
 Keine Langeweile, nur Fortschritt.
 
-Tippsy ist ein webbasierter Tipptrainer mit **zwei Tastaturlayouts** (QWERTZ für Deutsch, QWERTY für US) und **zwei Sprachen** (Deutsch und Englisch). Beim ersten Start wählst du Sprache und Layout; beides kannst du jederzeit in den Einstellungen ändern. Mit strukturierten Lektionen, dem Lernbegleiter Tippsy und klaren Statistiken verbesserst du Schritt für Schritt deine Tippgeschwindigkeit und Genauigkeit.
+Tippsy Tries Typing ist ein webbasierter Tipptrainer mit **zwei Tastaturlayouts** (QWERTZ für Deutsch, QWERTY für US) und **zwei Sprachen** (Deutsch und Englisch). Beim ersten Start wählst du Sprache und Layout; beides kannst du jederzeit in den Einstellungen ändern. Mit strukturierten Lektionen, dem Lernbegleiter Tippsy und klaren Statistiken verbesserst du Schritt für Schritt deine Tippgeschwindigkeit und Genauigkeit.
 
 ---
 
@@ -28,7 +28,7 @@ Tippsy ist ein webbasierter Tipptrainer mit **zwei Tastaturlayouts** (QWERTZ fü
 
 ---
 
-## ✨ Was ist Tippsy?
+## Was ist Tippsy Tries Typing?
 
 - **Geführter Lernpfad:** Über 15 Stufen von den Zeigefingern (F & J) bis zu Sonderzeichen und „Endless Zone“.
 - **Tippsy als Begleiter:** Ein freundlicher Lernbegleiter führt dich durch die Lektionen.
