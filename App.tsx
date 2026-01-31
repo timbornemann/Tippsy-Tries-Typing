@@ -7,7 +7,7 @@ import SetupScreen from './components/SetupScreen';
 import { Bot, Trophy, BarChart3, Star, RotateCcw, Sparkles, Type, Clock } from 'lucide-react';
 import { useGameEngine } from './hooks/useGameEngine';
 import MainMenu from './pages/MainMenu';
-import { STAGE_COLOR_CLASSES } from './constants';
+import { MAX_SUB_LEVELS, STAGE_COLOR_CLASSES } from './constants';
 import { useI18n } from './hooks/useI18n';
 import Settings from './pages/Settings';
 
@@ -145,7 +145,7 @@ const App: React.FC = () => {
                  ? t('app.loading.practiceTitle')
                  : gameMode === 'WORDS_SENTENCES'
                    ? t('app.loading.wordTitle')
-                   : currentSubLevel === 5
+                   : currentSubLevel === MAX_SUB_LEVELS
                      ? t('app.loading.masterTitle')
                      : t('app.loading.defaultTitle')}
              </h2>
@@ -190,7 +190,7 @@ const App: React.FC = () => {
                      ? t('app.finished.titlePractice')
                      : gameMode === 'WORDS_SENTENCES'
                        ? t('app.finished.titleWords')
-                       : currentSubLevel === 5
+                       : currentSubLevel === MAX_SUB_LEVELS
                          ? t('app.finished.titleMaster')
                          : t('app.finished.titleDefault')}
                  </h2>
@@ -199,7 +199,7 @@ const App: React.FC = () => {
                      ? t('app.finished.modePractice')
                      : gameMode === 'WORDS_SENTENCES'
                        ? t('app.finished.modeWords')
-                       : (currentSubLevel === 5 ? t('app.finished.modeMaster') : t('app.finished.modeExercise', { subLevel: currentSubLevel }))}
+                       : (currentSubLevel === MAX_SUB_LEVELS ? t('app.finished.modeMaster') : t('app.finished.modeExercise', { subLevel: currentSubLevel }))}
                  </p>
                </div>
 

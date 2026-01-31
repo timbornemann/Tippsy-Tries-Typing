@@ -359,7 +359,19 @@ export const generatePatternLevel = (stage: Stage, subLevelId: number, language:
       return p1 + (stage.id === 13 ? '\n\n' : ' ') + p2;
     }
 
-    return texts[Math.floor(Math.random() * count)];
+    const chunkCount = Math.min(
+      count,
+      subLevelId <= 3 ? 1 : subLevelId <= 6 ? 2 : subLevelId <= 8 ? 3 : 4
+    );
+    const picked: string[] = [];
+    const used = new Set<number>();
+    while (picked.length < chunkCount) {
+      const idx = Math.floor(Math.random() * count);
+      if (used.has(idx)) continue;
+      used.add(idx);
+      picked.push(texts[idx]);
+    }
+    return picked.join(stage.id === 13 ? '\n\n' : ' ');
   }
 
   const allChars = new Set(stage.chars);
@@ -377,6 +389,40 @@ const generateStandardPattern = (stage: Stage, subLevelId: number, allChars: Set
 
   // Filter real words that are possible at this stage
   const possibleRealWords = getCommonWords(language).filter(w => canTypeWord(w, allChars));
+
+  const availablePunctuation = poolAll.filter(c => ['.', ',', '!', '?', ':', ';', '-'].includes(c));
+  const numberChars = poolAll.filter(c => /\d/.test(c));
+  const symbolChars = poolAll.filter(c => !/[a-zA-Z0-9 ]/.test(c));
+
+  const maybeCapitalize = (word: string, chance = 0.2) => {
+    if (!useCapitalization) return word;
+    return Math.random() < chance ? word.charAt(0).toUpperCase() + word.slice(1) : word;
+  };
+
+  const buildWord = (minLen: number, maxLen: number, realChance: number, capChance: number) => {
+    if (possibleRealWords.length > 0 && Math.random() < realChance) {
+      return maybeCapitalize(getRandomItem(possibleRealWords), capChance);
+    }
+    const len = minLen + Math.floor(Math.random() * Math.max(1, maxLen - minLen + 1));
+    return maybeCapitalize(generatePseudoWord(poolAll, len), capChance);
+  };
+
+  const maybeAddPunctuation = (word: string, chance: number) => {
+    if (availablePunctuation.length === 0 || Math.random() >= chance) return word;
+    return word + getRandomItem(availablePunctuation);
+  };
+
+  const buildNumberToken = () => {
+    if (numberChars.length === 0) return null;
+    const len = 2 + Math.floor(Math.random() * 3);
+    return Array.from({ length: len }, () => getRandomItem(numberChars)).join('');
+  };
+
+  const buildSymbolToken = () => {
+    if (symbolChars.length === 0) return null;
+    const len = 2 + Math.floor(Math.random() * 2);
+    return Array.from({ length: len }, () => getRandomItem(symbolChars)).join('');
+  };
 
   let result: string[] = [];
 
@@ -487,34 +533,112 @@ const generateStandardPattern = (stage: Stage, subLevelId: number, allChars: Set
       }
       break;
 
-    case 5: // MASTER: Sentences / Flow
+    case 5: // SENTENCE FLOW: First full sentence with steady rhythm
       {
-        // Construct a "sentence" structure
-        let sentence = [];
-        const length = 15 + Math.floor(Math.random() * 5); // Number of "words"
-
+        const length = 12 + Math.floor(Math.random() * 5);
         for (let i = 0; i < length; i++) {
-           let w = "";
-           if (possibleRealWords.length > 0 && Math.random() > 0.3) {
-             w = getRandomItem(possibleRealWords);
-           } else {
-             w = generatePseudoWord(poolAll, 2 + Math.floor(Math.random() * 6));
-           }
-
-           // Apply Random Capitalization if allowed (Stage 9+)
-           if (useCapitalization && (i === 0 || Math.random() > 0.7)) {
-             w = w.charAt(0).toUpperCase() + w.slice(1);
-           }
-
-           sentence.push(w);
+          let word = buildWord(3, 7, 0.55, i === 0 ? 0.6 : 0.2);
+          if (stage.id >= 10) word = maybeAddPunctuation(word, 0.12);
+          result.push(word);
         }
-
-        // Add punctuation if Stage 10+
         if (stage.id >= 10) {
-           return sentence.join(' ') + getRandomItem(['.', '!', '?']);
+          return result.join(' ') + getRandomItem(['.', '!', '?']);
         }
-        return sentence.join(' ');
       }
+      break;
+
+    case 6: // EXTENDED WORDS: Longer words, more real words
+      {
+        const length = 14 + Math.floor(Math.random() * 6);
+        for (let i = 0; i < length; i++) {
+          let word = buildWord(4, 8, 0.65, i === 0 ? 0.6 : 0.25);
+          if (stage.id >= 10) word = maybeAddPunctuation(word, 0.18);
+          result.push(word);
+        }
+        if (stage.id >= 10) {
+          return result.join(' ') + getRandomItem(['.', '!', '?']);
+        }
+      }
+      break;
+
+    case 7: // PHRASING: Clauses and pauses (comma usage if available)
+      {
+        const length = 16 + Math.floor(Math.random() * 6);
+        for (let i = 0; i < length; i++) {
+          let word = buildWord(3, 9, 0.7, i === 0 ? 0.7 : 0.3);
+          if (stage.id >= 10) word = maybeAddPunctuation(word, 0.25);
+          result.push(word);
+          if (stage.id >= 10 && availablePunctuation.includes(',') && Math.random() < 0.2) {
+            result[result.length - 1] = result[result.length - 1].replace(/[,!?;:.\- ]*$/, '') + ',';
+          }
+        }
+        if (stage.id >= 10) {
+          return result.join(' ') + getRandomItem(['.', '!', '?']);
+        }
+      }
+      break;
+
+    case 8: // MULTI-SENTENCE: Two sentences, more capitalization
+      {
+        const sentenceCount = 2;
+        for (let s = 0; s < sentenceCount; s++) {
+          const length = 12 + Math.floor(Math.random() * 6);
+          for (let i = 0; i < length; i++) {
+            let word = buildWord(3, 9, 0.75, i === 0 ? 0.7 : 0.35);
+            if (stage.id >= 10) word = maybeAddPunctuation(word, 0.2);
+            result.push(word);
+          }
+          if (stage.id >= 10) {
+            result[result.length - 1] = result[result.length - 1].replace(/[!?.,;:\-]*$/, '') + getRandomItem(['.', '!', '?']);
+          }
+        }
+      }
+      break;
+
+    case 9: // MIXED TOKENS: Numbers/symbols sprinkled in
+      {
+        const length = 18 + Math.floor(Math.random() * 6);
+        for (let i = 0; i < length; i++) {
+          if (Math.random() < 0.12) {
+            const token = Math.random() < 0.6 ? buildNumberToken() : buildSymbolToken();
+            if (token) {
+              result.push(token);
+              continue;
+            }
+          }
+          let word = buildWord(4, 10, 0.75, i === 0 ? 0.8 : 0.35);
+          if (stage.id >= 10) word = maybeAddPunctuation(word, 0.22);
+          result.push(word);
+        }
+        if (stage.id >= 10) {
+          return result.join(' ') + getRandomItem(['.', '!', '?']);
+        }
+      }
+      break;
+
+    case 10: // MASTER: Longest flow with varied tokens
+      {
+        const sentenceCount = 2 + Math.floor(Math.random() * 2);
+        for (let s = 0; s < sentenceCount; s++) {
+          const length = 16 + Math.floor(Math.random() * 8);
+          for (let i = 0; i < length; i++) {
+            if (Math.random() < 0.15) {
+              const token = Math.random() < 0.6 ? buildNumberToken() : buildSymbolToken();
+              if (token) {
+                result.push(token);
+                continue;
+              }
+            }
+            let word = buildWord(4, 10, 0.8, i === 0 ? 0.85 : 0.4);
+            if (stage.id >= 10) word = maybeAddPunctuation(word, 0.25);
+            result.push(word);
+          }
+          if (stage.id >= 10) {
+            result[result.length - 1] = result[result.length - 1].replace(/[!?.,;:\-]*$/, '') + getRandomItem(['.', '!', '?']);
+          }
+        }
+      }
+      break;
 
     default:
       // Unbekanntes subLevelId (z. B. Debug): minimaler Inhalt aus poolAll

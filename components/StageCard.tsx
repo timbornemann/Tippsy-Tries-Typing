@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Stage, UserProgress } from '../types';
-import { STAGE_COLOR_CLASSES } from '../constants';
+import { ENDLESS_STAGE_ID, MAX_SUB_LEVELS, STAGE_COLOR_CLASSES } from '../constants';
 import { Check, Lock, Star, Crown, Zap, BookOpen } from 'lucide-react';
 import TippsyAvatar from './TippsyAvatar';
 import { useI18n } from '../hooks/useI18n';
@@ -15,6 +15,19 @@ interface StageCardProps {
   isStageFocused?: boolean;
   focusedSubLevelId?: number | null;
 }
+
+const LEVEL_PATH = [
+  { x: 8, y: 92, translateY: 'translate-y-0' },
+  { x: 18, y: 124, translateY: 'translate-y-8' },
+  { x: 28, y: 60, translateY: '-translate-y-8' },
+  { x: 38, y: 92, translateY: 'translate-y-0' },
+  { x: 48, y: 124, translateY: 'translate-y-8' },
+  { x: 58, y: 70, translateY: '-translate-y-6' },
+  { x: 68, y: 92, translateY: 'translate-y-0' },
+  { x: 78, y: 124, translateY: 'translate-y-8' },
+  { x: 88, y: 70, translateY: '-translate-y-6' },
+  { x: 96, y: 92, translateY: 'translate-y-0' },
+];
 
 const StageCard: React.FC<StageCardProps> = ({
   stage,
@@ -35,19 +48,12 @@ const StageCard: React.FC<StageCardProps> = ({
   let completionPercent = 0;
   if (isCompleted) completionPercent = 100;
   else if (isCurrent) {
-    completionPercent = ((progress.unlockedSubLevelId - 1) / 5) * 100;
+    completionPercent = ((progress.unlockedSubLevelId - 1) / MAX_SUB_LEVELS) * 100;
   }
 
   // --- WALKING ANIMATION LOGIC ---
   const getPositionForSubLevel = (subLevel: number) => {
-    switch(subLevel) {
-      case 1: return 15;
-      case 2: return 32;
-      case 3: return 50;
-      case 4: return 67;
-      case 5: return 85;
-      default: return 15;
-    }
+    return LEVEL_PATH[subLevel - 1] ?? LEVEL_PATH[0];
   };
 
   const [tippsyPos, setTippsyPos] = useState(() => {
@@ -55,7 +61,7 @@ const StageCard: React.FC<StageCardProps> = ({
           return getPositionForSubLevel(sessionStartProgress.unlockedSubLevelId);
       }
       if (isCurrent) return getPositionForSubLevel(progress.unlockedSubLevelId);
-      return 15;
+      return LEVEL_PATH[0];
   });
   
   const [isWalking, setIsWalking] = useState(false);
@@ -91,15 +97,6 @@ const StageCard: React.FC<StageCardProps> = ({
     }
   }, [isCurrent, progress, sessionStartProgress, stage.id]);
 
-
-  const getVerticalPos = (xPercent: number) => {
-      if (xPercent < 23) return 90;
-      if (xPercent < 41) return 122;
-      if (xPercent < 58) return 58;
-      if (xPercent < 76) return 90;
-      return 90;
-  };
-
   const c = STAGE_COLOR_CLASSES[stage.color] ?? STAGE_COLOR_CLASSES.emerald;
 
   return (
@@ -107,7 +104,7 @@ const StageCard: React.FC<StageCardProps> = ({
       data-stage-id={stage.id}
       className={`
       relative rounded-[2.5rem] p-8 transition-all duration-300 group w-full h-full flex flex-col min-h-0
-      ${stage.id === 15 ? 'overflow-visible' : 'overflow-hidden'}
+      ${stage.id === ENDLESS_STAGE_ID ? 'overflow-visible' : 'overflow-hidden'}
       ${isLocked 
         ? 'border-[3px] border-slate-800 bg-slate-900/40 grayscale-[0.8] opacity-60' 
         : `border-[3px] bg-gradient-to-b from-slate-900 via-slate-900 ${c.cardBorder} ${c.cardBg} ${c.shadow}`
@@ -162,7 +159,7 @@ const StageCard: React.FC<StageCardProps> = ({
       </div>
 
       {/* PROGRESS BAR (or spacer for Endless so card height matches others) */}
-      {!isLocked && stage.id !== 15 && (
+      {!isLocked && stage.id !== ENDLESS_STAGE_ID && (
         <div className="mb-10 relative shrink-0">
           <div className="flex justify-between text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
             <span>{t('stageCard.progress')}</span>
@@ -176,15 +173,15 @@ const StageCard: React.FC<StageCardProps> = ({
           </div>
         </div>
       )}
-      {!isLocked && stage.id === 15 && (
+      {!isLocked && stage.id === ENDLESS_STAGE_ID && (
         <div className="mb-10 min-h-[52px] shrink-0" aria-hidden="true" />
       )}
 
       {/* PATH / LEVEL MAP - overflow-visible for stage 15 so START button halo is not clipped */}
-      <div className={`relative min-h-[180px] flex-1 flex items-center justify-center min-h-0 ${stage.id === 15 ? 'overflow-visible' : 'overflow-hidden'}`}>
+      <div className={`relative min-h-[180px] flex-1 flex items-center justify-center min-h-0 ${stage.id === ENDLESS_STAGE_ID ? 'overflow-visible' : 'overflow-hidden'}`}>
         
         {/* ENDLESS MODE: Single Big Button */}
-        {stage.id === 15 ? (
+        {stage.id === ENDLESS_STAGE_ID ? (
           <div className="w-full flex justify-center py-8 overflow-visible">
              <button
                 disabled={isLocked}
@@ -214,15 +211,15 @@ const StageCard: React.FC<StageCardProps> = ({
              </button>
           </div>
         ) : (
-          /* STANDARD: 5-Step Path */
+          /* STANDARD: 10-Step Path */
           <>
             {/* TIPPSY WALKER - Only on Current Stage */}
             {!isLocked && isCurrent && (
                 <div 
                   className="absolute z-30 w-12 h-12 pointer-events-none transition-all duration-[2000ms] ease-in-out"
                   style={{ 
-                      left: `${tippsyPos}%`, 
-                      top: `${getVerticalPos(tippsyPos)}px`,
+                      left: `${tippsyPos.x}%`, 
+                      top: `${tippsyPos.y}px`,
                       transform: 'translate(-50%, -100%)' // Pivot at bottom/feet
                   }}
                 >
@@ -236,7 +233,7 @@ const StageCard: React.FC<StageCardProps> = ({
             {!isLocked && (
               <svg className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-30" viewBox="0 0 400 180" preserveAspectRatio="none">
                 <path 
-                  d="M 50,90 C 100,90 100,130 150,130 C 200,130 200,50 250,50 C 300,50 300,90 350,90" 
+                  d="M 20,90 C 60,90 60,130 100,130 C 140,130 140,50 180,50 C 220,50 220,130 260,130 C 300,130 300,70 340,70 C 360,70 370,90 380,90" 
                   fill="none" 
                   stroke={isLocked ? "#334155" : "currentColor"} 
                   strokeWidth="4" 
@@ -247,8 +244,9 @@ const StageCard: React.FC<StageCardProps> = ({
             )}
 
             <div className="relative z-10 w-full flex justify-between px-4 sm:px-12 items-center">
-              {[1, 2, 3, 4, 5].map((subLevelId) => {
-                const isMaster = subLevelId === 5;
+              {LEVEL_PATH.map((level, index) => {
+                const subLevelId = index + 1;
+                const isMaster = subLevelId === MAX_SUB_LEVELS;
                 const isItemFocused = isStageFocused && focusedSubLevelId === subLevelId;
                 
                 let status: 'locked' | 'active' | 'completed' = 'locked';
@@ -260,10 +258,7 @@ const StageCard: React.FC<StageCardProps> = ({
                 }
 
                 // Vertical positioning to match the curve vaguely
-                let translateY = 'translate-y-0';
-                if (subLevelId === 2) translateY = 'translate-y-8'; // Down
-                if (subLevelId === 3) translateY = '-translate-y-8'; // Up
-                if (subLevelId === 4) translateY = 'translate-y-0'; 
+                const translateY = level.translateY;
 
                 return (
                   <button
@@ -276,14 +271,14 @@ const StageCard: React.FC<StageCardProps> = ({
                     `}
                   >
                     <div className={`
-                      w-14 h-14 rounded-full flex items-center justify-center border-4 shadow-xl transition-all duration-300 relative z-10
+                      w-12 h-12 rounded-full flex items-center justify-center border-4 shadow-xl transition-all duration-300 relative z-10
                       ${status === 'locked' 
                         ? 'bg-slate-800 border-slate-700 text-slate-600 scale-90' 
                         : status === 'completed'
                           ? 'bg-slate-800 border-emerald-500 text-emerald-400 scale-100 hover:scale-110'
                           : `${c.nodeActive} border-white text-white scale-110 hover:scale-125 shadow-[0_0_30px_rgba(255,255,255,0.3)]`
                       }
-                      ${isMaster && status !== 'locked' ? 'w-16 h-16' : ''}
+                      ${isMaster && status !== 'locked' ? 'w-14 h-14' : ''}
                       ${isItemFocused ? 'ring-4 ring-white shadow-[0_0_40px_rgba(255,255,255,0.6)]' : ''}
                     `}>
                         {status === 'locked' && <Lock size={16} />}
@@ -309,7 +304,7 @@ const StageCard: React.FC<StageCardProps> = ({
       </div>
 
       {/* Bottom spacer for Endless (stage 15) so card height matches completed cards with practice buttons */}
-      {!isLocked && stage.id === 15 && (
+      {!isLocked && stage.id === ENDLESS_STAGE_ID && (
         <div className="mt-8 pt-6 border-t border-slate-800/50 min-h-[124px] shrink-0" aria-hidden="true" />
       )}
 

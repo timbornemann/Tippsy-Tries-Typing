@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Stage, GameStats, GameMode, ErrorCountByChar } from '../types';
-import { KEYBOARD_LAYOUTS, FINGER_NAMES, FINGER_COLORS } from '../constants';
+import { KEYBOARD_LAYOUTS, FINGER_NAMES, FINGER_COLORS, MAX_SUB_LEVELS } from '../constants';
 import VirtualKeyboard from './VirtualKeyboard';
 import { RotateCcw, Home, Crown, Zap, BookOpen, Infinity } from 'lucide-react';
 import { getRandomChunk } from '../services/endlessContent';
@@ -236,7 +236,7 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
   };
 
   const fingerInfo = getActiveFingerInfo();
-  const isMasterLevel = subLevelId === 5;
+  const isMasterLevel = subLevelId === MAX_SUB_LEVELS;
   const isPractice = gameMode === 'PRACTICE';
   const isWordsSentences = gameMode === 'WORDS_SENTENCES';
 

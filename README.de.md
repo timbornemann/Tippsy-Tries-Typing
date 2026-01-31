@@ -89,7 +89,7 @@ Tippsy ist ein webbasierter Tipptrainer für die **deutsche QWERTZ-Tastatur**. M
    Du wirst durch die Grundstellung geführt (F und J, alle 8 Grundstellungstasten). So lernst du die richtige Handhaltung.
 
 3. **Hauptmenü**  
-   Im **Lern-Abenteuer** siehst du alle Stufen. Die aktuelle Stufe ist hervorgehoben; Fortschritt und Level (1–5 pro Stufe) werden angezeigt.  
+   Im **Lern-Abenteuer** siehst du alle Stufen. Die aktuelle Stufe ist hervorgehoben; Fortschritt und Level (1–10 pro Stufe) werden angezeigt.  
    - **Level starten:** Stufe auswählen und gewünschtes Level anklicken (oder Tastatur: Pfeiltasten, Enter).  
    - **Freies Üben** bzw. **Wörter & Sätze** pro Stufe sind über die jeweiligen Karten erreichbar.
 
