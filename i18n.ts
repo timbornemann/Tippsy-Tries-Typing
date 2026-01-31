@@ -114,6 +114,11 @@ export const translations = {
       level: 'Level {level}',
       endlessPractice: 'Endless practice (Mega level)',
       wordSentence: 'Word & sentence',
+      ariaLocked: 'Level {level}, Locked',
+      ariaCompleted: 'Level {level}, Completed',
+      ariaActive: 'Start Level {level}',
+      ariaMaster: 'Start Master Level',
+      ariaEndless: 'Start Endless Mode',
     },
     typing: {
       finishStats: 'Finish & view stats',
@@ -397,6 +402,11 @@ export const translations = {
       level: 'Level {level}',
       endlessPractice: 'Endlos-Üben (Mega-Level)',
       wordSentence: 'Wort & Satz',
+      ariaLocked: 'Level {level}, Gesperrt',
+      ariaCompleted: 'Level {level}, Abgeschlossen',
+      ariaActive: 'Starte Level {level}',
+      ariaMaster: 'Starte Meisterprüfung',
+      ariaEndless: 'Starte Endlos-Modus',
     },
     typing: {
       finishStats: 'Beenden & Statistik anzeigen',
