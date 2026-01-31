@@ -42,6 +42,10 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
 
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Ref so the WPM interval can read latest state without resetting the timer on every keystroke
+  const wpmStateRef = useRef({ inputIndex, startTime, totalCharsTyped, stageId: stage.id });
+  wpmStateRef.current = { inputIndex, startTime, totalCharsTyped, stageId: stage.id };
+
   // Reset content when prop changes (new level)
   useEffect(() => {
     if (contentProp) {
@@ -50,6 +54,7 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
         setMistakes(0);
         setStartTime(null);
         setTotalCharsTyped(0);
+        setWpm(0);
     }
   }, [contentProp]);
 
@@ -60,21 +65,20 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
     return () => document.removeEventListener('click', handleGlobalClick);
   }, []);
 
-  const calculateStats = useCallback(() => {
-    if (!startTime) return;
-    const now = Date.now();
-    const minutes = (now - startTime) / 60000;
-    // For endless mode, we track totalCharsTyped. For normal, inputIndex is sufficient.
-    const chars = stage.id === 15 ? totalCharsTyped + inputIndex : inputIndex; 
-    const words = chars / 5;
-    const currentWpm = Math.round(words / minutes) || 0;
-    setWpm(currentWpm);
-  }, [inputIndex, startTime, totalCharsTyped, stage.id]);
-
+  // WPM updates every second; use ref so interval is stable and always reads latest values
   useEffect(() => {
-    const timer = setInterval(calculateStats, 1000);
+    const timer = setInterval(() => {
+      const { startTime: st, inputIndex: idx, totalCharsTyped: total, stageId } = wpmStateRef.current;
+      if (st == null) return;
+      const now = Date.now();
+      const minutes = (now - st) / 60000;
+      const chars = stageId === 15 ? total + idx : idx;
+      const words = chars / 5;
+      const currentWpm = Math.round(words / minutes) || 0;
+      setWpm(currentWpm);
+    }, 1000);
     return () => clearInterval(timer);
-  }, [calculateStats]);
+  }, []);
 
   const finishGame = useCallback(() => {
     const endTime = Date.now();
