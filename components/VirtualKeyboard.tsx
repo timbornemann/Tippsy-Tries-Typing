@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { KEYBOARD_LAYOUTS, FINGER_COLORS } from '../constants';
 import { Finger, KeyConfig } from '../types';
 import { useSettings } from '../contexts/SettingsContext';
@@ -19,12 +19,12 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({ activeKey, pressedKey
                      (keyConfig.key === 'Shift' && /[A-Z!§$%&/()=?]/.test(activeKey));
 
     // Check if key is physically pressed by user
-    const isPressed = Array.from(pressedKeys).some((k: string) => {
-        if (k === keyConfig.key) return true;
-        if (k.toLowerCase() === keyConfig.key.toLowerCase() && keyConfig.key.length === 1) return true;
-        if (k === 'Shift' && (keyConfig.key === 'Shift' || keyConfig.key === 'ShiftRight')) return true;
-        return false;
-    });
+    let isPressed = false;
+    for (const k of pressedKeys) {
+        if (k === keyConfig.key) { isPressed = true; break; }
+        if (k.toLowerCase() === keyConfig.key.toLowerCase() && keyConfig.key.length === 1) { isPressed = true; break; }
+        if (k === 'Shift' && (keyConfig.key === 'Shift' || keyConfig.key === 'ShiftRight')) { isPressed = true; break; }
+    }
 
     const fingerColorBg = FINGER_COLORS[keyConfig.finger];
     // Create border color class by replacing 'bg-' with 'border-'
@@ -75,4 +75,4 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({ activeKey, pressedKey
   );
 };
 
-export default VirtualKeyboard;
+export default memo(VirtualKeyboard);
