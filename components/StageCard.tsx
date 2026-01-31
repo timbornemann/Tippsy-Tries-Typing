@@ -264,6 +264,7 @@ const StageCard: React.FC<StageCardProps> = ({
              <button
                 disabled={isLocked}
                 onClick={() => onStartLevel(stage, 1)}
+                aria-label={t('stageCard.ariaEndless')}
                 className={`
                   relative group flex flex-col items-center justify-center transition-all duration-500
                   ${isStageFocused ? 'scale-110' : ''}
@@ -335,11 +336,23 @@ const StageCard: React.FC<StageCardProps> = ({
                   else if (subLevelId === progress.unlockedSubLevelId) status = 'active';
                 }
 
+                let ariaLabel = t('stageCard.ariaLocked', { level: subLevelId });
+                if (status === 'completed') {
+                  ariaLabel = t('stageCard.ariaCompleted', { level: subLevelId });
+                } else if (status === 'active') {
+                  if (isMaster) {
+                    ariaLabel = t('stageCard.ariaMaster');
+                  } else {
+                    ariaLabel = t('stageCard.ariaActive', { level: subLevelId });
+                  }
+                }
+
                 return (
                   <button
                     key={subLevelId}
                     disabled={status === 'locked'}
                     onClick={() => onStartLevel(stage, subLevelId)}
+                    aria-label={ariaLabel}
                     className={`
                       absolute group/btn flex flex-col items-center justify-center transition-all duration-300
                       -translate-x-1/2 -translate-y-1/2
