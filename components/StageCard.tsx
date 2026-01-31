@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, memo } from 'react';
 import { Stage, UserProgress } from '../types';
 import { ENDLESS_STAGE_ID, MAX_SUB_LEVELS, STAGE_COLOR_CLASSES } from '../constants';
 import { Check, Lock, Star, Crown, Zap, BookOpen } from 'lucide-react';
@@ -438,4 +438,4 @@ const StageCard: React.FC<StageCardProps> = ({
   );
 };
 
-export default StageCard;
+export default memo(StageCard);
