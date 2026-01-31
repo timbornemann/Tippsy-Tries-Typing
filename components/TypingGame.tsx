@@ -20,6 +20,8 @@ interface TypingGameProps {
 }
 
 const FALLBACK_CONTENT = 'fff jjj fff jjj';
+/** En-Dash (U+2013) in Inhalten wird wie Minus/Bindestrich (U+002D) akzeptiert – gleiche Taste. */
+const EN_DASH = '\u2013';
 
 const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: contentProp, onFinish, onBack, onRetry, gameMode = 'STANDARD' }) => {
   const { keyboardLayout } = useSettings();
@@ -33,6 +35,8 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
   const [errorShake, setErrorShake] = useState(false);
   const [errorKey, setErrorKey] = useState<string | null>(null);
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
+  /** Caps Lock an/aus – bleibt an, bis erneut gedrückt */
+  const [capsLockOn, setCapsLockOn] = useState(false);
   /** Per-session: which expected character was mistyped how often */
   const [errorCountByChar, setErrorCountByChar] = useState<ErrorCountByChar>({});
   
@@ -117,15 +121,28 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
       return;
     }
 
-    // Always update pressedKeys for virtual keyboard (Shift/AltGr display), before modifier return
+    // Always update pressedKeys for virtual keyboard (Shift/AltGr/Ctrl display), before modifier return
     const keyForPress = (e.key === 'Minus' ? '-' : e.key === 'Comma' ? ',' : e.key === 'Period' ? '.' : e.key === 'Enter' ? '\n' : e.key);
     setPressedKeys(prev => {
       const newSet = new Set(prev);
-      newSet.add(e.key);
-      if (keyForPress !== e.key) newSet.add(keyForPress);
+      // Modifier nur per e.code eintragen, damit links/rechts getrennt leuchten
+      if (e.key === 'Control') {
+        newSet.add(e.code);
+      } else if (e.key === 'Shift') {
+        newSet.add(e.code); // ShiftLeft oder ShiftRight
+      } else {
+        newSet.add(e.key);
+        if (keyForPress !== e.key) newSet.add(keyForPress);
+      }
       if (e.code === 'AltRight') newSet.add('AltGr');
       return newSet;
     });
+
+    // Caps Lock: Toggle-Zustand mit echtem Modifier-Zustand synchronisieren
+    if (e.key === 'CapsLock') {
+      setCapsLockOn(e.getModifierState('CapsLock'));
+      return;
+    }
 
     // AltGr / Alt must never count as key press or error: ignore and prevent default
     if (e.key === 'Alt' || e.key === 'AltGraph' || e.code === 'AltRight') {
@@ -133,19 +150,20 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
       return;
     }
 
-    if (['Shift', 'Control', 'Meta', 'CapsLock', 'Tab'].includes(e.key)) return;
+    if (['Shift', 'Control', 'Meta', 'Tab'].includes(e.key)) return;
     if (e.key === ' ') e.preventDefault();
     if (e.key === 'Enter') e.preventDefault(); // Prevent standard enter behavior
 
     const targetChar = content[inputIndex];
     // Normalize key: some keyboards/browsers send "Minus"/"Comma"/"Period" instead of the character
     const key = (e.key === 'Minus' ? '-' : e.key === 'Comma' ? ',' : e.key === 'Period' ? '.' : e.key === 'Enter' ? '\n' : e.key);
+    const targetKey = targetChar === EN_DASH ? '-' : targetChar; // En-Dash "–" mit Minus-Taste tippen
 
     // Strg/Alt/AltGr + Taste: Shortcut nicht ausführen, aber falsche Taste trotzdem als Fehler werten
     if (e.ctrlKey || e.metaKey || e.altKey) {
       e.preventDefault();
       if (startTime === null) setStartTime(Date.now());
-      if (key === targetChar) return; // Richtige Taste mit Modifier – nicht vorrücken, kein Fehler
+      if (key === targetKey) return; // Richtige Taste mit Modifier – nicht vorrücken, kein Fehler
       playError();
       setMistakes(m => m + 1);
       setErrorCountByChar(prev => {
@@ -166,7 +184,7 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
       setStartTime(Date.now());
     }
     
-    if (key === targetChar) {
+    if (key === targetKey) {
       playTyping();
       const nextIndex = inputIndex + 1;
       
@@ -224,6 +242,8 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
       const n = normalized(e.key);
       if (n !== e.key) newSet.delete(n);
       if (e.code === 'AltRight') newSet.delete('AltGr');
+      if (e.key === 'Control') newSet.delete(e.code); // ControlLeft / ControlRight
+      if (e.key === 'Shift') newSet.delete(e.code); // ShiftLeft / ShiftRight
       // Shift+Buchstabe: keydown liefert oft "A", keyup oft "a" (physische Taste) – beide entfernen
       if (e.key.length === 1) {
         newSet.delete(e.key.toLowerCase());
@@ -349,7 +369,7 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
       </div>
 
       {/* Virtual Keyboard */}
-      <VirtualKeyboard activeKey={content[inputIndex] || ''} pressedKeys={pressedKeys} errorKey={errorKey} />
+      <VirtualKeyboard activeKey={content[inputIndex] || ''} pressedKeys={pressedKeys} errorKey={errorKey} capsLockOn={capsLockOn} />
 
       <input ref={inputRef} type="text" className="opacity-0 absolute top-0" />
       

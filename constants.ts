@@ -109,9 +109,13 @@ export const KEYBOARD_LAYOUTS: Record<KeyboardLayout, KeyConfig[][]> = {
       { key: '-', display: '-', displayShift: '_', finger: Finger.RightPinky, row: 4 },
       { key: 'ShiftRight', display: '⇧', finger: Finger.RightPinky, width: 2.3, row: 4 },
     ],
-    // Space Row
+    // Space Row (QWERTZ: Strg = deutsche Bezeichnung)
     [
-      { key: ' ', display: ' ', finger: Finger.Thumb, width: 6, row: 5 },
+      { key: 'Control', display: 'Strg', finger: Finger.LeftPinky, width: 1.5, row: 5 },
+      { key: 'Alt', display: 'Alt', finger: Finger.Thumb, width: 1.5, row: 5 },
+      { key: ' ', display: ' ', finger: Finger.Thumb, width: 5, row: 5 },
+      { key: 'AltRight', display: 'Alt Gr', finger: Finger.RightPinky, width: 1.5, row: 5 },
+      { key: 'ControlRight', display: 'Strg', finger: Finger.RightPinky, width: 1.5, row: 5 },
     ]
   ],
   qwerty: [
@@ -182,7 +186,11 @@ export const KEYBOARD_LAYOUTS: Record<KeyboardLayout, KeyConfig[][]> = {
     ],
     // Space Row
     [
-      { key: ' ', display: ' ', finger: Finger.Thumb, width: 6, row: 5 },
+      { key: 'Control', display: 'Ctrl', finger: Finger.LeftPinky, width: 1.5, row: 5 },
+      { key: 'Alt', display: 'Alt', finger: Finger.Thumb, width: 1.5, row: 5 },
+      { key: ' ', display: ' ', finger: Finger.Thumb, width: 5, row: 5 },
+      { key: 'AltRight', display: 'Alt Gr', finger: Finger.RightPinky, width: 1.5, row: 5 },
+      { key: 'ControlRight', display: 'Ctrl', finger: Finger.RightPinky, width: 1.5, row: 5 },
     ]
   ],
 };
