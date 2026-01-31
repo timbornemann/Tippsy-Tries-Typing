@@ -205,25 +205,30 @@ export const STAGE_COLOR_CLASSES: Record<string, {
   purple:  { border: 'border-purple-500', bg: 'bg-purple-500', text: 'text-purple-400', gradient: 'from-purple-500', shadow: 'shadow-purple-500/20', cardBorder: 'border-purple-500/20', cardBg: 'to-purple-950/20', blobBg: 'bg-purple-500/10', blobHover: 'group-hover:bg-purple-500/20', badgeBg: 'bg-purple-500', badgeBorder: 'border-purple-400', labelText: 'text-purple-400', keyBorder: 'border-purple-500/30', progressBar: 'bg-gradient-to-r from-purple-600 to-purple-400', pathText: 'text-purple-500', nodeActive: 'bg-purple-500', practiceHover: 'hover:bg-purple-500 hover:border-purple-400 hover:text-white hover:shadow-[0_0_25px_rgba(0,0,0,0.3)]', practiceIconBg: 'bg-purple-500/20 group-hover/practice:bg-white/20', practiceIconText: 'text-purple-400 group-hover/practice:text-white' },
   fuchsia: { border: 'border-fuchsia-500', bg: 'bg-fuchsia-500', text: 'text-fuchsia-400', gradient: 'from-fuchsia-500', shadow: 'shadow-fuchsia-500/20', cardBorder: 'border-fuchsia-500/20', cardBg: 'to-fuchsia-950/20', blobBg: 'bg-fuchsia-500/10', blobHover: 'group-hover:bg-fuchsia-500/20', badgeBg: 'bg-fuchsia-500', badgeBorder: 'border-fuchsia-400', labelText: 'text-fuchsia-400', keyBorder: 'border-fuchsia-500/30', progressBar: 'bg-gradient-to-r from-fuchsia-600 to-fuchsia-400', pathText: 'text-fuchsia-500', nodeActive: 'bg-fuchsia-500', practiceHover: 'hover:bg-fuchsia-500 hover:border-fuchsia-400 hover:text-white hover:shadow-[0_0_25px_rgba(0,0,0,0.3)]', practiceIconBg: 'bg-fuchsia-500/20 group-hover/practice:bg-white/20', practiceIconText: 'text-fuchsia-400 group-hover/practice:text-white' },
   rose:    { border: 'border-rose-500', bg: 'bg-rose-500', text: 'text-rose-400', gradient: 'from-rose-500', shadow: 'shadow-rose-500/20', cardBorder: 'border-rose-500/20', cardBg: 'to-rose-950/20', blobBg: 'bg-rose-500/10', blobHover: 'group-hover:bg-rose-500/20', badgeBg: 'bg-rose-500', badgeBorder: 'border-rose-400', labelText: 'text-rose-400', keyBorder: 'border-rose-500/30', progressBar: 'bg-gradient-to-r from-rose-600 to-rose-400', pathText: 'text-rose-500', nodeActive: 'bg-rose-500', practiceHover: 'hover:bg-rose-500 hover:border-rose-400 hover:text-white hover:shadow-[0_0_25px_rgba(0,0,0,0.3)]', practiceIconBg: 'bg-rose-500/20 group-hover/practice:bg-white/20', practiceIconText: 'text-rose-400 group-hover/practice:text-white' },
-  amber:   { border: 'border-amber-500', bg: 'bg-amber-500', text: 'text-amber-400', gradient: 'from-amber-500', shadow: 'shadow-amber-500/20', cardBorder: 'border-amber-500/20', cardBg: 'to-amber-950/20', blobBg: 'bg-amber-500/10', blobHover: 'group-hover:bg-amber-500/20', badgeBg: 'bg-amber-500', badgeBorder: 'border-amber-400', labelText: 'text-amber-400', keyBorder: 'border-amber-500/30', progressBar: 'bg-gradient-to-r from-amber-600 to-amber-400', pathText: 'text-amber-500', nodeActive: 'bg-amber-500', practiceHover: 'hover:bg-amber-500 hover:border-amber-400 hover:text-white hover:shadow-[0_0_25px_rgba(0,0,0,0.3)]', practiceIconBg: 'bg-amber-500/20 group-hover/practice:bg-white/20', practiceIconText: 'text-amber-400 group-hover/practice:text-white' },
+  amber:   { border: 'border-amber-500', bg: 'bg-amber-500', text: 'text-amber-400', gradient: 'from-amber-500', shadow: 'shadow-amber-500/25', cardBorder: 'border-amber-500/20', cardBg: 'to-amber-950/20', blobBg: 'bg-amber-500/12', blobHover: 'group-hover:bg-amber-500/25', badgeBg: 'bg-amber-500', badgeBorder: 'border-amber-400', labelText: 'text-amber-400', keyBorder: 'border-amber-500/30', progressBar: 'bg-gradient-to-r from-amber-600 to-amber-400', pathText: 'text-amber-500', nodeActive: 'bg-amber-500', practiceHover: 'hover:bg-amber-500 hover:border-amber-400 hover:text-white hover:shadow-[0_0_25px_rgba(0,0,0,0.3)]', practiceIconBg: 'bg-amber-500/20 group-hover/practice:bg-white/20', practiceIconText: 'text-amber-400 group-hover/practice:text-white' },
+  slate:   { border: 'border-slate-400', bg: 'bg-slate-400', text: 'text-slate-300', gradient: 'from-slate-400', shadow: 'shadow-slate-400/25', cardBorder: 'border-slate-400/25', cardBg: 'to-slate-950/20', blobBg: 'bg-slate-400/12', blobHover: 'group-hover:bg-slate-400/25', badgeBg: 'bg-slate-400', badgeBorder: 'border-slate-300', labelText: 'text-slate-300', keyBorder: 'border-slate-400/30', progressBar: 'bg-gradient-to-r from-slate-500 to-slate-400', pathText: 'text-slate-400', nodeActive: 'bg-slate-400', practiceHover: 'hover:bg-slate-400 hover:border-slate-300 hover:text-white hover:shadow-[0_0_25px_rgba(0,0,0,0.3)]', practiceIconBg: 'bg-slate-400/20 group-hover/practice:bg-white/20', practiceIconText: 'text-slate-300 group-hover/practice:text-white' },
+  lime:    { border: 'border-lime-500', bg: 'bg-lime-500', text: 'text-lime-400', gradient: 'from-lime-500', shadow: 'shadow-lime-500/20', cardBorder: 'border-lime-500/20', cardBg: 'to-lime-950/20', blobBg: 'bg-lime-500/10', blobHover: 'group-hover:bg-lime-500/20', badgeBg: 'bg-lime-500', badgeBorder: 'border-lime-400', labelText: 'text-lime-400', keyBorder: 'border-lime-500/30', progressBar: 'bg-gradient-to-r from-lime-600 to-lime-400', pathText: 'text-lime-500', nodeActive: 'bg-lime-500', practiceHover: 'hover:bg-lime-500 hover:border-lime-400 hover:text-white hover:shadow-[0_0_25px_rgba(0,0,0,0.3)]', practiceIconBg: 'bg-lime-500/20 group-hover/practice:bg-white/20', practiceIconText: 'text-lime-400 group-hover/practice:text-white' },
+  orange:  { border: 'border-orange-500', bg: 'bg-orange-500', text: 'text-orange-400', gradient: 'from-orange-500', shadow: 'shadow-orange-500/20', cardBorder: 'border-orange-500/20', cardBg: 'to-orange-950/20', blobBg: 'bg-orange-500/10', blobHover: 'group-hover:bg-orange-500/20', badgeBg: 'bg-orange-500', badgeBorder: 'border-orange-400', labelText: 'text-orange-400', keyBorder: 'border-orange-500/30', progressBar: 'bg-gradient-to-r from-orange-600 to-orange-400', pathText: 'text-orange-500', nodeActive: 'bg-orange-500', practiceHover: 'hover:bg-orange-500 hover:border-orange-400 hover:text-white hover:shadow-[0_0_25px_rgba(0,0,0,0.3)]', practiceIconBg: 'bg-orange-500/20 group-hover/practice:bg-white/20', practiceIconText: 'text-orange-400 group-hover/practice:text-white' },
+  pink:    { border: 'border-pink-500', bg: 'bg-pink-500', text: 'text-pink-400', gradient: 'from-pink-500', shadow: 'shadow-pink-500/20', cardBorder: 'border-pink-500/20', cardBg: 'to-pink-950/20', blobBg: 'bg-pink-500/10', blobHover: 'group-hover:bg-pink-500/20', badgeBg: 'bg-pink-500', badgeBorder: 'border-pink-400', labelText: 'text-pink-400', keyBorder: 'border-pink-500/30', progressBar: 'bg-gradient-to-r from-pink-600 to-pink-400', pathText: 'text-pink-500', nodeActive: 'bg-pink-500', practiceHover: 'hover:bg-pink-500 hover:border-pink-400 hover:text-white hover:shadow-[0_0_25px_rgba(0,0,0,0.3)]', practiceIconBg: 'bg-pink-500/20 group-hover/practice:bg-white/20', practiceIconText: 'text-pink-400 group-hover/practice:text-white' },
 };
 
+// 15 eindeutige Stufenfarben: jede Stufe hat eine eigene, gut unterscheidbare Farbe
 const STAGE_COLORS = [
-  'emerald',
-  'teal',
-  'cyan',
-  'sky',
-  'blue',
-  'indigo',
-  'violet',
-  'purple',
-  'fuchsia',
-  'rose',
-  'amber',
-  'slate',
-  'emerald',
-  'rose',
-  'violet',
+  'emerald',  // 1
+  'violet',   // 2
+  'amber',    // 3
+  'sky',      // 4
+  'rose',     // 5
+  'teal',     // 6
+  'indigo',   // 7
+  'fuchsia',  // 8
+  'cyan',     // 9
+  'purple',   // 10
+  'blue',     // 11
+  'slate',    // 12
+  'lime',     // 13
+  'orange',   // 14
+  'pink',     // 15: Endless
 ];
 
 const QWERTZ_STAGE_CHARS = [

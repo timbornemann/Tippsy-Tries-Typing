@@ -202,7 +202,7 @@ const StageCard: React.FC<StageCardProps> = ({
             ${isLocked 
               ? 'bg-slate-800 border-slate-700 text-slate-600' 
               : isCompleted
-                ? 'bg-emerald-500 border-emerald-400 text-white'
+                ? `${c.badgeBg} ${c.badgeBorder} text-white`
                 : `${c.badgeBg} ${c.badgeBorder} text-white`
             }
           `}>
@@ -355,7 +355,7 @@ const StageCard: React.FC<StageCardProps> = ({
                       ${status === 'locked' 
                         ? 'bg-slate-800 border-slate-700 text-slate-600 scale-90' 
                         : status === 'completed'
-                          ? 'bg-slate-800 border-emerald-500 text-emerald-400 scale-100 hover:scale-110'
+                          ? `bg-slate-800 ${c.badgeBorder} ${c.text} scale-100 hover:scale-110`
                           : `${c.nodeActive} border-white text-white scale-110 hover:scale-125 shadow-[0_0_30px_rgba(255,255,255,0.3)]`
                       }
                       ${isMaster && status !== 'locked' ? 'w-14 h-14' : ''}
