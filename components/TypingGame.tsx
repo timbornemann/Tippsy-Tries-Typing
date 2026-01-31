@@ -31,6 +31,7 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
   const [mistakes, setMistakes] = useState(0);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [errorShake, setErrorShake] = useState(false);
+  const [errorKey, setErrorKey] = useState<string | null>(null);
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
   /** Per-session: which expected character was mistyped how often */
   const [errorCountByChar, setErrorCountByChar] = useState<ErrorCountByChar>({});
@@ -132,20 +133,38 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
       return;
     }
 
-    // Ignore key combinations with Ctrl/Meta/Alt (browser shortcuts, etc.; debug shortcut lives in App)
-    if (e.ctrlKey || e.metaKey || e.altKey) return;
-
     if (['Shift', 'Control', 'Meta', 'CapsLock', 'Tab'].includes(e.key)) return;
     if (e.key === ' ') e.preventDefault();
     if (e.key === 'Enter') e.preventDefault(); // Prevent standard enter behavior
 
-    if (startTime === null) {
-      setStartTime(Date.now());
-    }
-
     const targetChar = content[inputIndex];
     // Normalize key: some keyboards/browsers send "Minus"/"Comma"/"Period" instead of the character
     const key = (e.key === 'Minus' ? '-' : e.key === 'Comma' ? ',' : e.key === 'Period' ? '.' : e.key === 'Enter' ? '\n' : e.key);
+
+    // Strg/Alt/AltGr + Taste: Shortcut nicht ausführen, aber falsche Taste trotzdem als Fehler werten
+    if (e.ctrlKey || e.metaKey || e.altKey) {
+      e.preventDefault();
+      if (startTime === null) setStartTime(Date.now());
+      if (key === targetChar) return; // Richtige Taste mit Modifier – nicht vorrücken, kein Fehler
+      playError();
+      setMistakes(m => m + 1);
+      setErrorCountByChar(prev => {
+        const next = { ...prev };
+        next[targetChar] = (next[targetChar] ?? 0) + 1;
+        return next;
+      });
+      setErrorShake(true);
+      setErrorKey(key);
+      setTimeout(() => {
+        setErrorShake(false);
+        setErrorKey(null);
+      }, 300);
+      return;
+    }
+
+    if (startTime === null) {
+      setStartTime(Date.now());
+    }
     
     if (key === targetChar) {
       playTyping();
@@ -189,7 +208,11 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
         return next;
       });
       setErrorShake(true);
-      setTimeout(() => setErrorShake(false), 300);
+      setErrorKey(key);
+      setTimeout(() => {
+        setErrorShake(false);
+        setErrorKey(null);
+      }, 300);
     }
   }, [content, inputIndex, mistakes, finishGame, startTime, onBack, errorCountByChar, stage.id, playTyping, playError]);
 
@@ -326,7 +349,7 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
       </div>
 
       {/* Virtual Keyboard */}
-      <VirtualKeyboard activeKey={content[inputIndex] || ''} pressedKeys={pressedKeys} />
+      <VirtualKeyboard activeKey={content[inputIndex] || ''} pressedKeys={pressedKeys} errorKey={errorKey} />
 
       <input ref={inputRef} type="text" className="opacity-0 absolute top-0" />
       

@@ -6,9 +6,11 @@ import { useSettings } from '../contexts/SettingsContext';
 interface VirtualKeyboardProps {
   activeKey: string;
   pressedKeys: Set<string>;
+  /** Zeichen/Taste, die fälschlich gedrückt wurde – wird kurz rot hervorgehoben */
+  errorKey?: string | null;
 }
 
-const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({ activeKey, pressedKeys }) => {
+const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({ activeKey, pressedKeys, errorKey }) => {
   const { keyboardLayout } = useSettings();
   const layout = KEYBOARD_LAYOUTS[keyboardLayout];
 
@@ -27,6 +29,13 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({ activeKey, pressedKey
                      (activeKey === ' ' && keyConfig.key === ' ') ||
                      (keyConfig.key === 'Shift' && /[A-Z!§$%&/()=?]/.test(activeKey));
 
+    // Wrong key just pressed – show error feedback
+    const isError = errorKey != null && (
+      (keyConfig.key.length === 1 && keyConfig.key.toLowerCase() === errorKey.toLowerCase()) ||
+      (errorKey === ' ' && keyConfig.key === ' ') ||
+      (errorKey === '\n' && keyConfig.key === 'Enter')
+    );
+
     // Check if key is physically pressed by user
     let isPressed = false;
     for (const k of pressedKeys) {
@@ -42,22 +51,38 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({ activeKey, pressedKey
     const baseStyles = "relative flex items-center justify-center rounded-lg border-b-4 transition-all duration-75";
     const sizeStyles = keyConfig.finger === Finger.Thumb ? 'h-12' : 'h-12';
     
-    // 1. PRESSED STATE (Physical user interaction)
+    // 1. ERROR STATE (Wrong key – red flash + short shake)
+    if (isError) {
+      return `${baseStyles} ${sizeStyles} bg-rose-500 border-rose-400 text-white mt-1 border-b-0 shadow-inner key-error-shake z-20`;
+    }
+    
+    // 2. PRESSED STATE (Physical user interaction)
     if (isPressed) {
       return `${baseStyles} ${sizeStyles} ${fingerColorBg} border-transparent text-white mt-1 border-b-0 shadow-inner brightness-110`;
     } 
     
-    // 2. TARGET STATE (Instruction)
+    // 3. TARGET STATE (Instruction)
     if (isTarget) {
       return `${baseStyles} ${sizeStyles} ${fingerColorBg} border-black/20 text-white scale-105 shadow-[0_0_15px_rgba(255,255,255,0.4)] z-10`;
     }
 
-    // 3. IDLE STATE (Passive visual hint)
+    // 4. IDLE STATE (Passive visual hint)
     // Dark background, but colored bottom border to indicate finger mapping
     return `${baseStyles} ${sizeStyles} bg-slate-800 text-slate-300 ${fingerColorBorder} hover:bg-slate-700`;
   };
 
   return (
+    <>
+      <style>{`
+        @keyframes key-error-shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-5px); }
+          75% { transform: translateX(5px); }
+        }
+        .key-error-shake {
+          animation: key-error-shake 0.3s ease-in-out;
+        }
+      `}</style>
     <div className="flex flex-col gap-2 p-6 bg-slate-900/50 rounded-xl shadow-2xl border border-slate-800 select-none max-w-4xl mx-auto mt-8 backdrop-blur-sm">
       {layout.map((row, rowIndex) => (
         <div key={rowIndex} className="flex gap-2 justify-center">
@@ -81,6 +106,7 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({ activeKey, pressedKey
         </div>
       ))}
     </div>
+    </>
   );
 };
 
