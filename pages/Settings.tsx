@@ -3,7 +3,7 @@ import { useSettings } from '../contexts/SettingsContext';
 import { useI18n } from '../hooks/useI18n';
 import { useSound } from '../hooks/useSound';
 import { Home, Download, Upload, Trash2, Info } from 'lucide-react';
-import { UserProgress } from '../types';
+import { UserProgress, GameStats } from '../types';
 import { MAX_SUB_LEVELS } from '../constants';
 
 const PROGRESS_STORAGE_KEY = 'tippsy_progress';
@@ -24,7 +24,13 @@ function parseProgressJson(raw: unknown): UserProgress | null {
   const averageWpm = typeof st.averageWpm === 'number' ? st.averageWpm : 0;
   const averageAccuracy = typeof st.averageAccuracy === 'number' ? st.averageAccuracy : 0;
   const stats = { totalCharsTyped, totalTimePlayed, gamesPlayed, highestWpm, averageWpm, averageAccuracy };
-  const lastSessionByKey = p.lastSessionByKey && typeof p.lastSessionByKey === 'object' ? (p.lastSessionByKey as Record<string, unknown>) : {};
+  const rawLastSessionByKey = p.lastSessionByKey && typeof p.lastSessionByKey === 'object' ? (p.lastSessionByKey as Record<string, unknown>) : {};
+  const lastSessionByKey: Record<string, GameStats> = {};
+  for (const [k, v] of Object.entries(rawLastSessionByKey)) {
+    if (v && typeof v === 'object' && typeof (v as GameStats).wpm === 'number' && typeof (v as GameStats).accuracy === 'number' && typeof (v as GameStats).errors === 'number' && typeof (v as GameStats).totalChars === 'number' && typeof (v as GameStats).timeElapsed === 'number') {
+      lastSessionByKey[k] = v as GameStats;
+    }
+  }
   const sessionHistory = Array.isArray(p.sessionHistory) ? p.sessionHistory : [];
   const perStageBest = p.perStageBest && typeof p.perStageBest === 'object' ? (p.perStageBest as Record<string, unknown>) : {};
   const errorCountByChar = p.errorCountByChar && typeof p.errorCountByChar === 'object' ? (p.errorCountByChar as Record<string, number>) : {};
