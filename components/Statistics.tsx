@@ -103,7 +103,12 @@ const Statistics: React.FC<StatisticsProps> = ({ stages, progress, onBack }) => 
   return (
     <div className="flex-1 container mx-auto px-4 py-8 max-w-5xl flex flex-col h-full">
       <div className="flex items-center gap-4 mb-10">
-        <button onClick={() => { playMenuClick(); onBack(); }} className="p-3 hover:bg-slate-800 rounded-full transition-colors group" title={t('statistics.back')}>
+        <button
+          onClick={() => { playMenuClick(); onBack(); }}
+          className="p-3 hover:bg-slate-800 rounded-full transition-colors group"
+          title={t('statistics.back')}
+          aria-label={t('statistics.back')}
+        >
           <Home size={24} className="text-slate-400 group-hover:text-white" />
         </button>
         <h1 className="text-3xl font-bold text-white">{t('statistics.title')}</h1>
