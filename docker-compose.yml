@@ -1,0 +1,6 @@
+services:
+  tippsy:
+    build: .
+    ports:
+      - "3300:80"
+    restart: unless-stopped
