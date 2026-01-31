@@ -3,6 +3,7 @@ import { Stage, GameStats, GameMode, ErrorCountByChar } from '../types';
 import { KEYBOARD_LAYOUTS, FINGER_NAMES, FINGER_COLORS, MAX_SUB_LEVELS } from '../constants';
 import VirtualKeyboard from './VirtualKeyboard';
 import TypingTape from './TypingTape';
+import { WpmDisplay } from './WpmDisplay';
 import { RotateCcw, Home, Crown, Zap, BookOpen, Infinity } from 'lucide-react';
 import { getRandomChunk } from '../services/endlessContent';
 import { useSettings } from '../contexts/SettingsContext';
@@ -40,16 +41,10 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
   /** Per-session: which expected character was mistyped how often */
   const [errorCountByChar, setErrorCountByChar] = useState<ErrorCountByChar>({});
   
-  const [wpm, setWpm] = useState(0);
-
   // Total chars typed in this endless session (since we slice content, inputIndex isn't the total anymore)
   const [totalCharsTyped, setTotalCharsTyped] = useState(0);
 
   const inputRef = useRef<HTMLInputElement>(null);
-
-  // Ref so the WPM interval can read latest state without resetting the timer on every keystroke
-  const wpmStateRef = useRef({ inputIndex, startTime, totalCharsTyped, stageId: stage.id });
-  wpmStateRef.current = { inputIndex, startTime, totalCharsTyped, stageId: stage.id };
 
   // Reset content when prop changes (new level)
   useEffect(() => {
@@ -59,7 +54,6 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
         setMistakes(0);
         setStartTime(null);
         setTotalCharsTyped(0);
-        setWpm(0);
     }
   }, [contentProp]);
 
@@ -68,21 +62,6 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
     const handleGlobalClick = () => inputRef.current?.focus();
     document.addEventListener('click', handleGlobalClick);
     return () => document.removeEventListener('click', handleGlobalClick);
-  }, []);
-
-  // WPM updates every second; use ref so interval is stable and always reads latest values
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const { startTime: st, inputIndex: idx, totalCharsTyped: total, stageId } = wpmStateRef.current;
-      if (st == null) return;
-      const now = Date.now();
-      const minutes = (now - st) / 60000;
-      const chars = stageId === 15 ? total + idx : idx;
-      const words = chars / 5;
-      const currentWpm = Math.round(words / minutes) || 0;
-      setWpm(currentWpm);
-    }, 1000);
-    return () => clearInterval(timer);
   }, []);
 
   const finishGame = useCallback(() => {
@@ -325,10 +304,7 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
         </div>
         
         <div className="flex gap-8">
-          <div className="text-center">
-            <p className="text-xs text-slate-400 uppercase tracking-wider">{t('typing.wpm')}</p>
-            <p className="text-2xl font-mono font-bold text-emerald-400">{wpm}</p>
-          </div>
+          <WpmDisplay startTime={startTime} inputIndex={inputIndex} totalCharsTyped={totalCharsTyped} stageId={stage.id} />
           <div className="text-center">
             <p className="text-xs text-slate-400 uppercase tracking-wider">{t('typing.errors')}</p>
             <p className={`text-2xl font-mono font-bold ${mistakes > 0 ? 'text-rose-400' : 'text-slate-200'}`}>{mistakes}</p>
