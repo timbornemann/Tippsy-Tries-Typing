@@ -41,14 +41,62 @@ Tippsy ist ein webbasierter Tipptrainer für die **deutsche QWERTZ-Tastatur**. M
 
 ## 🚀 Installation
 
-### Voraussetzungen
+### Docker (empfohlen)
 
-- **Node.js** (empfohlen: v18 oder neuer)  
-  [nodejs.org](https://nodejs.org)
+Wenn du nicht lokal bauen möchtest, kannst du das bereitgestellte Docker-Image aus der GitHub Container Registry nutzen:
 
-### Schritte
+```bash
+docker pull ghcr.io/timbornemann/tippsy:latest
+```
 
-1. **Projekt klonen oder entpacken**
+```bash
+docker run -d --name tippsy -p 3300:80 ghcr.io/timbornemann/tippsy:latest
+```
+
+Die App ist danach unter **http://localhost:3300** erreichbar.
+
+#### Automatische Updates mit Watchtower
+
+Damit der Container stets aktuell bleibt, kannst du [Watchtower](https://containrrr.dev/watchtower/) verwenden. Es prüft regelmäßig auf neue Images und startet betroffene Container neu.
+
+**Alle Container überwachen:**
+
+```bash
+docker run -d --name watchtower --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower --interval 3600
+```
+
+**Nur diesen Container aktualisieren:**
+
+```bash
+docker run -d --name watchtower --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower tippsy --interval 3600
+```
+
+**Einmalig prüfen und beenden:**
+
+```bash
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower tippsy --run-once
+```
+
+#### Docker Compose: Image selbst bauen
+
+Die Anwendung kannst du auch komplett mit Docker Compose ausführen; dabei wird automatisch ein Image gebaut.
+
+1. Repository klonen und in das Projektverzeichnis wechseln.
+2. Container bauen und starten (optional mit gesetzter Versionsnummer):
+
+```bash
+VERSION=$(git describe --tags --abbrev=0) docker compose up --build -d
+```
+
+Der Dienst lauscht auf Port **3300**. Im Browser unter **http://localhost:3300** erreichbar. Mit `docker compose down` kannst du den Container stoppen.
+
+---
+
+### Lokale Entwicklung
+
+**Voraussetzungen:** [Node.js](https://nodejs.org) v18 oder neuer.
+
+1. **Projekt klonen und Verzeichnis wechseln**
 
    ```bash
    git clone <repository-url>
@@ -69,11 +117,11 @@ Tippsy ist ein webbasierter Tipptrainer für die **deutsche QWERTZ-Tastatur**. M
 
    Die App läuft z. B. unter `http://localhost:5173`. Im Browser öffnen und loslegen.
 
-### Produktion bauen
+**Produktion bauen:**
 
 ```bash
- npm run build
- npm run preview
+npm run build
+npm run preview
 ```
 
 `npm run build` erzeugt die Dateien in `dist/`. Mit `npm run preview` kannst du den Build lokal testen.

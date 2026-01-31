@@ -41,14 +41,62 @@ Tippsy is a web-based typing trainer optimized for the **German QWERTZ keyboard 
 
 ## 🚀 Installation
 
-### Prerequisites
+### Docker (recommended)
 
-- **Node.js** (recommended: v18 or newer)  
-  [nodejs.org](https://nodejs.org)
+If you don’t want to build locally, you can use the pre-built Docker image from the GitHub Container Registry:
 
-### Steps
+```bash
+docker pull ghcr.io/timbornemann/tippsy:latest
+```
 
-1. **Clone or download the project**
+```bash
+docker run -d --name tippsy -p 3300:80 ghcr.io/timbornemann/tippsy:latest
+```
+
+The app is then available at **http://localhost:3300**.
+
+#### Automatic updates with Watchtower
+
+To keep the container up to date, you can use [Watchtower](https://containrrr.dev/watchtower/). It periodically checks for new images and restarts the container.
+
+**Monitor all containers:**
+
+```bash
+docker run -d --name watchtower --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower --interval 3600
+```
+
+**Monitor only this container:**
+
+```bash
+docker run -d --name watchtower --restart unless-stopped -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower tippsy --interval 3600
+```
+
+**One-time check and exit:**
+
+```bash
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower tippsy --run-once
+```
+
+#### Docker Compose: build image locally
+
+You can also run the app with Docker Compose so the image is built locally:
+
+1. Clone the repo and go into the project directory.
+2. Build and start (optionally set the version):
+
+```bash
+VERSION=$(git describe --tags --abbrev=0) docker compose up --build -d
+```
+
+The app listens on port **3300**. Open **http://localhost:3300** in your browser. Stop with `docker compose down`.
+
+---
+
+### Local development
+
+**Prerequisites:** [Node.js](https://nodejs.org) v18 or newer.
+
+1. **Clone and enter the project**
 
    ```bash
    git clone <repository-url>
@@ -69,11 +117,11 @@ Tippsy is a web-based typing trainer optimized for the **German QWERTZ keyboard 
 
    The app usually runs at `http://localhost:5173`. Open it in your browser and get started.
 
-### Build for Production
+**Build for production:**
 
 ```bash
- npm run build
- npm run preview
+npm run build
+npm run preview
 ```
 
 `npm run build` generates the files in `dist/`. With `npm run preview`, you can test the build locally.
