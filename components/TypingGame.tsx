@@ -249,6 +249,7 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
             onClick={() => (stage.id === 15 ? finishGame() : onBack())}
             className="p-2 hover:bg-slate-700 rounded-full transition-colors"
             title={stage.id === 15 ? t('typing.finishStats') : t('typing.backToMenu')}
+            aria-label={stage.id === 15 ? t('typing.finishStats') : t('typing.backToMenu')}
           >
               <Home size={20} className="text-slate-400 hover:text-white" />
           </button>
@@ -285,7 +286,12 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
           </div>
         </div>
 
-        <button onClick={onRetry} className="p-2 hover:bg-slate-700 rounded-full transition-colors" title={t('typing.restart')}>
+        <button
+          onClick={onRetry}
+          className="p-2 hover:bg-slate-700 rounded-full transition-colors"
+          title={t('typing.restart')}
+          aria-label={t('typing.restart')}
+        >
           <RotateCcw size={20} className="text-slate-400 hover:text-white" />
         </button>
       </div>
