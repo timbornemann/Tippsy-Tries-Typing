@@ -5,7 +5,7 @@
 **Learn touch typing in a playful and interactive way.**  
 No boredom, just progress.
 
-Tippsy is a web-based typing trainer optimized for the **German QWERTZ keyboard layout**. With structured lessons, the learning companion Tippsy, and clear statistics, you will improve your typing speed and accuracy step by step.
+Tippsy is a web-based typing trainer that supports **two keyboard layouts** (QWERTZ for German and QWERTY for US) and **two languages** (English and German). At first start you choose language and layout; you can change both anytime in Settings. With structured lessons, the learning companion Tippsy, and clear statistics, you will improve your typing speed and accuracy step by step.
 
 ---
 
@@ -32,7 +32,8 @@ Tippsy is a web-based typing trainer optimized for the **German QWERTZ keyboard 
 
 - **Guided Learning Path:** Over 15 stages from index fingers (F & J) to special characters and the "Endless Zone".
 - **Tippsy as a Companion:** A friendly learning companion guides you through the lessons.
-- **German Keyboard:** Full support for QWERTZ including Ä, Ö, Ü, ß, and special characters.
+- **Two Languages:** App available in **English** and **German**; select at first start or in Settings.
+- **Two Keyboard Layouts:** Choose **QWERTZ (German)** or **QWERTY (US)**; QWERTZ includes Ä, Ö, Ü, ß and special characters.
 - **Finger Assignment:** Each key is assigned to a finger; colorful virtual keyboard and hints (e.g., "Right Index Finger").
 - **Statistics:** WPM, accuracy, errors, playtime, and progress per stage and across all sessions.
 - **Different Modes:** Standard lessons, Free Practice per stage, Words & Sentences.
@@ -154,6 +155,9 @@ npm run preview
 
 6. **Statistics**  
    Via **"Your Profile"** / Statistics, you can access typed characters, playtime, record WPM, completed exercises, average WPM, and accuracy.
+
+7. **Settings**  
+   In **Settings** (gear icon) you can change **language** (English / German) and **keyboard layout** (QWERTY / QWERTZ) at any time.
 
 ### Keyboard Shortcuts (Selection)
 

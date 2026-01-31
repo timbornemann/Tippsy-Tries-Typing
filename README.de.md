@@ -5,7 +5,7 @@
 **Lerne das 10-Finger-System spielerisch und interaktiv.**  
 Keine Langeweile, nur Fortschritt.
 
-Tippsy ist ein webbasierter Tipptrainer für die **deutsche QWERTZ-Tastatur**. Mit strukturierten Lektionen, dem Lernbegleiter Tippsy und klaren Statistiken verbesserst du Schritt für Schritt deine Tippgeschwindigkeit und Genauigkeit.
+Tippsy ist ein webbasierter Tipptrainer mit **zwei Tastaturlayouts** (QWERTZ für Deutsch, QWERTY für US) und **zwei Sprachen** (Deutsch und Englisch). Beim ersten Start wählst du Sprache und Layout; beides kannst du jederzeit in den Einstellungen ändern. Mit strukturierten Lektionen, dem Lernbegleiter Tippsy und klaren Statistiken verbesserst du Schritt für Schritt deine Tippgeschwindigkeit und Genauigkeit.
 
 ---
 
@@ -32,7 +32,8 @@ Tippsy ist ein webbasierter Tipptrainer für die **deutsche QWERTZ-Tastatur**. M
 
 - **Geführter Lernpfad:** Über 15 Stufen von den Zeigefingern (F & J) bis zu Sonderzeichen und „Endless Zone“.
 - **Tippsy als Begleiter:** Ein freundlicher Lernbegleiter führt dich durch die Lektionen.
-- **Deutsche Tastatur:** Vollständige Unterstützung für QWERTZ inkl. Ä, Ö, Ü, ß und Sonderzeichen.
+- **Zwei Sprachen:** App auf **Deutsch** und **Englisch**; Auswahl beim ersten Start oder in den Einstellungen.
+- **Zwei Tastaturlayouts:** Wähle **QWERTZ (Deutsch)** oder **QWERTY (US)**; QWERTZ inkl. Ä, Ö, Ü, ß und Sonderzeichen.
 - **Finger-Zuordnung:** Jede Taste ist einem Finger zugeordnet; farbige virtuelle Tastatur und Hinweise (z. B. „Rechter Zeigefinger“).
 - **Statistik:** WPM, Genauigkeit, Fehler, Spielzeit und Fortschritt pro Stufe und über alle Sessions.
 - **Verschiedene Modi:** Standard-Lektionen, Freies Üben pro Stufe, Wörter & Sätze.
@@ -154,6 +155,9 @@ npm run preview
 
 6. **Statistik**  
    Über **„Dein Profil“** / Statistik erreichst du getippte Zeichen, Spielzeit, Rekord-WPM, absolvierte Übungen, Durchschnitts-WPM und Genauigkeit.
+
+7. **Einstellungen**  
+   In den **Einstellungen** (Zahnrad) kannst du **Sprache** (Deutsch / Englisch) und **Tastaturlayout** (QWERTZ / QWERTY) jederzeit ändern.
 
 ### Tastenkürzel (Auswahl)
 
