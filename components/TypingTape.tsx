@@ -1,5 +1,10 @@
 import React, { memo } from 'react';
 
+const CHAR_WIDTH_PX = 64;
+const WINDOW_THRESHOLD = 80;
+const WINDOW_BEFORE = 40;
+const WINDOW_AFTER = 80;
+
 interface TypingTapeProps {
   content: string;
   inputIndex: number;
@@ -7,6 +12,14 @@ interface TypingTapeProps {
 }
 
 const TypingTape: React.FC<TypingTapeProps> = ({ content, inputIndex, errorShake }) => {
+  const useWindow = content.length > WINDOW_THRESHOLD;
+  const start = useWindow ? Math.max(0, inputIndex - WINDOW_BEFORE) : 0;
+  const end = useWindow ? Math.min(content.length, inputIndex + WINDOW_AFTER) : content.length;
+  const chars = useWindow ? content.slice(start, end) : content;
+  const transformPx = useWindow
+    ? (inputIndex - start) * CHAR_WIDTH_PX + 32
+    : inputIndex * CHAR_WIDTH_PX + 32;
+
   return (
     <div className="relative w-full bg-slate-900 rounded-2xl mb-8 border border-slate-800 shadow-inner h-40 overflow-hidden group">
          {/* Gradients for fade effect */}
@@ -22,11 +35,12 @@ const TypingTape: React.FC<TypingTapeProps> = ({ content, inputIndex, errorShake
              className="absolute top-0 bottom-0 flex items-center transition-transform duration-200 ease-out will-change-transform"
              style={{
                left: '50%',
-               transform: `translateX(-${inputIndex * 64 + 32}px)`,
+               transform: `translateX(-${transformPx}px)`,
              }}
            >
 
-           {content.split('').map((char, idx) => {
+           {(useWindow ? chars : content).split('').map((char, localIdx) => {
+             const idx = useWindow ? start + localIdx : localIdx;
              let statusColor = 'text-slate-600'; // Upcoming
              let scale = 'scale-100';
              let activeStyle = '';
@@ -46,7 +60,7 @@ const TypingTape: React.FC<TypingTapeProps> = ({ content, inputIndex, errorShake
 
              return (
                <div
-                 key={idx}
+                 key={useWindow ? start + localIdx : localIdx}
                  className={`flex items-center justify-center w-16 h-24 text-4xl font-mono shrink-0 transition-all duration-200 ${statusColor} ${scale} ${activeStyle}`}
                >
                  {char === ' ' ? (
