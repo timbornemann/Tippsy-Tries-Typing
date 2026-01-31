@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { GameState, UserProgress, Stage } from '../types';
 import { Keyboard, User, X, Info, Settings as SettingsIcon } from 'lucide-react';
 import Mascot from '../components/Mascot';
@@ -173,6 +173,21 @@ const MainMenu: React.FC<MainMenuProps> = ({
     } catch {}
   };
 
+  const handleStartLevel = useCallback((s: Stage, l: number) => {
+    playMenuClick();
+    onStartLevel(s, l);
+  }, [playMenuClick, onStartLevel]);
+
+  const handleStartPractice = useCallback((s: Stage) => {
+    playMenuClick();
+    onStartPractice(s);
+  }, [playMenuClick, onStartPractice]);
+
+  const handleStartWordSentencePractice = useCallback((s: Stage) => {
+    playMenuClick();
+    onStartWordSentencePractice(s);
+  }, [playMenuClick, onStartWordSentencePractice]);
+
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       <header className="shrink-0 py-6 px-6 text-center sticky top-0 z-50 bg-[#0a0f1c]/80 backdrop-blur-xl border-b border-slate-800/60 shadow-lg flex justify-between items-center">
@@ -248,9 +263,9 @@ const MainMenu: React.FC<MainMenuProps> = ({
                   stage={stage}
                   progress={progress}
                   sessionStartProgress={sessionStartProgress}
-                  onStartLevel={(s, l) => { playMenuClick(); onStartLevel(s, l); }}
-                  onStartPractice={(s) => { playMenuClick(); onStartPractice(s); }}
-                  onStartWordSentencePractice={(s) => { playMenuClick(); onStartWordSentencePractice(s); }}
+                  onStartLevel={handleStartLevel}
+                  onStartPractice={handleStartPractice}
+                  onStartWordSentencePractice={handleStartWordSentencePractice}
                   isStageFocused={focusedStageId === stage.id}
                   focusedSubLevelId={focusedStageId === stage.id ? focusedSubLevelId : null}
                 />
