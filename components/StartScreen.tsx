@@ -37,7 +37,9 @@ const StartScreen: React.FC<StartScreenProps> = ({ onComplete }) => {
       const key = e.key.toLowerCase();
       setPressedKeys(prev => {
         const next = new Set(prev);
-        next.add(key);
+        next.add(e.key); // raw key for VirtualKeyboard (Shift, ShiftLeft, ShiftRight)
+        next.add(key);   // lowercase for home row check
+        if (e.code === 'AltRight') next.add('AltGr');
 
         // Check for Home Row Completion immediately on press
         if (step === 1 && !homeRowCompleted) {
@@ -63,7 +65,9 @@ const StartScreen: React.FC<StartScreenProps> = ({ onComplete }) => {
     const onKeyUp = (e: KeyboardEvent) => {
       setPressedKeys(prev => {
         const next = new Set(prev);
+        next.delete(e.key);
         next.delete(e.key.toLowerCase());
+        if (e.code === 'AltRight') next.delete('AltGr');
         return next;
       });
     };

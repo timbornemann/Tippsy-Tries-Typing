@@ -116,18 +116,26 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
       return;
     }
 
-    // Ignore key combinations with Ctrl/Meta/Alt (browser shortcuts, etc.; debug shortcut lives in App)
-    if (e.ctrlKey || e.metaKey || e.altKey) return;
-
+    // Always update pressedKeys for virtual keyboard (Shift/AltGr display), before modifier return
     const keyForPress = (e.key === 'Minus' ? '-' : e.key === 'Comma' ? ',' : e.key === 'Period' ? '.' : e.key === 'Enter' ? '\n' : e.key);
     setPressedKeys(prev => {
       const newSet = new Set(prev);
       newSet.add(e.key);
       if (keyForPress !== e.key) newSet.add(keyForPress);
+      if (e.code === 'AltRight') newSet.add('AltGr');
       return newSet;
     });
 
-    if (['Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'Tab'].includes(e.key)) return;
+    // AltGr / Alt must never count as key press or error: ignore and prevent default
+    if (e.key === 'Alt' || e.key === 'AltGraph' || e.code === 'AltRight') {
+      e.preventDefault();
+      return;
+    }
+
+    // Ignore key combinations with Ctrl/Meta/Alt (browser shortcuts, etc.; debug shortcut lives in App)
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+    if (['Shift', 'Control', 'Meta', 'CapsLock', 'Tab'].includes(e.key)) return;
     if (e.key === ' ') e.preventDefault();
     if (e.key === 'Enter') e.preventDefault(); // Prevent standard enter behavior
 
@@ -192,6 +200,7 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
       newSet.delete(e.key);
       const n = normalized(e.key);
       if (n !== e.key) newSet.delete(n);
+      if (e.code === 'AltRight') newSet.delete('AltGr');
       // Shift+Buchstabe: keydown liefert oft "A", keyup oft "a" (physische Taste) – beide entfernen
       if (e.key.length === 1) {
         newSet.delete(e.key.toLowerCase());

@@ -11,7 +11,16 @@ interface VirtualKeyboardProps {
 const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({ activeKey, pressedKeys }) => {
   const { keyboardLayout } = useSettings();
   const layout = KEYBOARD_LAYOUTS[keyboardLayout];
-  
+
+  const shiftHeld = pressedKeys.has('Shift') || pressedKeys.has('ShiftLeft') || pressedKeys.has('ShiftRight');
+  const altGrHeld = pressedKeys.has('AltGr');
+
+  const getDisplayForKey = (keyConfig: KeyConfig) => {
+    if (altGrHeld && keyConfig.displayAltGr) return keyConfig.displayAltGr;
+    if (shiftHeld && keyConfig.displayShift) return keyConfig.displayShift;
+    return keyConfig.display;
+  };
+
   const getKeyStyles = (keyConfig: KeyConfig) => {
     // Normalize activeKey for comparison (Target Key)
     const isTarget = keyConfig.key.toLowerCase() === activeKey.toLowerCase() || 
@@ -61,7 +70,7 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({ activeKey, pressedKey
                 minWidth: keyConfig.width ? `${keyConfig.width * 3}rem` : '3rem',
               }}
             >
-              <span className="font-mono font-bold text-lg">{keyConfig.display}</span>
+              <span className="font-mono font-bold text-lg">{getDisplayForKey(keyConfig)}</span>
               
               {/* Homing bumps for F and J */}
               {(keyConfig.key === 'f' || keyConfig.key === 'j') && (

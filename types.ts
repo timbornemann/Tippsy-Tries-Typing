@@ -17,6 +17,10 @@ export type KeyboardLayout = 'qwertz' | 'qwerty';
 export interface KeyConfig {
   key: string;
   display: string;
+  /** Anzeige bei gedrückter Shift-Taste */
+  displayShift?: string;
+  /** Anzeige bei gedrückter AltGr-Taste */
+  displayAltGr?: string;
   finger: Finger;
   width?: number;
   row: number;
