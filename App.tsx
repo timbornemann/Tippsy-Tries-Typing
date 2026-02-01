@@ -30,6 +30,7 @@ const App: React.FC = () => {
     startPractice,
     startWordSentencePractice,
     handleFinish,
+    saveSessionStats,
     handleBackToMenu,
     handleRetry,
     handleNextLevel,
@@ -168,6 +169,7 @@ const App: React.FC = () => {
             onFinish={handleFinish}
             onBack={handleBackToMenu}
             onRetry={handleRetry}
+            onSaveStats={saveSessionStats}
             gameMode={gameMode}
           />
         )}

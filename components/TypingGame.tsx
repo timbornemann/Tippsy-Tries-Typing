@@ -17,6 +17,7 @@ interface TypingGameProps {
   onFinish: (stats: GameStats) => void;
   onBack: () => void;
   onRetry: () => void;
+  onSaveStats?: (stats: GameStats) => void;
   gameMode?: GameMode;
 }
 
@@ -24,7 +25,7 @@ const FALLBACK_CONTENT = 'fff jjj fff jjj';
 /** En-Dash (U+2013) in Inhalten wird wie Minus/Bindestrich (U+002D) akzeptiert – gleiche Taste. */
 const EN_DASH = '\u2013';
 
-const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: contentProp, onFinish, onBack, onRetry, gameMode = 'STANDARD' }) => {
+const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: contentProp, onFinish, onBack, onRetry, onSaveStats, gameMode = 'STANDARD' }) => {
   const { keyboardLayout, zeroMistakesMode } = useSettings();
   const { t, language } = useI18n();
   const { playTyping, playError } = useSound();
@@ -87,14 +88,38 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
     });
   }, [content.length, inputIndex, startTime, mistakes, errorCountByChar, onFinish, stage.id, totalCharsTyped]);
 
+  /** Current session stats for background save on retry/back (no UI change). */
+  const getCurrentStats = useCallback((): GameStats | null => {
+    const endTime = Date.now();
+    const timeElapsed = (endTime - (startTime || endTime)) / 1000;
+    const finalTotalChars = stage.id === 15 ? totalCharsTyped + inputIndex : Math.min(inputIndex, content.length);
+    if (finalTotalChars === 0 && timeElapsed === 0) return null;
+    let finalWpm = 0;
+    let accuracy = 0;
+    if (finalTotalChars > 0) {
+      const wpmCalc = timeElapsed > 0 ? (finalTotalChars / 5) / (timeElapsed / 60) : 0;
+      finalWpm = Math.round(wpmCalc);
+      accuracy = Math.round(((finalTotalChars - mistakes) / finalTotalChars) * 100);
+    }
+    return {
+      wpm: finalWpm,
+      accuracy: Math.max(0, accuracy),
+      errors: mistakes,
+      totalChars: finalTotalChars,
+      timeElapsed,
+      errorCountByChar: Object.keys(errorCountByChar).length > 0 ? errorCountByChar : undefined
+    };
+  }, [content.length, inputIndex, mistakes, startTime, errorCountByChar, stage.id, totalCharsTyped]);
+
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     // Escape/Enter: handle before modifier check (navigation / newline in content)
     if (e.key === 'Escape') {
       e.preventDefault();
       if (stage.id === 15) {
-        // Endless Mode: Escape finishes the game
         finishGame();
       } else {
+        const stats = getCurrentStats();
+        if (stats && onSaveStats) onSaveStats(stats);
         onBack();
       }
       return;
@@ -147,6 +172,8 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
       playError();
 
       if (zeroMistakesMode) {
+        const stats = getCurrentStats();
+        if (stats && onSaveStats) onSaveStats(stats);
         onRetry();
         return;
       }
@@ -206,6 +233,8 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
     } else {
       playError();
       if (zeroMistakesMode) {
+        const stats = getCurrentStats();
+        if (stats && onSaveStats) onSaveStats(stats);
         onRetry();
         return;
       }
@@ -223,7 +252,7 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
         setErrorKey(null);
       }, 300);
     }
-  }, [content, inputIndex, mistakes, finishGame, startTime, onBack, errorCountByChar, stage.id, playTyping, playError, zeroMistakesMode, onRetry]);
+  }, [content, inputIndex, mistakes, finishGame, startTime, onBack, onSaveStats, getCurrentStats, errorCountByChar, stage.id, playTyping, playError, zeroMistakesMode, onRetry]);
 
   const handleKeyUp = useCallback((e: KeyboardEvent) => {
     const normalized = (k: string) => (k === 'Minus' ? '-' : k === 'Comma' ? ',' : k === 'Period' ? '.' : k === 'Enter' ? '\n' : k);
@@ -300,7 +329,14 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
       <div className={`w-full flex justify-between items-center mb-8 p-4 rounded-lg border backdrop-blur-sm transition-colors ${isMasterLevel && !isPractice && !isWordsSentences ? 'bg-yellow-900/30 border-yellow-700/50' : isWordsSentences ? 'bg-teal-900/30 border-teal-700/50' : isPractice ? 'bg-purple-900/30 border-purple-700/50' : 'bg-slate-800/50 border-slate-700'}`}>
         <div className="flex items-center gap-4">
           <button
-            onClick={() => (stage.id === 15 ? finishGame() : onBack())}
+            onClick={() => {
+              if (stage.id === 15) finishGame();
+              else {
+                const stats = getCurrentStats();
+                if (stats && onSaveStats) onSaveStats(stats);
+                onBack();
+              }
+            }}
             className="p-2 hover:bg-slate-700 rounded-full transition-colors"
             title={stage.id === 15 ? t('typing.finishStats') : t('typing.backToMenu')}
             aria-label={stage.id === 15 ? t('typing.finishStats') : t('typing.backToMenu')}
@@ -338,7 +374,11 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
         </div>
 
         <button
-          onClick={onRetry}
+          onClick={() => {
+            const stats = getCurrentStats();
+            if (stats && onSaveStats) onSaveStats(stats);
+            onRetry();
+          }}
           className="p-2 hover:bg-slate-700 rounded-full transition-colors"
           title={t('typing.restart')}
           aria-label={t('typing.restart')}

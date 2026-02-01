@@ -297,6 +297,42 @@ export const useGameEngine = () => {
     });
   };
 
+  /** Save session stats in background (retry/back). No FINISHED screen, no gamesPlayed/sessionHistory/perStageBest. */
+  const saveSessionStats = (gameStats: GameStats) => {
+    const stats: GameStats = {
+      wpm: Number.isFinite(gameStats.wpm) && gameStats.wpm >= 0 ? gameStats.wpm : 0,
+      accuracy: Number.isFinite(gameStats.accuracy) && gameStats.accuracy >= 0 ? Math.min(100, gameStats.accuracy) : 0,
+      errors: Number.isFinite(gameStats.errors) && gameStats.errors >= 0 ? gameStats.errors : 0,
+      totalChars: Number.isFinite(gameStats.totalChars) && gameStats.totalChars >= 0 ? gameStats.totalChars : 0,
+      timeElapsed: Number.isFinite(gameStats.timeElapsed) && gameStats.timeElapsed >= 0 ? gameStats.timeElapsed : 0,
+      errorCountByChar: gameStats.errorCountByChar
+    };
+    if (stats.totalChars === 0 && stats.timeElapsed === 0) return;
+
+    setProgress(prev => {
+      const p = prev;
+      const s = p.stats;
+      const key = currentStage ? progressKey(currentStage.id, currentSubLevel) : '';
+      const lastByKey = { ...(p.lastSessionByKey ?? {}), [key]: stats };
+      const mergedErrors: Record<string, number> = { ...(p.errorCountByChar ?? {}) };
+      if (stats.errorCountByChar) {
+        for (const [char, count] of Object.entries(stats.errorCountByChar)) {
+          mergedErrors[char] = (mergedErrors[char] ?? 0) + count;
+        }
+      }
+      return {
+        ...p,
+        stats: {
+          ...s,
+          totalCharsTyped: s.totalCharsTyped + stats.totalChars,
+          totalTimePlayed: s.totalTimePlayed + stats.timeElapsed
+        },
+        lastSessionByKey: lastByKey,
+        errorCountByChar: mergedErrors
+      };
+    });
+  };
+
   const handleBackToMenu = () => {
     const stageId = currentStage?.id ?? null;
     setScrollToStageId(stageId);
@@ -398,6 +434,7 @@ export const useGameEngine = () => {
     startPractice,
     startWordSentencePractice,
     handleFinish,
+    saveSessionStats,
     handleBackToMenu,
     handleRetry,
     handleNextLevel,
