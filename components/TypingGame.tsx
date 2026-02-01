@@ -25,7 +25,7 @@ const FALLBACK_CONTENT = 'fff jjj fff jjj';
 const EN_DASH = '\u2013';
 
 const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: contentProp, onFinish, onBack, onRetry, gameMode = 'STANDARD' }) => {
-  const { keyboardLayout } = useSettings();
+  const { keyboardLayout, zeroMistakesMode } = useSettings();
   const { t, language } = useI18n();
   const { playTyping, playError } = useSound();
   const keyboardLayoutConfig = KEYBOARD_LAYOUTS[keyboardLayout];
@@ -143,7 +143,14 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
       e.preventDefault();
       if (startTime === null) setStartTime(Date.now());
       if (key === targetKey) return; // Richtige Taste mit Modifier – nicht vorrücken, kein Fehler
+
       playError();
+
+      if (zeroMistakesMode) {
+        onRetry();
+        return;
+      }
+
       setMistakes(m => m + 1);
       setErrorCountByChar(prev => {
         const next = { ...prev };
@@ -198,6 +205,11 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
       
     } else {
       playError();
+      if (zeroMistakesMode) {
+        onRetry();
+        return;
+      }
+
       setMistakes(m => m + 1);
       setErrorCountByChar(prev => {
         const next = { ...prev };
@@ -211,7 +223,7 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
         setErrorKey(null);
       }, 300);
     }
-  }, [content, inputIndex, mistakes, finishGame, startTime, onBack, errorCountByChar, stage.id, playTyping, playError]);
+  }, [content, inputIndex, mistakes, finishGame, startTime, onBack, errorCountByChar, stage.id, playTyping, playError, zeroMistakesMode, onRetry]);
 
   const handleKeyUp = useCallback((e: KeyboardEvent) => {
     const normalized = (k: string) => (k === 'Minus' ? '-' : k === 'Comma' ? ',' : k === 'Period' ? '.' : k === 'Enter' ? '\n' : k);

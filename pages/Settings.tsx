@@ -50,7 +50,7 @@ interface SettingsProps {
 }
 
 const Settings: React.FC<SettingsProps> = ({ onBack }) => {
-  const { language, keyboardLayout, soundEnabled, setLanguage, setKeyboardLayout, setSoundEnabled } = useSettings();
+  const { language, keyboardLayout, soundEnabled, zeroMistakesMode, setLanguage, setKeyboardLayout, setSoundEnabled, setZeroMistakesMode } = useSettings();
   const { t } = useI18n();
   const { playMenuClick } = useSound();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -190,6 +190,27 @@ const Settings: React.FC<SettingsProps> = ({ onBack }) => {
           >
             <div className="font-bold">{t('settings.soundOff')}</div>
             <div className="text-xs text-slate-400">{t('settings.sound')}</div>
+          </button>
+        </div>
+      </div>
+
+      <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 mb-8">
+        <h2 className="text-lg font-bold text-white mb-2">{t('settings.zeroMistakes')}</h2>
+        <p className="text-slate-400 text-sm mb-6">{t('settings.zeroMistakesHint')}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <button
+            onClick={() => setZeroMistakesMode(true)}
+            className={`px-4 py-3 rounded-xl border transition-all text-left ${zeroMistakesMode ? 'border-emerald-500 bg-emerald-500/10 text-white' : 'border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
+          >
+            <div className="font-bold">{t('settings.soundOn')}</div>
+            <div className="text-xs text-slate-400">{t('settings.zeroMistakes')}</div>
+          </button>
+          <button
+            onClick={() => setZeroMistakesMode(false)}
+            className={`px-4 py-3 rounded-xl border transition-all text-left ${!zeroMistakesMode ? 'border-emerald-500 bg-emerald-500/10 text-white' : 'border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
+          >
+            <div className="font-bold">{t('settings.soundOff')}</div>
+            <div className="text-xs text-slate-400">{t('settings.zeroMistakes')}</div>
           </button>
         </div>
       </div>
