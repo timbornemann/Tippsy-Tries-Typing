@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Stage, GameStats, GameMode, ErrorCountByChar } from '../types';
 import { KEYBOARD_LAYOUTS, FINGER_NAMES, FINGER_COLORS, MAX_SUB_LEVELS } from '../constants';
 import VirtualKeyboard from './VirtualKeyboard';
@@ -244,31 +244,37 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
     };
   }, [handleKeyDown, handleKeyUp]);
 
+  // Precompute finger map for O(1) lookup
+  const fingerMap = useMemo(() => {
+    const map = new Map<string, { finger: string, color: string }>();
+    for (const row of keyboardLayoutConfig) {
+      for (const k of row) {
+        const lowerKey = k.key.toLowerCase();
+        if (!map.has(lowerKey)) {
+          map.set(lowerKey, { finger: k.finger, color: FINGER_COLORS[k.finger] });
+        }
+        if (k.key === ' ') {
+          map.set(' ', { finger: k.finger, color: FINGER_COLORS[k.finger] });
+        }
+        if (k.key === 'Enter') {
+          // @ts-ignore: Preserving existing behavior for 'r5' key which might not be in Finger enum
+          map.set('\n', { finger: 'r5', color: FINGER_COLORS['r5'] });
+        }
+      }
+    }
+    // Fallback for newline if not in layout
+    if (!map.has('\n')) {
+      // @ts-ignore: Preserving existing behavior for 'r5' key
+      map.set('\n', { finger: 'r5', color: FINGER_COLORS['r5'] });
+    }
+    return map;
+  }, [keyboardLayoutConfig]);
+
   // Determine active finger for display
   const getActiveFingerInfo = () => {
     if (inputIndex >= content.length) return null;
     const char = content[inputIndex];
-    
-    // Find char in layout
-    for (const row of keyboardLayoutConfig) {
-      for (const k of row) {
-        if (k.key.toLowerCase() === char.toLowerCase()) {
-          return { finger: k.finger, color: FINGER_COLORS[k.finger] };
-        }
-        if (char === ' ' && k.key === ' ') {
-            return { finger: k.finger, color: FINGER_COLORS[k.finger] };
-        }
-        // Handle Newline -> Enter key (assumed to be mapped if present in layout, distinct from standard chars)
-         if (char === '\n' && k.key === 'Enter') { // You might need to add Enter to KEYBOARD_LAYOUT or handle it specially
-            return { finger: 'r5', color: FINGER_COLORS['r5'] }; // Right pinky for Enter
-         }
-      }
-    }
-    // Default fallback (e.g. for punctuation not on layout yet)
-    // For Enter/Newline specifically
-    if (char === '\n') return { finger: 'r5', color: FINGER_COLORS['r5'] };
-    
-    return null;
+    return fingerMap.get(char.toLowerCase()) || null;
   };
 
   const fingerInfo = getActiveFingerInfo();
