@@ -42,7 +42,13 @@ const getRandomItem = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.len
 
 // Checks if a word can be typed with the given allowed characters (exported for wordSentenceGenerator)
 export const canTypeWord = (word: string, allowedChars: Set<string>): boolean => {
-  return word.split('').every(char => allowedChars.has(char.toLowerCase()) || allowedChars.has(char));
+  for (let i = 0; i < word.length; i++) {
+    const char = word[i];
+    if (!allowedChars.has(char.toLowerCase()) && !allowedChars.has(char)) {
+      return false;
+    }
+  }
+  return true;
 };
 
 // Generates a pronounceable pseudo-word or rhythmic pattern (exported for wordSentenceGenerator)
