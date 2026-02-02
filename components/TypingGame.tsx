@@ -41,6 +41,8 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
   const [capsLockOn, setCapsLockOn] = useState(false);
   /** Per-session: which expected character was mistyped how often */
   const [errorCountByChar, setErrorCountByChar] = useState<ErrorCountByChar>({});
+  /** Total keys pressed in this session (including mistakes). */
+  const [totalKeysTyped, setTotalKeysTyped] = useState(0);
   
   // Total chars typed in this endless session (since we slice content, inputIndex isn't the total anymore)
   const [totalCharsTyped, setTotalCharsTyped] = useState(0);
@@ -55,6 +57,7 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
         setMistakes(0);
         setStartTime(null);
         setTotalCharsTyped(0);
+        setTotalKeysTyped(0);
     }
   }, [contentProp]);
 
@@ -65,51 +68,47 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
     return () => document.removeEventListener('click', handleGlobalClick);
   }, []);
 
-  const finishGame = useCallback(() => {
+  const buildStats = useCallback((options?: { extraMistakes?: number; extraKeyPresses?: number; extraErrorChar?: string; allowEmpty?: boolean }): GameStats | null => {
     const endTime = Date.now();
     const timeElapsed = (endTime - (startTime || endTime)) / 1000;
-    const finalTotalChars = stage.id === 15 ? totalCharsTyped + inputIndex : content.length;
-
+    const errors = mistakes + (options?.extraMistakes ?? 0);
+    const finalTotalChars = totalKeysTyped + (options?.extraKeyPresses ?? 0);
+    if (!options?.allowEmpty && finalTotalChars === 0 && timeElapsed === 0) return null;
     let finalWpm = 0;
     let accuracy = 0;
     if (finalTotalChars > 0) {
       const wpmCalc = timeElapsed > 0 ? (finalTotalChars / 5) / (timeElapsed / 60) : 0;
       finalWpm = Math.round(wpmCalc);
-      accuracy = Math.round(((finalTotalChars - mistakes) / finalTotalChars) * 100);
+      accuracy = Math.round(((finalTotalChars - errors) / finalTotalChars) * 100);
     }
-
-    onFinish({
-      wpm: finalWpm,
-      accuracy: Math.max(0, accuracy),
-      errors: mistakes,
-      totalChars: finalTotalChars,
-      timeElapsed,
-      errorCountByChar: Object.keys(errorCountByChar).length > 0 ? errorCountByChar : undefined
-    });
-  }, [content.length, inputIndex, startTime, mistakes, errorCountByChar, onFinish, stage.id, totalCharsTyped]);
-
-  /** Current session stats for background save on retry/back (no UI change). */
-  const getCurrentStats = useCallback((): GameStats | null => {
-    const endTime = Date.now();
-    const timeElapsed = (endTime - (startTime || endTime)) / 1000;
-    const finalTotalChars = stage.id === 15 ? totalCharsTyped + inputIndex : Math.min(inputIndex, content.length);
-    if (finalTotalChars === 0 && timeElapsed === 0) return null;
-    let finalWpm = 0;
-    let accuracy = 0;
-    if (finalTotalChars > 0) {
-      const wpmCalc = timeElapsed > 0 ? (finalTotalChars / 5) / (timeElapsed / 60) : 0;
-      finalWpm = Math.round(wpmCalc);
-      accuracy = Math.round(((finalTotalChars - mistakes) / finalTotalChars) * 100);
-    }
+    const nextErrorCount = options?.extraErrorChar
+      ? {
+          ...errorCountByChar,
+          [options.extraErrorChar]: (errorCountByChar[options.extraErrorChar] ?? 0) + 1
+        }
+      : errorCountByChar;
     return {
       wpm: finalWpm,
       accuracy: Math.max(0, accuracy),
-      errors: mistakes,
+      errors,
       totalChars: finalTotalChars,
       timeElapsed,
-      errorCountByChar: Object.keys(errorCountByChar).length > 0 ? errorCountByChar : undefined
+      errorCountByChar: Object.keys(nextErrorCount).length > 0 ? nextErrorCount : undefined
     };
-  }, [content.length, inputIndex, mistakes, startTime, errorCountByChar, stage.id, totalCharsTyped]);
+  }, [errorCountByChar, mistakes, startTime, totalKeysTyped]);
+
+  const finishGame = useCallback((options?: { extraKeyPresses?: number }) => {
+    const stats = buildStats({ allowEmpty: true, extraKeyPresses: options?.extraKeyPresses });
+    if (!stats) return;
+    onFinish(stats);
+  }, [buildStats, onFinish]);
+
+  /** Current session stats for background save on retry/back (no UI change). */
+  const getCurrentStats = useCallback((): GameStats | null => buildStats(), [buildStats]);
+
+  const registerKeyPress = useCallback(() => {
+    setTotalKeysTyped(prev => prev + 1);
+  }, []);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     // Escape/Enter: handle before modifier check (navigation / newline in content)
@@ -172,12 +171,13 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
       playError();
 
       if (zeroMistakesMode) {
-        const stats = getCurrentStats();
+        const stats = buildStats({ extraMistakes: 1, extraKeyPresses: 1, extraErrorChar: targetChar });
         if (stats && onSaveStats) onSaveStats(stats);
         onRetry();
         return;
       }
 
+      registerKeyPress();
       setMistakes(m => m + 1);
       setErrorCountByChar(prev => {
         const next = { ...prev };
@@ -198,6 +198,7 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
     }
     
     if (key === targetKey) {
+      registerKeyPress();
       playTyping();
       const nextIndex = inputIndex + 1;
       
@@ -226,19 +227,20 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
         // Standard Mode
         setInputIndex(nextIndex);
         if (nextIndex === content.length) {
-            finishGame();
+            finishGame({ extraKeyPresses: 1 });
         }
       }
       
     } else {
       playError();
       if (zeroMistakesMode) {
-        const stats = getCurrentStats();
+        const stats = buildStats({ extraMistakes: 1, extraKeyPresses: 1, extraErrorChar: targetChar });
         if (stats && onSaveStats) onSaveStats(stats);
         onRetry();
         return;
       }
 
+      registerKeyPress();
       setMistakes(m => m + 1);
       setErrorCountByChar(prev => {
         const next = { ...prev };
@@ -252,7 +254,7 @@ const TypingGame: React.FC<TypingGameProps> = ({ stage, subLevelId, content: con
         setErrorKey(null);
       }, 300);
     }
-  }, [content, inputIndex, mistakes, finishGame, startTime, onBack, onSaveStats, getCurrentStats, errorCountByChar, stage.id, playTyping, playError, zeroMistakesMode, onRetry]);
+  }, [content, inputIndex, finishGame, startTime, onBack, onSaveStats, getCurrentStats, errorCountByChar, stage.id, playTyping, playError, zeroMistakesMode, onRetry, registerKeyPress, buildStats]);
 
   const handleKeyUp = useCallback((e: KeyboardEvent) => {
     const normalized = (k: string) => (k === 'Minus' ? '-' : k === 'Comma' ? ',' : k === 'Period' ? '.' : k === 'Enter' ? '\n' : k);
