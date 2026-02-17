@@ -65,15 +65,28 @@ export const generatePseudoWord = (pool: string[], length: number): string => {
     let word = "";
     // Start with random hand
     let isLeft = Math.random() > 0.5;
+    const isEarlyStage = pool.length <= 3;
 
-    for (let i = 0; i < length; i++) {
+    let i = 0;
+    while (word.length < length) {
       const currentPool = isLeft ? lefts : rights;
       // Fallback if current hand has no keys in pool (shouldn't happen if check passed, but safety first)
       const char = getRandomItem(currentPool.length > 0 ? currentPool : pool);
-      word += char;
-
-      // Strict alternation ensures rhythm (f -> j -> d -> k)
-      isLeft = !isLeft;
+      
+      // Variable repetition for more variation (especially for early stages with few chars)
+      const repeatCount = isEarlyStage && Math.random() < 0.4 ? (Math.random() < 0.7 ? 2 : 3) : 1;
+      word += char.repeat(repeatCount);
+      
+      // Less strict alternation for early stages - 80% chance to switch, 20% to repeat same hand
+      if (isEarlyStage) {
+        if (Math.random() < 0.8) {
+          isLeft = !isLeft;
+        }
+      } else {
+        // Strict alternation for later stages ensures rhythm (f -> j -> d -> k)
+        isLeft = !isLeft;
+      }
+      i++;
     }
     return word;
   }
@@ -473,32 +486,89 @@ const generateStandardPattern = (stage: Stage, subLevelId: number, allChars: Set
       }
       break;
 
-    case 1: // INTRODUCTION: Focus purely on new keys. Rhythmic.
-      // Pattern: aa aaa aa aaa (to build muscle memory for location)
+    case 1: // INTRODUCTION: Focus purely on new keys. Varied patterns.
+      // Pattern: Mix characters with variable repetition lengths for better typing practice
       {
         const targetKeys = poolNew;
-        for (let i = 0; i < 4; i++) {
-          const key = getRandomItem(targetKeys);
-          result.push(key + key);
-          result.push(key + key + key);
-          result.push(key + key);
-          result.push(key + key + key + key);
+        // Generate 10-12 sequences with varied patterns
+        const sequenceCount = 10 + Math.floor(Math.random() * 3);
+        
+        for (let i = 0; i < sequenceCount; i++) {
+          let sequence = "";
+          const seqLength = 3 + Math.floor(Math.random() * 6); // 3-8 characters per sequence
+          
+          for (let j = 0; j < seqLength; j++) {
+            const char = getRandomItem(targetKeys);
+            // Variable repetition: 1-4 times, weighted towards 1-2 for more variation
+            const repeatCount = Math.random() < 0.5 ? 1 : Math.random() < 0.7 ? 2 : Math.random() < 0.9 ? 3 : 4;
+            sequence += char.repeat(repeatCount);
+            
+            // Occasionally switch to different character mid-sequence for variation
+            if (j < seqLength - 1 && Math.random() < 0.3 && targetKeys.length > 1) {
+              const otherChar = getRandomItem(targetKeys.filter(c => c !== char));
+              const shortRepeat = Math.random() < 0.7 ? 1 : 2;
+              sequence += otherChar.repeat(shortRepeat);
+              j++; // Skip next iteration since we added a character
+            }
+          }
+          
+          result.push(sequence);
         }
       }
       break;
 
     case 2: // ANCHORING: Mix new keys with Home Row (F, J) or Space
-      // Pattern: f[new]j [new]f[new]
+      // Pattern: Varied mixing for better practice
       {
-        const anchors = ['f', 'j', ' '];
-        for (let i = 0; i < 8; i++) {
-          const n = getRandomItem(poolNew);
-          const a = getRandomItem(anchors);
-          if (a === ' ') {
-            result.push(n + n + n); // qqq
+        // Special handling for early stages (1-3) with few characters - use generatePseudoWord for variation
+        if (stage.id <= 3 && poolAll.length <= 7) {
+          // Use hand alternation logic but with more variation
+          const lefts = poolAll.filter(c => LEFT_HAND.has(c));
+          const rights = poolAll.filter(c => RIGHT_HAND.has(c));
+          
+          if (lefts.length > 0 && rights.length > 0) {
+            // Generate 10-14 sequences with hand alternation but varied lengths
+            const sequenceCount = 10 + Math.floor(Math.random() * 5);
+            for (let i = 0; i < sequenceCount; i++) {
+              const targetLength = 3 + Math.floor(Math.random() * 5); // Target 3-7 characters
+              let sequence = "";
+              let isLeft = Math.random() > 0.5;
+              
+              while (sequence.length < targetLength) {
+                const currentPool = isLeft ? lefts : rights;
+                const char = getRandomItem(currentPool.length > 0 ? currentPool : poolAll);
+                
+                // Variable repetition: sometimes 1, sometimes 2-3 for variation
+                const repeatCount = Math.random() < 0.6 ? 1 : Math.random() < 0.8 ? 2 : 3;
+                sequence += char.repeat(repeatCount);
+                
+                // Switch hands, but not always strictly (70% chance)
+                if (Math.random() < 0.7) {
+                  isLeft = !isLeft;
+                }
+              }
+              
+              result.push(sequence);
+            }
           } else {
-            result.push(a + n + a); // fqf
-            result.push(n + a + n); // qfq
+            // Fallback: use generatePseudoWord
+            for (let i = 0; i < 12; i++) {
+              const len = 3 + Math.floor(Math.random() * 5);
+              result.push(generatePseudoWord(poolAll, len));
+            }
+          }
+        } else {
+          // Original logic for higher stages (Stage 4+)
+          const anchors = ['f', 'j', ' '];
+          for (let i = 0; i < 8; i++) {
+            const n = getRandomItem(poolNew);
+            const a = getRandomItem(anchors);
+            if (a === ' ') {
+              result.push(n + n + n); // qqq
+            } else {
+              result.push(a + n + a); // fqf
+              result.push(n + a + n); // qfq
+            }
           }
         }
       }
@@ -507,6 +577,9 @@ const generateStandardPattern = (stage: Stage, subLevelId: number, allChars: Set
     case 3: // FLOW: Syllables and Bigrams
       // Generate short 2-3 char pronounceable chunks
       {
+        // For early stages with few characters, ensure more variation
+        const isEarlyStage = stage.id <= 2 && poolAll.length <= 5;
+        
         for (let i = 0; i < 12; i++) {
           // 50% chance for a real word if we have enough
           if (possibleRealWords.length > 5 && Math.random() > 0.5) {
@@ -514,7 +587,11 @@ const generateStandardPattern = (stage: Stage, subLevelId: number, allChars: Set
           } else {
              // Generate a bigram/trigram using new chars heavily
              let chunk = "";
-             if (Math.random() > 0.5) {
+             if (isEarlyStage) {
+               // For early stages, always use generatePseudoWord for better variation
+               const len = 2 + Math.floor(Math.random() * 3); // 2-4 characters
+               chunk = generatePseudoWord(stage.chars.filter(c => c!==' '), len);
+             } else if (Math.random() > 0.5) {
                 chunk = getRandomItem(poolNew) + getRandomItem(poolAll);
              } else {
                 chunk = generatePseudoWord(stage.chars.filter(c => c!==' '), 3);
