@@ -9,7 +9,6 @@ import { useSound } from '../hooks/useSound';
 import { ENDLESS_STAGE_ID, MAX_SUB_LEVELS } from '../constants';
 
 const ONBOARDING_KEY = 'tippsy_onboarding_seen';
-const STORAGE_HINT_KEY = 'tippsy_storage_hint_seen';
 
 interface MainMenuProps {
   stages: Stage[];
@@ -43,7 +42,6 @@ const MainMenu: React.FC<MainMenuProps> = ({
   const { t, language } = useI18n();
   const { playMenuClick } = useSound();
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [showStorageHint, setShowStorageHint] = useState(false);
 
   // Keyboard Navigation State
   const [focusedStageId, setFocusedStageId] = useState<number>(progress.unlockedStageId);
@@ -151,9 +149,6 @@ const MainMenu: React.FC<MainMenuProps> = ({
       if (progress.stats.gamesPlayed === 0 && !localStorage.getItem(ONBOARDING_KEY)) {
         setShowOnboarding(true);
       }
-      if (!localStorage.getItem(STORAGE_HINT_KEY)) {
-        setShowStorageHint(true);
-      }
     } catch {
       setShowOnboarding(progress.stats.gamesPlayed === 0);
     }
@@ -166,12 +161,6 @@ const MainMenu: React.FC<MainMenuProps> = ({
     } catch {}
   };
 
-  const dismissStorageHint = () => {
-    setShowStorageHint(false);
-    try {
-      localStorage.setItem(STORAGE_HINT_KEY, '1');
-    } catch {}
-  };
 
   const handleStartLevel = useCallback((s: Stage, l: number) => {
     playMenuClick();
@@ -239,17 +228,6 @@ const MainMenu: React.FC<MainMenuProps> = ({
           <OnboardingModal onDismiss={dismissOnboarding} />
         )}
 
-        {showStorageHint && (
-          <div className="mb-4 shrink-0 p-3 rounded-xl bg-slate-800/80 border border-slate-700 flex items-center gap-3">
-            <Info size={20} className="text-slate-400 shrink-0" />
-            <p className="text-slate-400 text-sm flex-1">
-              {t('menu.storageHint')}
-            </p>
-            <button onClick={dismissStorageHint} className="p-1 rounded hover:bg-slate-700 text-slate-500 hover:text-white shrink-0" aria-label={t('menu.close')}>
-              <X size={16} />
-            </button>
-          </div>
-        )}
 
         <div className="shrink-0">
           <Mascot progress={progress} gameState={gameState} />

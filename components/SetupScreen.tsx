@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSettings } from '../contexts/SettingsContext';
 import { useI18n } from '../hooks/useI18n';
 import { useSound } from '../hooks/useSound';
@@ -11,6 +11,18 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
   const { t } = useI18n();
   const { language, keyboardLayout, setLanguage, setKeyboardLayout } = useSettings();
   const { playMenuClick } = useSound();
+  const [keyboardManuallyChanged, setKeyboardManuallyChanged] = useState(false);
+
+  // Auto-set keyboard layout based on language, but only if not manually changed
+  useEffect(() => {
+    if (!keyboardManuallyChanged) {
+      if (language === 'de' && keyboardLayout !== 'qwertz') {
+        setKeyboardLayout('qwertz');
+      } else if (language === 'en' && keyboardLayout !== 'qwerty') {
+        setKeyboardLayout('qwerty');
+      }
+    }
+  }, [language, keyboardLayout, keyboardManuallyChanged, setKeyboardLayout]);
 
   return (
     <div className="min-h-screen bg-[#0a0f1c] text-white flex flex-col items-center justify-center relative overflow-hidden p-6">
@@ -59,14 +71,20 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
           <p className="text-slate-500 text-sm mb-4">{t('settings.keyboardHint')}</p>
           <div className="grid grid-cols-2 gap-4">
             <button
-              onClick={() => setKeyboardLayout('qwerty')}
+              onClick={() => {
+                setKeyboardManuallyChanged(true);
+                setKeyboardLayout('qwerty');
+              }}
               className={`px-4 py-4 rounded-xl border transition-all text-left ${keyboardLayout === 'qwerty' ? 'border-emerald-500 bg-emerald-500/10 text-white' : 'border-slate-700 bg-slate-800/80 text-slate-300 hover:bg-slate-700'}`}
             >
               <div className="font-bold">{t('settings.qwerty')}</div>
               <div className="text-xs text-slate-400">QWERTY (US)</div>
             </button>
             <button
-              onClick={() => setKeyboardLayout('qwertz')}
+              onClick={() => {
+                setKeyboardManuallyChanged(true);
+                setKeyboardLayout('qwertz');
+              }}
               className={`px-4 py-4 rounded-xl border transition-all text-left ${keyboardLayout === 'qwertz' ? 'border-emerald-500 bg-emerald-500/10 text-white' : 'border-slate-700 bg-slate-800/80 text-slate-300 hover:bg-slate-700'}`}
             >
               <div className="font-bold">{t('settings.qwertz')}</div>

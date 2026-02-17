@@ -1,8 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSettings } from '../contexts/SettingsContext';
 import { useI18n } from '../hooks/useI18n';
 import { useSound } from '../hooks/useSound';
-import { Home, Download, Upload, Trash2, Info } from 'lucide-react';
+import { Home, Download, Upload, Trash2, Info, AlertTriangle, X } from 'lucide-react';
 import { UserProgress, GameStats } from '../types';
 import { MAX_SUB_LEVELS } from '../constants';
 
@@ -54,6 +54,7 @@ const Settings: React.FC<SettingsProps> = ({ onBack }) => {
   const { t } = useI18n();
   const { playMenuClick } = useSound();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showResetModal, setShowResetModal] = useState(false);
 
   const handleExport = () => {
     playMenuClick();
@@ -98,9 +99,13 @@ const Settings: React.FC<SettingsProps> = ({ onBack }) => {
     reader.readAsText(file);
   };
 
-  const handleReset = () => {
+  const handleResetClick = () => {
     playMenuClick();
-    if (!window.confirm(t('settings.resetConfirm'))) return;
+    setShowResetModal(true);
+  };
+
+  const handleResetConfirm = () => {
+    playMenuClick();
     try {
       localStorage.removeItem(PROGRESS_STORAGE_KEY);
       window.location.reload();
@@ -109,17 +114,26 @@ const Settings: React.FC<SettingsProps> = ({ onBack }) => {
     }
   };
 
+  const handleResetCancel = () => {
+    playMenuClick();
+    setShowResetModal(false);
+  };
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault();
         playMenuClick();
-        onBack();
+        if (showResetModal) {
+          setShowResetModal(false);
+        } else {
+          onBack();
+        }
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [onBack, playMenuClick]);
+  }, [onBack, playMenuClick, showResetModal]);
 
   return (
     <div className="flex-1 container mx-auto px-4 py-8 max-w-3xl flex flex-col h-full">
@@ -245,7 +259,7 @@ const Settings: React.FC<SettingsProps> = ({ onBack }) => {
         <hr className="border-slate-700 my-6" />
         <p className="text-slate-400 text-sm mb-3">{t('settings.resetHint')}</p>
         <button
-          onClick={handleReset}
+          onClick={handleResetClick}
           className="inline-flex items-center gap-2 px-4 py-3 rounded-xl border border-red-900/50 bg-red-950/30 text-red-300 hover:bg-red-900/30 transition-all"
         >
           <Trash2 size={18} />
@@ -262,6 +276,71 @@ const Settings: React.FC<SettingsProps> = ({ onBack }) => {
           <p className="text-slate-500 text-xs">{t('settings.skipLevelHint')}</p>
         </div>
       </div>
+
+      {/* Reset Confirmation Modal */}
+      {showResetModal && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-opacity duration-300"
+          onClick={handleResetCancel}
+        >
+          <style>{`
+            @keyframes modal-enter {
+              from { opacity: 0; transform: scale(0.95) translateY(10px); }
+              to { opacity: 1; transform: scale(1) translateY(0); }
+            }
+            .animate-modal-enter {
+              animation: modal-enter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            }
+          `}</style>
+          <div 
+            className="bg-[#0f1623] border border-red-500/30 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden relative animate-modal-enter"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="bg-gradient-to-r from-red-900/40 to-orange-900/40 p-6 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/20 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+              
+              <div className="flex justify-between items-start relative z-10">
+                <div className="p-3 bg-gradient-to-tr from-red-500 to-orange-500 rounded-xl shadow-lg inline-flex">
+                  <AlertTriangle className="w-8 h-8 text-white" />
+                </div>
+                <button 
+                  onClick={handleResetCancel}
+                  className="p-2 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+                  aria-label={t('settings.back')}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              
+              <h2 className="mt-5 text-2xl font-bold text-white">{t('settings.reset')}</h2>
+              <p className="text-red-300 text-sm font-medium uppercase tracking-wider mt-1">{t('settings.resetHint')}</p>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 space-y-6">
+              <p className="text-slate-300 text-base leading-relaxed">
+                {t('settings.resetConfirm')}
+              </p>
+              
+              <div className="flex gap-3">
+                <button 
+                  onClick={handleResetCancel}
+                  className="flex-1 py-3 px-4 border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700 font-medium rounded-xl transition-all"
+                >
+                  {t('settings.resetCancel')}
+                </button>
+                <button 
+                  onClick={handleResetConfirm}
+                  className="flex-1 py-3 px-4 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-bold rounded-xl shadow-lg shadow-red-900/20 transition-all transform hover:scale-[1.02] active:scale-[0.98] border border-red-500/20"
+                >
+                  {t('settings.resetConfirmButton')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

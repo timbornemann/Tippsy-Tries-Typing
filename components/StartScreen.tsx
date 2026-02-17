@@ -248,11 +248,15 @@ const StartScreen: React.FC<StartScreenProps> = ({ onComplete }) => {
             <h2 className="text-3xl font-bold mb-6">{t('start.colors.title')}</h2>
             <p className="text-slate-400 mb-2 text-lg max-w-xl mx-auto">{t('start.colors.description')}</p>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto mb-12 mt-12">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-6 max-w-6xl mx-auto mb-12 mt-12">
                <ColorCard finger={Finger.LeftPinky} name={t('start.colors.cards.pinky')} desc={t('start.colors.cards.outer')} />
                <ColorCard finger={Finger.LeftRing} name={t('start.colors.cards.ring')} desc={t('start.colors.cards.secondary')} />
                <ColorCard finger={Finger.LeftMiddle} name={t('start.colors.cards.middle')} desc={t('start.colors.cards.center')} />
                <ColorCard finger={Finger.LeftIndex} name={t('start.colors.cards.index')} desc={t('start.colors.cards.main')} />
+               <ColorCard finger={Finger.RightIndex} name={t('start.colors.cards.index')} desc={t('start.colors.cards.main')} />
+               <ColorCard finger={Finger.RightMiddle} name={t('start.colors.cards.middle')} desc={t('start.colors.cards.center')} />
+               <ColorCard finger={Finger.RightRing} name={t('start.colors.cards.ring')} desc={t('start.colors.cards.secondary')} />
+               <ColorCard finger={Finger.RightPinky} name={t('start.colors.cards.pinky')} desc={t('start.colors.cards.outer')} />
             </div>
 
             <button
