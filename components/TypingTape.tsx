@@ -2,7 +2,6 @@ import React, { memo } from 'react';
 
 const CHAR_WIDTH_PX = 64;
 const WINDOW_THRESHOLD = 80;
-const WINDOW_BEFORE = 40;
 const WINDOW_AFTER = 80;
 
 interface TypingTapeProps {
@@ -13,12 +12,12 @@ interface TypingTapeProps {
 
 const TypingTape: React.FC<TypingTapeProps> = ({ content, inputIndex, errorShake }) => {
   const useWindow = content.length > WINDOW_THRESHOLD;
-  const start = useWindow ? Math.max(0, inputIndex - WINDOW_BEFORE) : 0;
+  // In window mode keep start at 0 so transformPx = inputIndex * CHAR_WIDTH_PX + 32 always
+  // increases per keystroke → continuous slide animation. Slice is 0..end only (no left trim).
+  const start = useWindow ? 0 : 0;
   const end = useWindow ? Math.min(content.length, inputIndex + WINDOW_AFTER) : content.length;
   const chars = useWindow ? content.slice(start, end) : content;
-  const transformPx = useWindow
-    ? (inputIndex - start) * CHAR_WIDTH_PX + 32
-    : inputIndex * CHAR_WIDTH_PX + 32;
+  const transformPx = inputIndex * CHAR_WIDTH_PX + 32;
 
   return (
     <div className="relative w-full bg-slate-900 rounded-2xl mb-8 border border-slate-800 shadow-inner h-40 overflow-hidden group">
