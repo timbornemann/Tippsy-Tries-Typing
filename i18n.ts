@@ -60,6 +60,12 @@ export const translations = {
       title: 'Before we start',
       description: 'Choose your language and keyboard layout so the tutorial matches your setup.',
       continue: 'Continue',
+      testTitle: 'Test your settings',
+      testDescription: 'Type "Hello Tippsy" to verify your keyboard layout is correct:',
+      testPlaceholder: 'Type "Hello Tippsy" here...',
+      testTarget: 'Hello Tippsy',
+      testSuccess: '✓ Settings look correct!',
+      testError: 'The typed characters don\'t match. Please check your keyboard layout selection.',
     },
     start: {
       intro: {
@@ -77,6 +83,7 @@ export const translations = {
         continue: 'Keep going',
         pressAll: 'Press all 8 keys',
         enterHint: 'Press',
+        backToSetup: 'Back to setup',
       },
       colors: {
         title: 'Follow the colors',
@@ -96,8 +103,9 @@ export const translations = {
       },
       practice: {
         title: 'A first test',
-        description: 'Place your index fingers on F and J.\nType: {pattern}',
-        error: 'Oops! Try again: F J F J',
+        description: 'Type the following text:',
+        error: 'Oops! Try again.',
+        backToSetup: 'Back to setup',
       },
       finish: {
         title: 'Perfect!',
@@ -352,6 +360,12 @@ export const translations = {
       title: 'Bevor wir starten',
       description: 'Wähle deine Sprache und dein Tastaturlayout, damit das Tutorial zu deiner Tastatur passt.',
       continue: 'Weiter',
+      testTitle: 'Einstellungen testen',
+      testDescription: 'Tippe "Hallo Tippsy", um zu überprüfen, ob dein Tastaturlayout korrekt ist:',
+      testPlaceholder: 'Tippe hier "Hallo Tippsy"...',
+      testTarget: 'Hallo Tippsy',
+      testSuccess: '✓ Einstellungen sehen korrekt aus!',
+      testError: 'Die getippten Zeichen stimmen nicht überein. Bitte überprüfe deine Tastaturlayout-Auswahl.',
     },
     start: {
       intro: {
@@ -369,6 +383,7 @@ export const translations = {
         continue: "Weiter geht's",
         pressAll: 'Alle 8 Tasten drücken',
         enterHint: 'Drücke',
+        backToSetup: 'Zurück zum Setup',
       },
       colors: {
         title: 'Folge den Farben',
@@ -388,8 +403,9 @@ export const translations = {
       },
       practice: {
         title: 'Ein erster Test',
-        description: 'Lege deine Zeigefinger auf F und J.\nTippe: {pattern}',
-        error: 'Ups! Versuche es nochmal: F J F J',
+        description: 'Tippe den folgenden Text:',
+        error: 'Ups! Versuche es nochmal.',
+        backToSetup: 'Zurück zum Setup',
       },
       finish: {
         title: 'Perfekt!',

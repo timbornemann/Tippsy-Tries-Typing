@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Finger } from '../types';
 import { FINGER_COLORS, KEYBOARD_LAYOUTS } from '../constants';
-import { Keyboard, MousePointerClick, CheckCircle2, ArrowRight, Play } from 'lucide-react';
+import { Keyboard, MousePointerClick, CheckCircle2, ArrowRight, Play, ArrowLeft } from 'lucide-react';
 import VirtualKeyboard from './VirtualKeyboard';
 import { useI18n } from '../hooks/useI18n';
 import { useSettings } from '../contexts/SettingsContext';
@@ -9,10 +9,11 @@ import { useSound } from '../hooks/useSound';
 
 interface StartScreenProps {
   onComplete: () => void;
+  onBackToSetup?: () => void;
 }
 
-const StartScreen: React.FC<StartScreenProps> = ({ onComplete }) => {
-  const { t } = useI18n();
+const StartScreen: React.FC<StartScreenProps> = ({ onComplete, onBackToSetup }) => {
+  const { t, language } = useI18n();
   const { keyboardLayout } = useSettings();
   const { playMenuClick } = useSound();
   const layout = KEYBOARD_LAYOUTS[keyboardLayout];
@@ -21,9 +22,8 @@ const StartScreen: React.FC<StartScreenProps> = ({ onComplete }) => {
   const [practiceError, setPracticeError] = useState(false);
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
 
-  const practiceTarget = "fjfj";
-  const practiceText = t('start.practice.description', { pattern: practiceTarget });
-  const [practiceStart, practiceEnd = ''] = practiceText.split(practiceTarget);
+  const practiceTarget = language === 'de' ? 'Hallo Tippsy' : 'Hello Tippsy';
+  const practiceLabel = t('start.practice.description');
 
   // Home Row Keys for Step 1 Check
   const HOME_ROW_KEYS = keyboardLayout === 'qwerty'
@@ -91,9 +91,10 @@ const StartScreen: React.FC<StartScreenProps> = ({ onComplete }) => {
     const val = e.target.value;
     setTypedInput(val);
 
-    if (val === practiceTarget) {
+    // Case-insensitive comparison for completion
+    if (val.toLowerCase() === practiceTarget.toLowerCase()) {
       setTimeout(() => setStep(4), 500);
-    } else if (!practiceTarget.startsWith(val)) {
+    } else if (!practiceTarget.toLowerCase().startsWith(val.toLowerCase())) {
       setPracticeError(true);
     } else {
       setPracticeError(false);
@@ -192,6 +193,15 @@ const StartScreen: React.FC<StartScreenProps> = ({ onComplete }) => {
         {/* STEP 1: FINGERS & POSITION */}
         {step === 1 && (
           <div className="text-center animate-in fade-in slide-in-from-right-8 duration-500 w-full">
+            {onBackToSetup && (
+              <button
+                onClick={() => { playMenuClick(); onBackToSetup(); }}
+                className="absolute top-4 left-4 px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg border border-slate-700 transition-all flex items-center gap-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                {t('start.hands.backToSetup')}
+              </button>
+            )}
             <h2 className="text-3xl font-bold mb-4">{t('start.hands.title')}</h2>
             <p className="text-slate-400 mb-2 text-lg">{t('start.hands.description')}</p>
             <p className={`${homeRowCompleted ? 'text-emerald-400 font-bold' : 'text-slate-500'} text-sm mb-12 transition-colors`}>
@@ -272,25 +282,67 @@ const StartScreen: React.FC<StartScreenProps> = ({ onComplete }) => {
         {/* STEP 3: PRACTICE */}
         {step === 3 && (
           <div className="text-center animate-in fade-in slide-in-from-right-8 duration-500 w-full">
+            {onBackToSetup && (
+              <button
+                onClick={() => { playMenuClick(); onBackToSetup(); }}
+                className="absolute top-4 left-4 px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg border border-slate-700 transition-all flex items-center gap-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                {t('start.practice.backToSetup')}
+              </button>
+            )}
             <h2 className="text-3xl font-bold mb-4">{t('start.practice.title')}</h2>
-            <p className="text-slate-400 mb-8 text-lg">
-              {practiceStart.split('\n').map((line, index) => (
-                <React.Fragment key={index}>
-                  {line}
-                  {index === 0 && <br />}
-                </React.Fragment>
-              ))}
-              <span className="font-mono bg-slate-800 px-2 py-1 rounded text-white ml-2">{practiceTarget}</span>
-              {practiceEnd}
+            <p className="text-slate-400 mb-4 text-lg">
+              {practiceLabel}
             </p>
 
-            <div className="relative max-w-md mx-auto mb-8">
+            {/* Practice target with per-character highlight (like in levels) */}
+            <div className="mb-8 flex justify-center">
+              <div className="inline-flex gap-1 md:gap-1.5 bg-slate-900/70 px-4 py-3 rounded-2xl border border-slate-700 shadow-inner">
+                {practiceTarget.split('').map((char, index) => {
+                  const currentIndex = typedInput.length;
+                  const isCompleted = index < currentIndex;
+                  const isActive = index === currentIndex && currentIndex < practiceTarget.length;
+
+                  let baseClasses =
+                    'px-1.5 md:px-2 py-1 rounded text-lg md:text-2xl font-mono transition-all duration-150';
+                  if (char === ' ') {
+                    // Render visible space symbol but keep spacing
+                    return (
+                      <span
+                        key={index}
+                        className={`${baseClasses} text-slate-600 opacity-60`}
+                      >
+                        ␣
+                      </span>
+                    );
+                  }
+
+                  if (isCompleted) {
+                    baseClasses += ' text-emerald-400 opacity-70';
+                  } else if (isActive) {
+                    baseClasses +=
+                      ' bg-emerald-500 text-slate-900 shadow-[0_0_18px_rgba(16,185,129,0.8)] scale-110';
+                  } else {
+                    baseClasses += ' text-slate-500';
+                  }
+
+                  return (
+                    <span key={index} className={baseClasses}>
+                      {char}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="relative max-w-lg mx-auto mb-8">
                <input
                  type="text"
                  autoFocus
                  value={typedInput}
                  onChange={handlePracticeInput}
-                 className={`w-full bg-slate-900 border-2 ${practiceError ? 'border-red-500 text-red-400' : 'border-emerald-500 text-emerald-400'} text-center text-4xl py-6 rounded-2xl focus:outline-none focus:ring-4 ${practiceError ? 'focus:ring-red-500/20' : 'focus:ring-emerald-500/20'} transition-all font-mono shadow-2xl`}
+                 className={`w-full bg-slate-900 border-2 ${practiceError ? 'border-red-500 text-red-400' : 'border-emerald-500 text-emerald-400'} text-center text-2xl py-6 rounded-2xl focus:outline-none focus:ring-4 ${practiceError ? 'focus:ring-red-500/20' : 'focus:ring-emerald-500/20'} transition-all shadow-2xl`}
                  placeholder=""
                />
                <div className="absolute top-1/2 -translate-y-1/2 right-6">

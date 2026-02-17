@@ -104,7 +104,10 @@ const App: React.FC = () => {
           <SetupScreen onComplete={() => setStartPhase('tutorial')} />
         )}
         {gameState === GameState.START && startPhase === 'tutorial' && (
-          <StartScreen onComplete={handleCompleteTutorial} />
+          <StartScreen 
+            onComplete={handleCompleteTutorial} 
+            onBackToSetup={() => setStartPhase('setup')}
+          />
         )}
 
         {/* MENU STATE (Learning Path) */}
