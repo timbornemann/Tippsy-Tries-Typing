@@ -30,18 +30,31 @@ const StartScreen: React.FC<StartScreenProps> = ({ onComplete, onBackToSetup }) 
     ? ['a', 's', 'd', 'f', 'j', 'k', 'l', ';']
     : ['a', 's', 'd', 'f', 'j', 'k', 'l', 'ö'];
   const [homeRowCompleted, setHomeRowCompleted] = useState(false);
+  const [touchedHomeRowKeys, setTouchedHomeRowKeys] = useState<Set<string>>(new Set());
 
   // Global Key Listener
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       const key = e.key.toLowerCase();
+      
+      if (step === 1 && HOME_ROW_KEYS.includes(key)) {
+        setTouchedHomeRowKeys(prev => {
+          const nextTouched = new Set(prev);
+          nextTouched.add(key);
+          if (HOME_ROW_KEYS.every(k => nextTouched.has(k))) {
+            setHomeRowCompleted(true);
+          }
+          return nextTouched;
+        });
+      }
+
       setPressedKeys(prev => {
         const next = new Set(prev);
         next.add(e.key); // raw key for VirtualKeyboard (Shift, ShiftLeft, ShiftRight)
         next.add(key);   // lowercase for home row check
         if (e.code === 'AltRight') next.add('AltGr');
 
-        // Check for Home Row Completion immediately on press
+        // Check for Home Row Completion immediately on press (simultaneous or cumulative)
         if (step === 1 && !homeRowCompleted) {
             const allPressed = HOME_ROW_KEYS.every(k => next.has(k));
             if (allPressed) {
@@ -112,10 +125,9 @@ const StartScreen: React.FC<StartScreenProps> = ({ onComplete, onBackToSetup }) 
   };
 
   const FingerVisual = ({ finger, name, targetKey }: { finger: Finger; name: string; targetKey?: string }) => {
-    // If we have a target key (Step 1), only show active if THAT key is pressed
-    // Otherwise use generic finger active check
+    // If we have a target key (Step 1), show active if THAT key is pressed OR touched
     const active = targetKey
-        ? pressedKeys.has(targetKey.toLowerCase())
+        ? (pressedKeys.has(targetKey.toLowerCase()) || touchedHomeRowKeys.has(targetKey.toLowerCase()))
         : isFingerActive(finger);
 
     // Also force active if we are done with home row check (so they stay green)
@@ -234,7 +246,7 @@ const StartScreen: React.FC<StartScreenProps> = ({ onComplete, onBackToSetup }) 
               {t('start.hands.bumps')}
             </p>
 
-            <div className="transition-opacity duration-300">
+            <div className="transition-opacity duration-300 flex flex-col items-center">
               <button
                 onClick={() => setStep(2)}
                 disabled={!homeRowCompleted}
@@ -245,8 +257,15 @@ const StartScreen: React.FC<StartScreenProps> = ({ onComplete, onBackToSetup }) 
               >
                 {homeRowCompleted ? t('start.hands.continue') : t('start.hands.pressAll')} <ArrowRight className="w-4 h-4" />
               </button>
-              {homeRowCompleted && (
+              {homeRowCompleted ? (
                  <p className="mt-4 text-slate-600 text-xs animate-pulse">{t('start.hands.enterHint')} <span className="font-mono bg-slate-800 px-1.5 py-0.5 rounded text-slate-500">Enter</span></p>
+              ) : (
+                <button
+                  onClick={() => { playMenuClick(); setStep(2); }}
+                  className="mt-4 text-xs text-slate-400 hover:text-white transition-colors underline underline-offset-4 cursor-pointer"
+                >
+                  {t('start.hands.skip')}
+                </button>
               )}
             </div>
           </div>
